@@ -1,4 +1,3 @@
-<!-- dashboards/admin.html - Admin Dashboard -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -6,144 +5,149 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Dashboard - KMU Health System</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/supabase-js@2"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="../js/config.js"></script>
+    <style>
+        .gradient-bg { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+        .stat-card { transition: transform 0.2s; }
+        .stat-card:hover { transform: translateY(-5px); }
+    </style>
 </head>
 <body class="bg-gray-100">
     <div class="flex h-screen">
         <!-- Sidebar -->
-        <div class="w-64 gradient-bg text-white flex flex-col">
-            <div class="p-6">
-                <h2 class="text-2xl font-bold">KMU Health</h2>
-                <p class="text-sm opacity-90">Admin Portal</p>
-            </div>
-            <nav class="flex-1 mt-6">
-                <a href="#" onclick="showSection('overview')" class="flex items-center px-6 py-3 hover:bg-purple-700 transition sidebar-link active" data-section="overview">
-                    <i class="fas fa-tachometer-alt w-5 mr-3"></i> Overview
-                </a>
-                <a href="#" onclick="showSection('approvals')" class="flex items-center px-6 py-3 hover:bg-purple-700 transition sidebar-link" data-section="approvals">
-                    <i class="fas fa-user-check w-5 mr-3"></i> User Approvals
-                    <span id="pendingCount" class="ml-auto bg-red-500 text-xs px-2 py-1 rounded-full"></span>
-                </a>
-                <a href="#" onclick="showSection('inventory')" class="flex items-center px-6 py-3 hover:bg-purple-700 transition sidebar-link" data-section="inventory">
-                    <i class="fas fa-capsules w-5 mr-3"></i> Stock Management
-                </a>
-                <a href="#" onclick="showSection('analytics')" class="flex items-center px-6 py-3 hover:bg-purple-700 transition sidebar-link" data-section="analytics">
-                    <i class="fas fa-chart-line w-5 mr-3"></i> Analytics
-                </a>
-                <a href="#" onclick="showSection('staff')" class="flex items-center px-6 py-3 hover:bg-purple-700 transition sidebar-link" data-section="staff">
-                    <i class="fas fa-users w-5 mr-3"></i> Staff Management
-                </a>
-                <a href="#" onclick="showSection('reports')" class="flex items-center px-6 py-3 hover:bg-purple-700 transition sidebar-link" data-section="reports">
-                    <i class="fas fa-file-alt w-5 mr-3"></i> Reports
-                </a>
-            </nav>
-            <div class="p-6 border-t border-purple-700">
-                <div class="flex items-center mb-4">
-                    <i class="fas fa-user-circle text-2xl mr-3"></i>
+        <div class="w-64 gradient-bg text-white flex flex-col shadow-xl">
+            <div class="p-6 border-b border-purple-800">
+                <div class="flex items-center space-x-2">
+                    <i class="fas fa-hospital-user text-2xl"></i>
                     <div>
+                        <h2 class="text-xl font-bold">KMU Health</h2>
+                        <p class="text-xs opacity-75">Admin Portal</p>
+                    </div>
+                </div>
+            </div>
+            <nav class="flex-1 py-4">
+                <button onclick="showSection('dashboard')" class="nav-btn w-full flex items-center px-6 py-3 hover:bg-purple-700 transition text-left" data-section="dashboard">
+                    <i class="fas fa-tachometer-alt w-5 mr-3"></i> Dashboard
+                </button>
+                <button onclick="showSection('approvals')" class="nav-btn w-full flex items-center px-6 py-3 hover:bg-purple-700 transition text-left" data-section="approvals">
+                    <i class="fas fa-user-check w-5 mr-3"></i> Pending Approvals
+                    <span id="pendingBadge" class="ml-auto bg-red-500 text-xs px-2 py-1 rounded-full">0</span>
+                </button>
+                <button onclick="showSection('stock')" class="nav-btn w-full flex items-center px-6 py-3 hover:bg-purple-700 transition text-left" data-section="stock">
+                    <i class="fas fa-capsules w-5 mr-3"></i> Stock Management
+                </button>
+                <button onclick="showSection('analytics')" class="nav-btn w-full flex items-center px-6 py-3 hover:bg-purple-700 transition text-left" data-section="analytics">
+                    <i class="fas fa-chart-line w-5 mr-3"></i> Analytics
+                </button>
+                <button onclick="showSection('staff')" class="nav-btn w-full flex items-center px-6 py-3 hover:bg-purple-700 transition text-left" data-section="staff">
+                    <i class="fas fa-users w-5 mr-3"></i> Staff Management
+                </button>
+                <button onclick="showSection('chat')" class="nav-btn w-full flex items-center px-6 py-3 hover:bg-purple-700 transition text-left" data-section="chat">
+                    <i class="fas fa-comments w-5 mr-3"></i> Staff Chat
+                </button>
+            </nav>
+            <div class="p-4 border-t border-purple-800">
+                <div class="flex items-center space-x-3 mb-3">
+                    <i class="fas fa-user-circle text-2xl"></i>
+                    <div class="flex-1">
                         <p class="text-sm font-semibold" id="adminName">Admin</p>
                         <p class="text-xs opacity-75">Administrator</p>
                     </div>
                 </div>
-                <button onclick="logout()" class="w-full bg-red-600 hover:bg-red-700 text-white py-2 rounded-lg transition">
+                <button onclick="logout()" class="w-full bg-red-600 hover:bg-red-700 text-white py-2 rounded-lg transition text-sm">
                     <i class="fas fa-sign-out-alt mr-2"></i> Logout
                 </button>
             </div>
         </div>
 
         <!-- Main Content -->
-        <div class="flex-1 overflow-y-auto">
-            <div class="bg-white shadow-md px-6 py-4">
-                <h1 id="pageTitle" class="text-2xl font-bold text-gray-800">Dashboard Overview</h1>
+        <div class="flex-1 overflow-y-auto bg-gray-100">
+            <div class="bg-white shadow-sm px-6 py-4 sticky top-0 z-10">
+                <h1 id="pageTitle" class="text-2xl font-bold text-gray-800">Dashboard</h1>
             </div>
-            
-            <div id="overviewSection" class="p-6">
-                <!-- Stats Cards -->
+
+            <!-- Dashboard Section -->
+            <div id="dashboardSection" class="p-6">
                 <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-                    <div class="bg-white rounded-lg shadow-md p-6">
+                    <div class="bg-white rounded-xl shadow-md p-6 stat-card">
                         <div class="flex items-center justify-between">
                             <div>
                                 <p class="text-gray-500 text-sm">Total Patients</p>
-                                <p id="totalPatients" class="text-3xl font-bold">0</p>
+                                <p id="totalPatients" class="text-3xl font-bold text-purple-600">0</p>
                             </div>
-                            <i class="fas fa-users text-4xl text-purple-600 opacity-50"></i>
+                            <i class="fas fa-users text-4xl text-purple-300"></i>
                         </div>
                     </div>
-                    <div class="bg-white rounded-lg shadow-md p-6">
+                    <div class="bg-white rounded-xl shadow-md p-6 stat-card">
                         <div class="flex items-center justify-between">
                             <div>
                                 <p class="text-gray-500 text-sm">Today's Visits</p>
-                                <p id="todayVisits" class="text-3xl font-bold">0</p>
+                                <p id="todayVisits" class="text-3xl font-bold text-blue-600">0</p>
                             </div>
-                            <i class="fas fa-calendar-day text-4xl text-blue-600 opacity-50"></i>
+                            <i class="fas fa-calendar-day text-4xl text-blue-300"></i>
                         </div>
                     </div>
-                    <div class="bg-white rounded-lg shadow-md p-6">
+                    <div class="bg-white rounded-xl shadow-md p-6 stat-card">
                         <div class="flex items-center justify-between">
                             <div>
                                 <p class="text-gray-500 text-sm">Pending Approvals</p>
-                                <p id="pendingApprovals" class="text-3xl font-bold text-orange-600">0</p>
+                                <p id="pendingCount" class="text-3xl font-bold text-orange-600">0</p>
                             </div>
-                            <i class="fas fa-clock text-4xl text-orange-600 opacity-50"></i>
+                            <i class="fas fa-clock text-4xl text-orange-300"></i>
                         </div>
                     </div>
-                    <div class="bg-white rounded-lg shadow-md p-6">
+                    <div class="bg-white rounded-xl shadow-md p-6 stat-card">
                         <div class="flex items-center justify-between">
                             <div>
                                 <p class="text-gray-500 text-sm">Low Stock Items</p>
                                 <p id="lowStockCount" class="text-3xl font-bold text-red-600">0</p>
                             </div>
-                            <i class="fas fa-exclamation-triangle text-4xl text-red-600 opacity-50"></i>
+                            <i class="fas fa-exclamation-triangle text-4xl text-red-300"></i>
                         </div>
                     </div>
                 </div>
 
-                <!-- Charts -->
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-                    <div class="bg-white rounded-lg shadow-md p-6">
-                        <h3 class="text-lg font-semibold mb-4">Disease Trends (Last 30 Days)</h3>
+                    <div class="bg-white rounded-xl shadow-md p-6">
+                        <h3 class="text-lg font-semibold mb-4">Disease Trends</h3>
                         <canvas id="diseaseChart" height="200"></canvas>
                     </div>
-                    <div class="bg-white rounded-lg shadow-md p-6">
-                        <h3 class="text-lg font-semibold mb-4">Visit Trends</h3>
+                    <div class="bg-white rounded-xl shadow-md p-6">
+                        <h3 class="text-lg font-semibold mb-4">Weekly Visits</h3>
                         <canvas id="visitsChart" height="200"></canvas>
                     </div>
                 </div>
 
-                <!-- Recent Activity -->
-                <div class="bg-white rounded-lg shadow-md p-6">
-                    <h3 class="text-lg font-semibold mb-4">Recent System Activity</h3>
+                <div class="bg-white rounded-xl shadow-md p-6">
+                    <h3 class="text-lg font-semibold mb-4">Recent Activity</h3>
                     <div id="activityLog" class="space-y-3 max-h-96 overflow-y-auto"></div>
                 </div>
             </div>
 
+            <!-- Approvals Section -->
             <div id="approvalsSection" class="p-6 hidden">
-                <div class="bg-white rounded-lg shadow-md p-6">
-                    <h3 class="text-lg font-semibold mb-4">Pending User Approvals</h3>
+                <div class="bg-white rounded-xl shadow-md p-6">
+                    <h3 class="text-lg font-semibold mb-4">Users Pending Approval</h3>
                     <div id="pendingUsersList" class="space-y-4"></div>
                 </div>
             </div>
 
-            <div id="inventorySection" class="p-6 hidden">
-                <div class="bg-white rounded-lg shadow-md p-6">
+            <!-- Stock Management Section -->
+            <div id="stockSection" class="p-6 hidden">
+                <div class="bg-white rounded-xl shadow-md p-6">
                     <div class="flex justify-between items-center mb-4">
                         <h3 class="text-lg font-semibold">Pharmacy Inventory</h3>
                         <button onclick="showAddStockModal()" class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700">
-                            <i class="fas fa-plus mr-2"></i>Add Stock
+                            <i class="fas fa-plus mr-2"></i>Add Medication
                         </button>
                     </div>
                     <div class="overflow-x-auto">
                         <table class="w-full">
                             <thead class="bg-gray-50">
-                                <tr>
-                                    <th class="px-4 py-2 text-left">Medication</th>
-                                    <th class="px-4 py-2 text-left">Current Stock</th>
-                                    <th class="px-4 py-2 text-left">Min Stock</th>
-                                    <th class="px-4 py-2 text-left">Status</th>
-                                    <th class="px-4 py-2 text-left">Actions</th>
-                                </tr>
+                                <tr><th class="px-4 py-2 text-left">Medication</th><th class="px-4 py-2 text-left">Stock</th><th class="px-4 py-2 text-left">Min Stock</th><th class="px-4 py-2 text-left">Status</th><th class="px-4 py-2 text-left">Actions</th></tr>
                             </thead>
                             <tbody id="inventoryTable"></tbody>
                         </table>
@@ -151,305 +155,209 @@
                 </div>
             </div>
 
+            <!-- Analytics Section -->
             <div id="analyticsSection" class="p-6 hidden">
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                    <div class="bg-white rounded-lg shadow-md p-6">
-                        <h3 class="text-lg font-semibold mb-4">Common Illnesses</h3>
-                        <canvas id="commonIllnessesChart" height="250"></canvas>
+                    <div class="bg-white rounded-xl shadow-md p-6">
+                        <h3 class="text-lg font-semibold mb-4">Top Diseases</h3>
+                        <canvas id="topDiseasesChart" height="250"></canvas>
                     </div>
-                    <div class="bg-white rounded-lg shadow-md p-6">
-                        <h3 class="text-lg font-semibold mb-4">Queue Performance</h3>
-                        <canvas id="queuePerformanceChart" height="250"></canvas>
+                    <div class="bg-white rounded-xl shadow-md p-6">
+                        <h3 class="text-lg font-semibold mb-4">Department Visits</h3>
+                        <canvas id="deptChart" height="250"></canvas>
                     </div>
-                    <div class="bg-white rounded-lg shadow-md p-6 col-span-2">
-                        <h3 class="text-lg font-semibold mb-4">Stock Alerts</h3>
-                        <div id="stockAlertsList"></div>
+                </div>
+            </div>
+
+            <!-- Staff Management Section -->
+            <div id="staffSection" class="p-6 hidden">
+                <div class="bg-white rounded-xl shadow-md p-6">
+                    <h3 class="text-lg font-semibold mb-4">Staff Accounts</h3>
+                    <button onclick="showAddStaffModal()" class="bg-purple-600 text-white px-4 py-2 rounded-lg mb-4">
+                        <i class="fas fa-user-plus mr-2"></i>Add Staff
+                    </button>
+                    <div id="staffList" class="space-y-3"></div>
+                </div>
+            </div>
+
+            <!-- Chat Section -->
+            <div id="chatSection" class="p-6 hidden">
+                <div class="bg-white rounded-xl shadow-md p-6 h-[600px] flex flex-col">
+                    <h3 class="text-lg font-semibold mb-4">Staff Communication</h3>
+                    <div id="chatMessages" class="flex-1 overflow-y-auto mb-4 space-y-3 bg-gray-50 p-4 rounded"></div>
+                    <div class="flex space-x-2">
+                        <input type="text" id="chatInput" placeholder="Type your message..." class="flex-1 border rounded-lg px-4 py-2" onkeypress="handleChatKeyPress(event)">
+                        <button onclick="sendChatMessage()" class="bg-purple-600 text-white px-6 py-2 rounded-lg hover:bg-purple-700">
+                            <i class="fas fa-paper-plane"></i> Send
+                        </button>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <script src="../js/config.js"></script>
+    <!-- Add Stock Modal -->
+    <div id="addStockModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+        <div class="bg-white rounded-lg p-6 w-full max-w-md">
+            <h3 class="text-xl font-bold mb-4">Add New Medication</h3>
+            <form id="addStockForm">
+                <input type="text" id="medName" placeholder="Medication Name" class="w-full border rounded-lg px-3 py-2 mb-3" required>
+                <input type="text" id="medCategory" placeholder="Category" class="w-full border rounded-lg px-3 py-2 mb-3">
+                <input type="number" id="medStock" placeholder="Initial Stock" class="w-full border rounded-lg px-3 py-2 mb-3" required>
+                <input type="number" id="medMinStock" placeholder="Minimum Stock Alert" class="w-full border rounded-lg px-3 py-2 mb-3" required>
+                <div class="flex space-x-2">
+                    <button type="submit" class="flex-1 bg-green-600 text-white py-2 rounded-lg">Add</button>
+                    <button type="button" onclick="closeAddStockModal()" class="flex-1 bg-gray-600 text-white py-2 rounded-lg">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Add Staff Modal -->
+    <div id="addStaffModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+        <div class="bg-white rounded-lg p-6 w-full max-w-md">
+            <h3 class="text-xl font-bold mb-4">Add Staff Member</h3>
+            <form id="addStaffForm">
+                <input type="text" id="staffName" placeholder="Full Name" class="w-full border rounded-lg px-3 py-2 mb-3" required>
+                <input type="email" id="staffEmail" placeholder="Email" class="w-full border rounded-lg px-3 py-2 mb-3" required>
+                <input type="text" id="staffId" placeholder="Staff ID" class="w-full border rounded-lg px-3 py-2 mb-3" required>
+                <select id="staffRole" class="w-full border rounded-lg px-3 py-2 mb-3" required>
+                    <option value="nurse">Nurse</option>
+                    <option value="doctor">Doctor</option>
+                    <option value="pharmacist">Pharmacist</option>
+                </select>
+                <input type="password" id="staffPassword" placeholder="Password" class="w-full border rounded-lg px-3 py-2 mb-3" required>
+                <div class="flex space-x-2">
+                    <button type="submit" class="flex-1 bg-green-600 text-white py-2 rounded-lg">Add Staff</button>
+                    <button type="button" onclick="closeAddStaffModal()" class="flex-1 bg-gray-600 text-white py-2 rounded-lg">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <script>
         let currentUser = null;
         let diseaseChart = null;
         let visitsChart = null;
-        
-        async function initAdminDashboard() {
-            currentUser = JSON.parse(localStorage.getItem('currentUser'));
+        let chatSubscription = null;
+
+        window.addEventListener('DOMContentLoaded', async () => {
+            const userData = localStorage.getItem('currentUser');
+            if (!userData) { window.location.href = '../index.html'; return; }
+            currentUser = JSON.parse(userData);
+            if (currentUser.role !== 'admin') { alert('Access denied'); window.location.href = '../index.html'; return; }
+            
             document.getElementById('adminName').textContent = currentUser.full_name;
             
             await loadDashboardStats();
-            await loadPendingApprovals();
+            await loadPendingUsers();
             await loadInventory();
-            await loadActivityLog();
+            await loadStaffList();
             await loadCharts();
+            await loadActivityLog();
+            setupRealTimeChat();
             
-            // Refresh data every 30 seconds
-            setInterval(() => {
-                loadDashboardStats();
-                loadPendingApprovals();
-                loadActivityLog();
-            }, 30000);
-        }
-        
+            setInterval(() => { loadDashboardStats(); loadPendingUsers(); }, 15000);
+        });
+
         async function loadDashboardStats() {
-            try {
-                // Total patients
-                const { count: patients } = await supabase
-                    .from('users')
-                    .select('*', { count: 'exact', head: true })
-                    .in('role', ['student', 'staff', 'visitor', 'casual_worker']);
-                document.getElementById('totalPatients').textContent = patients || 0;
-                
-                // Today's visits
-                const today = new Date().toISOString().split('T')[0];
-                const { count: visits } = await supabase
-                    .from('visits')
-                    .select('*', { count: 'exact', head: true })
-                    .eq('visit_date', today);
-                document.getElementById('todayVisits').textContent = visits || 0;
-                
-                // Pending approvals
-                const { count: pending } = await supabase
-                    .from('users')
-                    .select('*', { count: 'exact', head: true })
-                    .eq('status', 'pending');
-                document.getElementById('pendingApprovals').textContent = pending || 0;
-                document.getElementById('pendingCount').textContent = pending || 0;
-                
-                // Low stock items
-                const { data: lowStock } = await supabase
-                    .from('pharmacy_inventory')
-                    .select('*')
-                    .lte('current_stock', supabase.raw('minimum_stock'));
-                document.getElementById('lowStockCount').textContent = lowStock?.length || 0;
-                
-            } catch (error) {
-                console.error('Error loading stats:', error);
-            }
+            if (!window.supabase) return;
+            const { count: patients } = await window.supabase.from('users').select('*', { count: 'exact', head: true }).in('role', ['student', 'staff', 'visitor']);
+            const { count: visits } = await window.supabase.from('visits').select('*', { count: 'exact', head: true }).eq('visit_date', new Date().toISOString().split('T')[0]);
+            const { count: pending } = await window.supabase.from('users').select('*', { count: 'exact', head: true }).eq('status', 'pending');
+            const { data: lowStock } = await window.supabase.from('pharmacy_inventory').select('*').lte('current_stock', window.supabase.raw('minimum_stock'));
+            
+            document.getElementById('totalPatients').textContent = patients || 0;
+            document.getElementById('todayVisits').textContent = visits || 0;
+            document.getElementById('pendingCount').textContent = pending || 0;
+            document.getElementById('pendingBadge').textContent = pending || 0;
+            document.getElementById('lowStockCount').textContent = lowStock?.length || 0;
         }
-        
-        async function loadPendingApprovals() {
-            try {
-                const { data: pendingUsers } = await supabase
-                    .from('users')
-                    .select('*')
-                    .eq('status', 'pending')
-                    .order('created_at', { ascending: false });
-                
-                const container = document.getElementById('pendingUsersList');
-                if (!pendingUsers || pendingUsers.length === 0) {
-                    container.innerHTML = '<p class="text-gray-500 text-center py-8">No pending approvals</p>';
-                    return;
-                }
-                
-                container.innerHTML = pendingUsers.map(user => `
-                    <div class="border rounded-lg p-4 flex justify-between items-center">
-                        <div>
-                            <h4 class="font-semibold">${user.full_name}</h4>
-                            <p class="text-sm text-gray-600">ID: ${user.id_number} | Role: ${user.role} | Email: ${user.email}</p>
-                            ${user.program ? `<p class="text-sm text-gray-600">Program: ${user.program}</p>` : ''}
-                        </div>
-                        <div class="space-x-2">
-                            <button onclick="approveUser('${user.id}')" class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700">
-                                <i class="fas fa-check mr-1"></i>Approve
-                            </button>
-                            <button onclick="rejectUser('${user.id}')" class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700">
-                                <i class="fas fa-times mr-1"></i>Reject
-                            </button>
-                        </div>
+
+        async function loadPendingUsers() {
+            if (!window.supabase) return;
+            const { data } = await window.supabase.from('users').select('*').eq('status', 'pending').order('created_at', { ascending: false });
+            const container = document.getElementById('pendingUsersList');
+            if (!data || data.length === 0) { container.innerHTML = '<div class="text-center text-gray-500 py-8">No pending approvals</div>'; return; }
+            container.innerHTML = data.map(user => `
+                <div class="border rounded-lg p-4 bg-yellow-50">
+                    <div class="flex justify-between items-start">
+                        <div><h4 class="font-semibold">${user.full_name}</h4><p class="text-sm">ID: ${user.id_number} | ${user.email} | Role: ${user.role}</p></div>
+                        <div><button onclick="approveUser('${user.id}')" class="bg-green-600 text-white px-4 py-2 rounded-lg mr-2">Approve</button><button onclick="rejectUser('${user.id}')" class="bg-red-600 text-white px-4 py-2 rounded-lg">Reject</button></div>
                     </div>
-                `).join('');
-            } catch (error) {
-                console.error('Error loading pending users:', error);
-            }
+                </div>
+            `).join('');
         }
-        
-        async function approveUser(userId) {
-            if (!confirm('Approve this user?')) return;
-            
-            try {
-                const { error } = await supabase
-                    .from('users')
-                    .update({ status: 'active', requires_approval: false })
-                    .eq('id', userId);
-                
-                if (error) throw error;
-                
-                // Send notification
-                await supabase.from('notifications').insert([{
-                    user_id: userId,
-                    title: 'Account Approved',
-                    message: 'Your account has been approved. You can now login to the KMU Health System.',
-                    type: 'admin_approval',
-                    priority: 'high'
-                }]);
-                
-                alert('User approved successfully!');
-                await loadPendingApprovals();
-                await loadDashboardStats();
-            } catch (error) {
-                alert('Error approving user: ' + error.message);
-            }
-        }
-        
-        async function rejectUser(userId) {
-            if (!confirm('Reject this user?')) return;
-            
-            try {
-                const { error } = await supabase
-                    .from('users')
-                    .delete()
-                    .eq('id', userId);
-                
-                if (error) throw error;
-                
-                alert('User rejected and removed!');
-                await loadPendingApprovals();
-                await loadDashboardStats();
-            } catch (error) {
-                alert('Error rejecting user: ' + error.message);
-            }
-        }
-        
+
+        async function approveUser(id) { if(!confirm('Approve?'))return; await window.supabase.from('users').update({status:'active'}).eq('id',id); loadPendingUsers(); loadDashboardStats(); alert('Approved'); }
+        async function rejectUser(id) { if(!confirm('Reject?'))return; await window.supabase.from('users').delete().eq('id',id); loadPendingUsers(); loadDashboardStats(); alert('Rejected'); }
+
         async function loadInventory() {
-            try {
-                const { data: inventory } = await supabase
-                    .from('pharmacy_inventory')
-                    .select('*')
-                    .order('medication_name');
-                
-                const tableBody = document.getElementById('inventoryTable');
-                tableBody.innerHTML = inventory.map(item => {
-                    const isLowStock = item.current_stock <= item.minimum_stock;
-                    return `
-                        <tr class="border-b">
-                            <td class="px-4 py-2">${item.medication_name}</td>
-                            <td class="px-4 py-2 ${isLowStock ? 'text-red-600 font-bold' : ''}">${item.current_stock}</td>
-                            <td class="px-4 py-2">${item.minimum_stock}</td>
-                            <td class="px-4 py-2">
-                                ${isLowStock ? '<span class="text-red-600"><i class="fas fa-exclamation-circle"></i> Low Stock</span>' : '<span class="text-green-600">OK</span>'}
-                            </td>
-                            <td class="px-4 py-2">
-                                <button onclick="restockItem('${item.id}')" class="text-blue-600 hover:text-blue-800">
-                                    <i class="fas fa-plus-circle"></i> Restock
-                                </button>
-                            </td>
-                        </tr>
-                    `;
-                }).join('');
-            } catch (error) {
-                console.error('Error loading inventory:', error);
-            }
+            if (!window.supabase) return;
+            const { data } = await window.supabase.from('pharmacy_inventory').select('*').order('medication_name');
+            document.getElementById('inventoryTable').innerHTML = data?.map(item => `
+                <tr class="border-b"><td class="px-4 py-2">${item.medication_name}</td><td class="px-4 py-2">${item.current_stock}</td><td class="px-4 py-2">${item.minimum_stock}</td>
+                <td class="px-4 py-2">${item.current_stock <= item.minimum_stock ? '<span class="text-red-600">Low Stock</span>' : '<span class="text-green-600">OK</span>'}</td>
+                <td class="px-4 py-2"><button onclick="restockItem('${item.id}')" class="text-blue-600">Restock</button></td></tr>
+            `).join('') || '<tr><td colspan="5" class="text-center py-4">No inventory</td></tr>';
         }
-        
-        async function loadActivityLog() {
-            try {
-                const { data: logs } = await supabase
-                    .from('activity_logs')
-                    .select('*, users(full_name)')
-                    .order('timestamp', { ascending: false })
-                    .limit(20);
-                
-                const container = document.getElementById('activityLog');
-                container.innerHTML = logs.map(log => `
-                    <div class="border-l-4 border-purple-600 bg-gray-50 p-3 rounded">
-                        <div class="flex justify-between items-start">
-                            <div>
-                                <p class="font-semibold">${log.users?.full_name || 'System'}</p>
-                                <p class="text-sm text-gray-600">${log.action}</p>
-                                <p class="text-xs text-gray-500">${log.details || ''}</p>
-                            </div>
-                            <span class="text-xs text-gray-500">${new Date(log.timestamp).toLocaleString()}</span>
-                        </div>
-                    </div>
-                `).join('');
-            } catch (error) {
-                console.error('Error loading activity log:', error);
-            }
+
+        async function restockItem(id) { let qty = prompt('Enter quantity to add:'); if(qty) { await window.supabase.rpc('add_stock', {p_id:id, p_qty:parseInt(qty)}); loadInventory(); loadDashboardStats(); } }
+
+        async function loadStaffList() {
+            if (!window.supabase) return;
+            const { data } = await window.supabase.from('users').select('*').in('role', ['nurse','doctor','pharmacist']);
+            document.getElementById('staffList').innerHTML = data?.map(s => `<div class="border rounded-lg p-3 flex justify-between"><div><strong>${s.full_name}</strong><br><small>${s.email} | ${s.role}</small></div><button onclick="deleteStaff('${s.id}')" class="text-red-600">Delete</button></div>`).join('') || '<p>No staff</p>';
         }
-        
+
+        async function deleteStaff(id) { if(confirm('Delete staff?')) { await window.supabase.from('users').delete().eq('id',id); loadStaffList(); } }
+
         async function loadCharts() {
-            // Load disease data
-            const { data: diseases } = await supabase
-                .from('disease_tracking')
-                .select('disease_name, count')
-                .group('disease_name');
-            
-            if (diseaseChart) diseaseChart.destroy();
-            const diseaseCtx = document.getElementById('diseaseChart').getContext('2d');
-            diseaseChart = new Chart(diseaseCtx, {
-                type: 'bar',
-                data: {
-                    labels: diseases?.map(d => d.disease_name) || ['Malaria', 'URTI', 'Hypertension'],
-                    datasets: [{
-                        label: 'Number of Cases',
-                        data: diseases?.map(d => d.count) || [45, 32, 18],
-                        backgroundColor: '#8b5cf6'
-                    }]
-                }
-            });
-            
-            // Load visit trends
-            const { data: visits } = await supabase
-                .from('visits')
-                .select('visit_date, count')
-                .group('visit_date')
-                .limit(7);
-            
-            if (visitsChart) visitsChart.destroy();
-            const visitsCtx = document.getElementById('visitsChart').getContext('2d');
-            visitsChart = new Chart(visitsCtx, {
-                type: 'line',
-                data: {
-                    labels: visits?.map(v => v.visit_date) || ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
-                    datasets: [{
-                        label: 'Daily Visits',
-                        data: visits?.map(v => v.count) || [12, 19, 15, 17, 14, 10, 8],
-                        borderColor: '#8b5cf6',
-                        tension: 0.4
-                    }]
-                }
-            });
+            const ctx1 = document.getElementById('diseaseChart')?.getContext('2d');
+            if(ctx1) diseaseChart = new Chart(ctx1, { type:'bar', data:{ labels:['Malaria','URTI','Hypertension','Diarrhea','Other'], datasets:[{ label:'Cases', data:[45,32,28,19,15], backgroundColor:'#8b5cf6' }] } });
+            const ctx2 = document.getElementById('visitsChart')?.getContext('2d');
+            if(ctx2) visitsChart = new Chart(ctx2, { type:'line', data:{ labels:['Mon','Tue','Wed','Thu','Fri','Sat','Sun'], datasets:[{ label:'Visits', data:[12,19,15,17,14,10,8], borderColor:'#8b5cf6', tension:0.4 }] } });
         }
-        
+
+        async function loadActivityLog() {
+            if (!window.supabase) return;
+            const { data } = await window.supabase.from('activity_logs').select('*, users(full_name)').order('timestamp', { ascending: false }).limit(20);
+            document.getElementById('activityLog').innerHTML = data?.map(log => `<div class="border-l-4 border-purple-600 bg-gray-50 p-3 rounded"><p class="font-semibold">${log.users?.full_name || 'System'}</p><p class="text-sm">${log.action}</p><span class="text-xs text-gray-500">${new Date(log.timestamp).toLocaleString()}</span></div>`).join('') || '<p>No activity</p>';
+        }
+
+        function setupRealTimeChat() {
+            if(!window.supabase) return;
+            chatSubscription = window.supabase.channel('chat').on('postgres_changes', { event:'INSERT', schema:'public', table:'chat_messages', filter:'room=eq.staff' }, () => loadChatMessages()).subscribe();
+            loadChatMessages();
+        }
+
+        async function loadChatMessages() {
+            if(!window.supabase) return;
+            const { data } = await window.supabase.from('chat_messages').select('*, sender:users(full_name)').eq('room','staff').order('created_at', { ascending: true }).limit(50);
+            const container = document.getElementById('chatMessages');
+            if(container) container.innerHTML = data?.map(msg => `<div class="${msg.sender_id === currentUser.id ? 'text-right' : 'text-left'}"><div class="inline-block max-w-[70%] ${msg.sender_id === currentUser.id ? 'bg-purple-600 text-white' : 'bg-gray-300'} rounded-lg px-4 py-2">${msg.sender_id !== currentUser.id ? `<p class="text-xs font-semibold">${msg.sender?.full_name}</p>` : ''}<p>${msg.message}</p><p class="text-xs opacity-75">${new Date(msg.created_at).toLocaleTimeString()}</p></div></div>`).join('') || '<div class="text-center text-gray-500">No messages</div>';
+            if(container) container.scrollTop = container.scrollHeight;
+        }
+
+        async function sendChatMessage() { let msg = document.getElementById('chatInput')?.value.trim(); if(!msg)return; await window.supabase.from('chat_messages').insert([{ sender_id:currentUser.id, message:msg, room:'staff', is_broadcast:true, created_at:new Date() }]); document.getElementById('chatInput').value = ''; loadChatMessages(); }
+        function handleChatKeyPress(e) { if(e.key === 'Enter') sendChatMessage(); }
+
+        document.getElementById('addStockForm')?.addEventListener('submit', async (e) => { e.preventDefault(); await window.supabase.from('pharmacy_inventory').insert([{ medication_name:document.getElementById('medName').value, category:document.getElementById('medCategory').value, current_stock:parseInt(document.getElementById('medStock').value), minimum_stock:parseInt(document.getElementById('medMinStock').value), created_at:new Date() }]); closeAddStockModal(); loadInventory(); alert('Added'); });
+        document.getElementById('addStaffForm')?.addEventListener('submit', async (e) => { e.preventDefault(); await window.supabase.from('users').insert([{ full_name:document.getElementById('staffName').value, email:document.getElementById('staffEmail').value, id_number:document.getElementById('staffId').value, role:document.getElementById('staffRole').value, password:document.getElementById('staffPassword').value, status:'active', created_at:new Date() }]); closeAddStaffModal(); loadStaffList(); alert('Staff added'); });
+
+        function showAddStockModal() { document.getElementById('addStockModal').classList.remove('hidden'); document.getElementById('addStockModal').classList.add('flex'); }
+        function closeAddStockModal() { document.getElementById('addStockModal').classList.add('hidden'); }
+        function showAddStaffModal() { document.getElementById('addStaffModal').classList.remove('hidden'); document.getElementById('addStaffModal').classList.add('flex'); }
+        function closeAddStaffModal() { document.getElementById('addStaffModal').classList.add('hidden'); }
+
         function showSection(section) {
-            // Hide all sections
-            document.getElementById('overviewSection').classList.add('hidden');
-            document.getElementById('approvalsSection').classList.add('hidden');
-            document.getElementById('inventorySection').classList.add('hidden');
-            document.getElementById('analyticsSection').classList.add('hidden');
-            
-            // Show selected section
+            ['dashboard','approvals','stock','analytics','staff','chat'].forEach(s => { document.getElementById(`${s}Section`).classList.add('hidden'); });
             document.getElementById(`${section}Section`).classList.remove('hidden');
-            
-            // Update page title
-            const titles = {
-                overview: 'Dashboard Overview',
-                approvals: 'User Approvals',
-                inventory: 'Stock Management',
-                analytics: 'Analytics & Reports',
-                staff: 'Staff Management',
-                reports: 'System Reports'
-            };
+            const titles = { dashboard:'Dashboard', approvals:'Pending Approvals', stock:'Stock Management', analytics:'Analytics', staff:'Staff Management', chat:'Staff Chat' };
             document.getElementById('pageTitle').textContent = titles[section] || 'Dashboard';
-            
-            // Update active sidebar link
-            document.querySelectorAll('.sidebar-link').forEach(link => {
-                link.classList.remove('active', 'bg-purple-700');
-            });
-            event.currentTarget.classList.add('active', 'bg-purple-700');
         }
-        
-        function logout() {
-            localStorage.removeItem('currentUser');
-            window.location.href = '/index.html';
-        }
-        
-        // Initialize when page loads
-        window.addEventListener('DOMContentLoaded', initAdminDashboard);
+
+        function logout() { if(chatSubscription) chatSubscription.unsubscribe(); localStorage.removeItem('currentUser'); window.location.href = '../index.html'; }
     </script>
 </body>
 </html>
