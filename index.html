@@ -40,6 +40,12 @@
         body.dark-mode .bg-purple-100 {
             background-color: #2d1b4e;
         }
+        .logo-image {
+            filter: drop-shadow(2px 2px 4px rgba(0,0,0,0.1));
+        }
+        body.dark-mode .logo-image {
+            filter: drop-shadow(2px 2px 4px rgba(255,255,255,0.1));
+        }
     </style>
 </head>
 <body class="bg-gray-50">
@@ -48,7 +54,10 @@
         <div class="container mx-auto px-6 py-4">
             <div class="flex items-center justify-between">
                 <div class="flex items-center space-x-3">
-                    <img src="" alt="KMU Logo" class="h-12 w-auto">
+                    <img src="https://raw.githubusercontent.com/mubukwanuimakando1-ux/KMU-DIGITAL-CLINIC/main/kmu-logo.png" 
+                         alt="KMU Logo" 
+                         class="h-12 w-auto logo-image"
+                         onerror="this.onerror=null; this.src='https://placehold.co/200x200/8b5cf6/white?text=KMU'">
                     <div>
                         <h1 class="text-2xl font-bold">KMU Health Center</h1>
                         <p class="text-sm opacity-90">Kapasa Makasa University</p>
@@ -84,7 +93,10 @@
             </div>
             <div class="md:w-1/2">
                 <div class="bg-purple-100 rounded-lg shadow-xl p-8 text-center">
-                    <img src="https://raw.githubusercontent.com/mubukwanuimakando1-ux/KMU-DIGITAL-CLINIC/main/kmu-logo.png" alt="KMU Logo" class="w-28 h-28 mx-auto mb-4 rounded-full object-cover border-4 border-purple-300">
+                    <img src="https://raw.githubusercontent.com/mubukwanuimakando1-ux/KMU-DIGITAL-CLINIC/main/kmu-logo.png" 
+                         alt="KMU Logo" 
+                         class="w-28 h-28 mx-auto mb-4 rounded-full object-cover border-4 border-purple-300 logo-image"
+                         onerror="this.onerror=null; this.src='https://placehold.co/200x200/8b5cf6/white?text=KMU'">
                     <h3 class="text-2xl font-bold text-gray-800">KMU Health Center</h3>
                     <p class="text-gray-600">Quality Healthcare for the KMU Community</p>
                 </div>
@@ -171,7 +183,7 @@
         </div>
     </div>
 
-    <!-- SCRIPTS - ORDER MATTERS! -->
+    <!-- SCRIPTS -->
     <script src="js/config.js"></script>
     <script src="js/auth.js"></script>
     
@@ -214,7 +226,7 @@
             const identifier = document.getElementById('loginIdentifier').value;
             const password = document.getElementById('loginPassword').value;
             
-            if (typeof window.supabase === 'undefined' || !window.supabase) {
+            if (!window.supabase) {
                 alert('System initializing. Please wait and refresh.');
                 return;
             }
@@ -242,7 +254,7 @@
             }
         });
         
-        console.log('Page loaded - Supabase:', typeof window.supabase !== 'undefined' ? 'Connected' : 'Not connected');
+        console.log('Page loaded - Supabase:', window.supabase ? 'Connected' : 'Not connected');
     </script>
 </body>
 </html>
