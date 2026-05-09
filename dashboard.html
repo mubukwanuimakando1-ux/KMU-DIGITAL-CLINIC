@@ -36,6 +36,7 @@
             <div class="flex items-center space-x-3">
                 <span id="userNameDisplay" class="text-sm"></span>
                 <span id="userRoleBadge" class="px-2 py-1 bg-white bg-opacity-20 rounded-full text-xs"></span>
+                <span id="notificationBadge" class="bg-red-500 text-white text-xs px-2 py-1 rounded-full ml-2 hidden">0</span>
                 <button id="darkModeToggle" class="bg-white bg-opacity-20 px-2 py-1 rounded text-sm"><i class="fas fa-moon"></i></button>
                 <button onclick="logout()" class="bg-red-600 hover:bg-red-700 px-3 py-1 rounded text-sm"><i class="fas fa-sign-out-alt"></i></button>
             </div>
@@ -86,6 +87,7 @@
 
         // ============ REAL-TIME NOTIFICATIONS ============
         function setupRealtimeNotifications() {
+            if (!window.supabase) return;
             window.supabase.channel('notifications')
                 .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'notifications', filter: `target_role=eq.${currentUser.role}` }, (payload) => {
                     showNotificationToast(payload.new);
@@ -98,9 +100,17 @@
         }
 
         async function updateNotificationBadge() {
+            if (!window.supabase) return;
             const { count } = await window.supabase.from('notifications').select('*', { count: 'exact', head: true }).eq('target_role', currentUser.role).eq('is_read', false);
             const badge = document.getElementById('notificationBadge');
-            if (badge) badge.textContent = count > 0 ? count : '';
+            if (badge) {
+                if (count > 0) {
+                    badge.textContent = count;
+                    badge.classList.remove('hidden');
+                } else {
+                    badge.classList.add('hidden');
+                }
+            }
         }
 
         function showNotificationToast(notif) {
@@ -119,6 +129,7 @@
 
         // ============ REAL-TIME CHAT ============
         function setupRealtimeChat() {
+            if (!window.supabase) return;
             window.supabase.channel('chat')
                 .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'chat_messages' }, () => loadChatMessages())
                 .subscribe();
@@ -126,6 +137,7 @@
         }
 
         async function loadChatMessages() {
+            if (!window.supabase) return;
             const { data } = await window.supabase.from('chat_messages').select('*, users(full_name)').order('created_at', { ascending: true }).limit(50);
             const container = document.getElementById('chatMessages');
             if (container) {
@@ -139,6 +151,7 @@
             if (!msg) return;
             await window.supabase.from('chat_messages').insert([{ user_id: currentUser.id, message: msg, created_at: new Date() }]);
             document.getElementById('chatInput').value = '';
+            await logActivity(currentUser.id, 'Chat Message', `Sent: ${msg.substring(0, 50)}`);
         }
 
         function toggleChat() {
@@ -146,8 +159,25 @@
             loadChatMessages();
         }
 
+        // ============ ACTIVITY LOG FUNCTION ============
+        async function logActivity(userId, action, details) {
+            try {
+                if (!window.supabase) return;
+                await window.supabase.from('activity_logs').insert([{
+                    user_id: userId,
+                    action: action,
+                    details: details,
+                    timestamp: new Date()
+                }]);
+                console.log('Activity logged:', action);
+            } catch (e) {
+                console.log('Log error:', e);
+            }
+        }
+
         // ============ LOGOUT ============
-        function logout() {
+        async function logout() {
+            await logActivity(currentUser.id, 'Logout', 'User logged out');
             if (notificationInterval) clearInterval(notificationInterval);
             localStorage.removeItem('currentUser');
             window.location.href = 'index.html';
@@ -157,7 +187,42 @@
         async function loadAdminDashboard() {
             document.getElementById('mainContent').innerHTML = `
                 <div class="flex gap-2 mb-4 flex-wrap"><button onclick="adminShowTab('users')" id="tabUsers" class="px-4 py-2 rounded tab-active">👥 Register Users</button><button onclick="adminShowTab('approvals')" id="tabApprovals" class="px-4 py-2 rounded tab-inactive">⏳ Pending</button><button onclick="adminShowTab('inventory')" id="tabInventory" class="px-4 py-2 rounded tab-inactive">💊 Stock</button><button onclick="adminShowTab('logs')" id="tabLogs" class="px-4 py-2 rounded tab-inactive">📋 Activity Logs</button><button onclick="adminShowTab('reports')" id="tabReports" class="px-4 py-2 rounded tab-inactive">📊 Reports</button></div>
-                <div id="adminUsersPanel" class="bg-white rounded-lg shadow p-6"><h2 class="text-xl font-bold mb-4">Register New User</h2><form id="registerUserForm" class="grid grid-cols-1 md:grid-cols-2 gap-3"><input type="text" id="regFullName" placeholder="Full Name" class="border rounded p-2" required><input type="text" id="regStaffId" placeholder="Staff ID" class="border rounded p-2" required><input type="email" id="regEmail" placeholder="Email" class="border rounded p-2" required><select id="regRole" class="border rounded p-2"><option value="admin">Admin</option><option value="nurse">Nurse</option><option value="doctor">Doctor</option><option value="pharmacist">Pharmacist</option></select><input type="text" id="regClinicCard" placeholder="Clinic Card (for patients)" class="border rounded p-2"><input type="text" id="regSecurityQuestion" placeholder="Security Question" class="border rounded p-2"><input type="text" id="regSecurityAnswer" placeholder="Security Answer" class="border rounded p-2"><input type="password" id="regPassword" placeholder="Password" class="border rounded p-2" required><div class="md:col-span-2"><button type="submit" class="bg-purple-600 text-white px-6 py-2 rounded w-full">Register User</button></div></form><hr class="my-6"><h2 class="text-xl font-bold mb-4">All Users</h2><div id="allUsersList" class="space-y-2 max-h-96 overflow-y-auto"></div></div>
+                
+                <!-- Register Users Panel -->
+                <div id="adminUsersPanel" class="bg-white rounded-lg shadow p-6">
+                    <h2 class="text-xl font-bold mb-4">Register New User / Student</h2>
+                    <form id="registerUserForm" class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        <input type="text" id="regFullName" placeholder="Full Name *" class="border rounded p-2" required>
+                        <input type="text" id="regStaffId" placeholder="Student/Staff ID *" class="border rounded p-2" required>
+                        <input type="email" id="regEmail" placeholder="Email *" class="border rounded p-2" required>
+                        <select id="regRole" class="border rounded p-2">
+                            <option value="student">Student</option>
+                            <option value="staff">Staff</option>
+                            <option value="admin">Admin</option>
+                            <option value="nurse">Nurse</option>
+                            <option value="doctor">Doctor</option>
+                            <option value="pharmacist">Pharmacist</option>
+                        </select>
+                        <input type="text" id="regClinicCard" placeholder="Clinic Card Number *" class="border rounded p-2" required>
+                        <input type="text" id="regProgram" placeholder="Program of Study" class="border rounded p-2">
+                        <input type="text" id="regYear" placeholder="Year of Study" class="border rounded p-2">
+                        <input type="text" id="regHostel" placeholder="Hostel & Room Number (e.g., W307A)" class="border rounded p-2">
+                        <input type="number" id="regAge" placeholder="Age" class="border rounded p-2">
+                        <select id="regGender" class="border rounded p-2">
+                            <option value="">Select Gender</option>
+                            <option value="Male">Male</option>
+                            <option value="Female">Female</option>
+                        </select>
+                        <input type="text" id="regSecurityQuestion" placeholder="Security Question" class="border rounded p-2">
+                        <input type="text" id="regSecurityAnswer" placeholder="Security Answer" class="border rounded p-2">
+                        <input type="password" id="regPassword" placeholder="Password *" class="border rounded p-2" required>
+                        <div class="md:col-span-2"><button type="submit" class="bg-purple-600 text-white px-6 py-2 rounded w-full">Register User</button></div>
+                    </form>
+                    <hr class="my-6">
+                    <h2 class="text-xl font-bold mb-4">All Users</h2>
+                    <div id="allUsersList" class="space-y-2 max-h-96 overflow-y-auto"></div>
+                </div>
+                
                 <div id="adminApprovalsPanel" class="bg-white rounded-lg shadow p-6 hidden"><h2 class="text-xl font-bold mb-4">Pending Approvals</h2><div id="pendingApprovalsList"></div></div>
                 <div id="adminInventoryPanel" class="bg-white rounded-lg shadow p-6 hidden"><h2 class="text-xl font-bold mb-4">Low Stock Alerts</h2><div id="lowStockList"></div><button onclick="showAddStockModal()" class="bg-green-600 text-white px-4 py-2 rounded mt-4">Add Medication</button></div>
                 <div id="adminLogsPanel" class="bg-white rounded-lg shadow p-6 hidden"><h2 class="text-xl font-bold mb-4">Activity Log</h2><div id="activityLogList" class="space-y-2 max-h-96 overflow-y-auto"></div></div>
@@ -178,24 +243,47 @@
                 email: document.getElementById('regEmail').value,
                 role: document.getElementById('regRole').value,
                 clinic_card: document.getElementById('regClinicCard').value,
+                program: document.getElementById('regProgram').value,
+                year_of_study: document.getElementById('regYear').value,
+                hostel_room: document.getElementById('regHostel').value,
+                age: document.getElementById('regAge').value ? parseInt(document.getElementById('regAge').value) : null,
+                gender: document.getElementById('regGender').value,
                 security_question: document.getElementById('regSecurityQuestion').value,
                 security_answer: document.getElementById('regSecurityAnswer').value,
                 password: document.getElementById('regPassword').value,
                 status: 'active',
                 created_at: new Date()
             };
-            await window.supabase.from('users').insert([userData]);
-            if (userData.clinic_card) {
-                await window.supabase.from('patients').insert([{ clinic_card: userData.clinic_card, full_name: userData.full_name, student_id: userData.staff_id }]);
+            
+            const { error } = await window.supabase.from('users').insert([userData]);
+            if (error) {
+                alert('Registration error: ' + error.message);
+                return;
             }
-            alert('User registered successfully');
+            
+            // Also add to patients table if role is student
+            if (userData.role === 'student' && userData.clinic_card) {
+                await window.supabase.from('patients').insert([{ 
+                    clinic_card: userData.clinic_card, 
+                    full_name: userData.full_name, 
+                    student_id: userData.staff_id,
+                    program: userData.program,
+                    year_of_study: userData.year_of_study,
+                    hostel_room: userData.hostel_room,
+                    age: userData.age,
+                    gender: userData.gender
+                }]);
+            }
+            
+            await logActivity(currentUser.id, 'User Registration', `Registered ${userData.full_name} as ${userData.role}`);
+            alert('User registered successfully!');
             document.getElementById('registerUserForm').reset();
             await loadAllUsers();
         }
 
         async function loadAllUsers() {
             const { data } = await window.supabase.from('users').select('*').order('created_at', { ascending: false });
-            document.getElementById('allUsersList').innerHTML = data?.map(u => `<div class="border rounded p-2 flex justify-between items-center"><div><b>${u.full_name}</b><br><small>${u.email} | ${u.role} | ${u.status}</small></div><div><button onclick="toggleUserStatus('${u.id}','${u.status}')" class="bg-yellow-600 text-white px-2 py-1 rounded text-sm">Toggle Status</button></div></div>`).join('') || '<p>No users</p>';
+            document.getElementById('allUsersList').innerHTML = data?.map(u => `<div class="border rounded p-2 flex justify-between items-center"><div><b>${u.full_name}</b><br><small>${u.email} | ${u.role} | ${u.status}</small><br><small class="text-gray-500">ID: ${u.staff_id} | Card: ${u.clinic_card || 'N/A'}</small></div><div><button onclick="toggleUserStatus('${u.id}','${u.status}')" class="bg-yellow-600 text-white px-2 py-1 rounded text-sm">Toggle Status</button></div></div>`).join('') || '<p>No users</p>';
         }
 
         async function loadPendingApprovals() {
@@ -210,12 +298,31 @@
 
         async function loadActivityLogs() {
             const { data } = await window.supabase.from('activity_logs').select('*, users(full_name)').order('timestamp', { ascending: false }).limit(50);
-            document.getElementById('activityLogList').innerHTML = data?.map(log => `<div class="border-l-4 border-purple-600 bg-gray-50 p-2"><b>${log.users?.full_name}</b> - ${log.action}<br><small class="text-gray-500">${new Date(log.timestamp).toLocaleString()}</small><br><span class="text-xs">${log.details}</span></div>`).join('') || '<p>No logs</p>';
+            document.getElementById('activityLogList').innerHTML = data?.map(log => `<div class="border-l-4 border-purple-600 bg-gray-50 p-2"><b>${log.users?.full_name || 'System'}</b> - ${log.action}<br><small class="text-gray-500">${new Date(log.timestamp).toLocaleString()}</small><br><span class="text-xs">${log.details || ''}</span></div>`).join('') || '<p>No logs yet</p>';
         }
 
-        window.approveUser = async (id) => { await window.supabase.from('users').update({ status: 'active' }).eq('id', id); loadPendingApprovals(); };
-        window.toggleUserStatus = async (id, current) => { await window.supabase.from('users').update({ status: current === 'active' ? 'inactive' : 'active' }).eq('id', id); loadAllUsers(); };
-        window.restockItem = async (id) => { let qty = prompt('Quantity to add:'); if (qty) await window.supabase.rpc('add_stock', { p_id: id, p_qty: parseInt(qty) }); loadLowStock(); };
+        window.approveUser = async (id) => { 
+            await window.supabase.from('users').update({ status: 'active' }).eq('id', id);
+            await logActivity(currentUser.id, 'User Approval', `Approved user ID: ${id}`);
+            loadPendingApprovals(); 
+            loadAllUsers();
+        };
+        
+        window.toggleUserStatus = async (id, current) => { 
+            const newStatus = current === 'active' ? 'inactive' : 'active';
+            await window.supabase.from('users').update({ status: newStatus }).eq('id', id);
+            await logActivity(currentUser.id, 'Status Change', `Changed user ${id} status to ${newStatus}`);
+            loadAllUsers(); 
+        };
+        
+        window.restockItem = async (id) => { 
+            let qty = prompt('Quantity to add:'); 
+            if (qty) {
+                await window.supabase.rpc('add_stock', { p_id: id, p_qty: parseInt(qty) });
+                await logActivity(currentUser.id, 'Stock Restock', `Added ${qty} units to medication ID: ${id}`);
+                loadLowStock();
+            }
+        };
 
         function adminShowTab(tab) {
             ['users','approvals','inventory','logs','reports'].forEach(t => document.getElementById(`admin${t.charAt(0).toUpperCase() + t.slice(1)}Panel`).classList.add('hidden'));
@@ -230,14 +337,30 @@
             const element = document.createElement('div');
             element.innerHTML = `<h1>KMU Health Report</h1><p>Generated: ${new Date()}</p><table border="1"><tr><th>Patient</th><th>Date</th><th>Status</th></tr>${visits?.map(v => `<tr><td>${v.full_name}</td><td>${new Date(v.created_at).toLocaleDateString()}</td><td>${v.status}</td></tr>`).join('')}</table>`;
             html2pdf().from(element).save('KMU_Health_Report.pdf');
+            await logActivity(currentUser.id, 'Report Download', 'Downloaded PDF report');
         }
-        function downloadWord() { alert('Word download ready'); }
+        
+        function downloadWord() { 
+            alert('Word download ready'); 
+            logActivity(currentUser.id, 'Report Download', 'Downloaded Word report');
+        }
+        
+        window.showAddStockModal = () => {
+            const name = prompt('Medication name:');
+            const stock = prompt('Initial stock:');
+            const min = prompt('Minimum stock alert:');
+            if (name && stock) {
+                window.supabase.from('pharmacy_inventory').insert([{ medication_name: name, current_stock: parseInt(stock), minimum_stock: parseInt(min) }]);
+                logActivity(currentUser.id, 'Add Medication', `Added ${name} with stock ${stock}`);
+                loadLowStock();
+            }
+        };
 
         // ============ NURSE DASHBOARD ============
         async function loadNurseDashboard() {
             document.getElementById('mainContent').innerHTML = `
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6"><div class="bg-white rounded-lg shadow p-4"><p class="text-gray-500">Waiting</p><p id="nurseWaitingCount" class="text-3xl font-bold text-cyan-600">0</p></div><div class="bg-white rounded-lg shadow p-4"><p class="text-gray-500">Checked Today</p><p id="nurseCheckedCount" class="text-3xl font-bold text-green-600">0</p></div><div class="bg-white rounded-lg shadow p-4"><p class="text-gray-500">With Doctor</p><p id="nurseDoctorCount" class="text-3xl font-bold text-purple-600">0</p></div></div>
-                <div class="bg-white rounded-lg shadow p-6"><div class="flex justify-between mb-4"><h2 class="text-xl font-bold">Waiting Queue <span id="notificationBadge" class="bg-red-500 text-white text-xs px-2 py-1 rounded-full ml-2"></span></h2><input type="text" id="searchQueue" placeholder="Search by name or card..." class="border rounded p-2 w-64" onkeyup="filterNurseQueue()"></div><div id="nurseQueueList" class="space-y-3 max-h-96 overflow-y-auto"></div></div>
+                <div class="bg-white rounded-lg shadow p-6"><div class="flex justify-between mb-4"><h2 class="text-xl font-bold">Waiting Queue <span id="notificationBadgeNurse" class="bg-red-500 text-white text-xs px-2 py-1 rounded-full ml-2"></span></h2><input type="text" id="searchQueue" placeholder="Search by name or card..." class="border rounded p-2 w-64" onkeyup="filterNurseQueue()"></div><div id="nurseQueueList" class="space-y-3 max-h-96 overflow-y-auto"></div></div>
                 <div id="vitalsModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50"><div class="bg-white rounded-lg p-6 w-full max-w-lg"><h2 class="text-xl font-bold mb-4">Vitals Assessment</h2><div id="vitalsPatientInfo" class="bg-cyan-50 p-3 rounded mb-4"></div><form id="vitalsForm"><div class="grid grid-cols-2 gap-2 mb-3"><input type="number" id="temp" placeholder="Temperature (°C)" class="border rounded p-2" required><input type="text" id="bp" placeholder="BP (120/80)" class="border rounded p-2" required><input type="number" id="hr" placeholder="Heart Rate" class="border rounded p-2" required><input type="number" id="weight" placeholder="Weight (kg)" class="border rounded p-2"></div><textarea id="complaint" placeholder="Chief Complaint" class="w-full border rounded p-2 mb-3" rows="2" required></textarea><div class="flex gap-2"><button type="submit" class="bg-green-600 text-white px-4 py-2 rounded">Send to Doctor</button><button type="button" onclick="closeVitalsModal()" class="bg-gray-500 text-white px-4 py-2 rounded">Cancel</button></div></form></div></div>
             `;
             await loadNurseQueue();
@@ -268,18 +391,21 @@
             document.getElementById('vitalsModal').classList.remove('hidden');
         };
         window.closeVitalsModal = () => document.getElementById('vitalsModal').classList.add('hidden');
+        
         document.addEventListener('submit', async (e) => {
             if (e.target.id === 'vitalsForm') {
                 e.preventDefault();
                 await window.supabase.from('nurse_assessments').insert([{ visit_id: window.currentVisitId, nurse_id: currentUser.id, temperature: parseFloat(document.getElementById('temp').value), blood_pressure: document.getElementById('bp').value, heart_rate: parseInt(document.getElementById('hr').value), weight: document.getElementById('weight').value ? parseFloat(document.getElementById('weight').value) : null, chief_complaint: document.getElementById('complaint').value, created_at: new Date() }]);
                 await window.supabase.from('visits').update({ status: 'nurse_checked', nurse_check_time: new Date() }).eq('id', window.currentVisitId);
                 await window.supabase.from('notifications').insert([{ title: 'Patient Ready', message: 'Patient assessed, ready for doctor', type: 'ready', priority: 'high', target_role: 'doctor', is_global: true, created_at: new Date() }]);
+                await logActivity(currentUser.id, 'Nurse Assessment', `Completed vitals for visit ${window.currentVisitId}`);
                 alert('Patient sent to doctor!');
                 closeVitalsModal();
                 loadNurseQueue();
                 loadNurseStats();
             }
         });
+        
         window.filterNurseQueue = () => { const term = document.getElementById('searchQueue').value.toLowerCase(); document.querySelectorAll('#nurseQueueList .border').forEach(el => { el.style.display = el.innerText.toLowerCase().includes(term) ? '' : 'none'; }); };
 
         // ============ DOCTOR DASHBOARD ============
@@ -294,6 +420,7 @@
 
         async function loadDoctorQueue() {
             const { data: visits } = await window.supabase.from('visits').select('*, nurse_assessments(*)').eq('status', 'nurse_checked').order('nurse_check_time', { ascending: true });
+            document.getElementById('docNotificationBadge')?.classList.toggle('hidden', !visits?.length);
             if (!visits || visits.length === 0) { document.getElementById('doctorQueueList').innerHTML = '<div class="text-center text-gray-500 py-8">No patients ready</div>'; return; }
             document.getElementById('doctorQueueList').innerHTML = visits.map(v => `<div class="border rounded p-3"><div class="flex justify-between"><div><h3 class="font-bold">${v.full_name}</h3><p>Card: ${v.clinic_card} | Age: ${v.age} | Gender: ${v.gender}</p><p class="text-sm">Symptoms: ${v.symptoms}</p>${v.nurse_assessments?.[0] ? `<div class="bg-gray-50 p-2 mt-2 rounded"><b>Vitals:</b> Temp: ${v.nurse_assessments[0].temperature}°C | BP: ${v.nurse_assessments[0].blood_pressure} | HR: ${v.nurse_assessments[0].heart_rate}</div>` : ''}</div><button onclick="openConsultModal('${v.id}', '${v.full_name}')" class="bg-blue-600 text-white px-4 py-2 rounded h-12">Consult</button></div></div>`).join('');
         }
@@ -304,15 +431,18 @@
             document.getElementById('consultModal').classList.remove('hidden');
         };
         window.closeConsultModal = () => document.getElementById('consultModal').classList.add('hidden');
+        
         window.saveConsultation = async () => {
             await window.supabase.from('consultations').insert([{ visit_id: window.currentConsultVisitId, doctor_id: currentUser.id, diagnosis: document.getElementById('diag').value, treatment_plan: document.getElementById('treatment').value, created_at: new Date() }]);
             await window.supabase.from('prescriptions').insert([{ visit_id: window.currentConsultVisitId, patient_id: window.currentConsultVisitId, doctor_id: currentUser.id, medication_name: document.getElementById('meds').value, dosage: document.getElementById('dosage').value, status: 'pending', created_at: new Date() }]);
             await window.supabase.from('visits').update({ status: 'prescribed', doctor_consult_time: new Date() }).eq('id', window.currentConsultVisitId);
             await window.supabase.from('notifications').insert([{ title: 'New Prescription', message: 'Prescription ready for dispensing', type: 'prescription', priority: 'high', target_role: 'pharmacist', is_global: true, created_at: new Date() }]);
+            await logActivity(currentUser.id, 'Doctor Consultation', `Prescribed medication for visit ${window.currentConsultVisitId}`);
             alert('Prescription sent to pharmacy!');
             closeConsultModal();
             loadDoctorQueue();
         };
+        
         window.filterDoctorQueue = () => { const term = document.getElementById('searchDoctor').value.toLowerCase(); document.querySelectorAll('#doctorQueueList .border').forEach(el => { el.style.display = el.innerText.toLowerCase().includes(term) ? '' : 'none'; }); };
 
         // ============ PHARMACIST DASHBOARD ============
@@ -328,6 +458,7 @@
 
         async function loadPharmacyPrescriptions() {
             const { data } = await window.supabase.from('prescriptions').select('*, visits(full_name, clinic_card)').eq('status', 'pending');
+            document.getElementById('pharmNotificationBadge')?.classList.toggle('hidden', !data?.length);
             if (!data || data.length === 0) { document.getElementById('prescriptionsList').innerHTML = '<div class="text-center text-gray-500 py-8">No pending prescriptions</div>'; return; }
             document.getElementById('prescriptionsList').innerHTML = data.map(p => `<div class="border rounded p-3"><div class="flex justify-between"><div><h3 class="font-bold">${p.medication_name}</h3><p>Patient: ${p.visits?.full_name} | Card: ${p.visits?.clinic_card}<br>Dosage: ${p.dosage}</p></div><button onclick="dispenseMedication('${p.id}')" class="bg-green-600 text-white px-4 py-2 rounded">Dispense & Stock Track</button></div></div>`).join('');
         }
@@ -341,22 +472,20 @@
             const qty = prompt('Enter quantity dispensed:');
             if (qty) {
                 await window.supabase.from('prescriptions').update({ status: 'dispensed', dispensed_by: currentUser.id, dispensed_at: new Date(), quantity_dispensed: parseInt(qty) }).eq('id', id);
+                await logActivity(currentUser.id, 'Dispense Medication', `Dispensed ${qty} units of prescription ${id}`);
                 alert('Medication dispensed! Stock updated.');
                 loadPharmacyPrescriptions();
                 loadPharmacyLowStock();
             }
         };
+        
         window.restockPharmacy = async (id) => {
             const qty = prompt('Enter quantity to add:');
-            if (qty) await window.supabase.rpc('add_stock', { p_id: id, p_qty: parseInt(qty) });
-            loadPharmacyLowStock();
-        };
-        window.showAddStockModal = () => {
-            const name = prompt('Medication name:');
-            const stock = prompt('Initial stock:');
-            const min = prompt('Minimum stock alert:');
-            if (name && stock) window.supabase.from('pharmacy_inventory').insert([{ medication_name: name, current_stock: parseInt(stock), minimum_stock: parseInt(min) }]);
-            loadLowStock();
+            if (qty) {
+                await window.supabase.rpc('add_stock', { p_id: id, p_qty: parseInt(qty) });
+                await logActivity(currentUser.id, 'Stock Restock', `Added ${qty} units to medication ${id}`);
+                loadPharmacyLowStock();
+            }
         };
     </script>
 </body>
