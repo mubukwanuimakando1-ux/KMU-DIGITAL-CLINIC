@@ -1,0 +1,102 @@
+<!-- dashboard.html - Main Dashboard Router -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KMU Health System - Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/supabase-js@2"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div id="app" class="min-h-screen bg-gray-100">
+        <div id="loading" class="flex items-center justify-center min-h-screen">
+            <div class="text-center">
+                <i class="fas fa-spinner fa-spin text-4xl text-purple-600"></i>
+                <p class="mt-4 text-gray-600">Loading dashboard...</p>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/config.js"></script>
+    <script>
+        // Check authentication on page load
+        window.addEventListener('DOMContentLoaded', async () => {
+            const currentUser = localStorage.getItem('currentUser');
+            
+            if (!currentUser) {
+                window.location.href = '/index.html';
+                return;
+            }
+            
+            const user = JSON.parse(currentUser);
+            
+            // Check if user is approved
+            if (user.status !== 'active') {
+                alert('Your account is pending admin approval. Please wait.');
+                localStorage.removeItem('currentUser');
+                window.location.href = '/index.html';
+                return;
+            }
+            
+            // Load the appropriate dashboard based on role
+            const role = user.role;
+            const dashboardMap = {
+                'admin': 'dashboards/admin.html',
+                'nurse': 'dashboards/nurse.html',
+                'doctor': 'dashboards/doctor.html',
+                'pharmacist': 'dashboards/pharmacist.html',
+                'student': 'dashboards/patient.html',
+                'staff': 'dashboards/patient.html',
+                'visitor': 'dashboards/patient.html',
+                'casual_worker': 'dashboards/patient.html'
+            };
+            
+            const dashboardPage = dashboardMap[role];
+            
+            if (dashboardPage) {
+                // Load the dashboard content
+                try {
+                    const response = await fetch(dashboardPage);
+                    const html = await response.text();
+                    document.getElementById('app').innerHTML = html;
+                    
+                    // Initialize role-specific scripts
+                    if (role === 'admin') initAdminDashboard();
+                    else if (role === 'nurse') initNurseDashboard();
+                    else if (role === 'doctor') initDoctorDashboard();
+                    else if (role === 'pharmacist') initPharmacistDashboard();
+                    else initPatientDashboard();
+                    
+                } catch (error) {
+                    document.getElementById('app').innerHTML = `
+                        <div class="flex items-center justify-center min-h-screen">
+                            <div class="text-center text-red-600">
+                                <i class="fas fa-exclamation-triangle text-4xl"></i>
+                                <p class="mt-4">Error loading dashboard. Please refresh or contact support.</p>
+                                <button onclick="logout()" class="mt-4 bg-purple-600 text-white px-6 py-2 rounded-lg">Go Back</button>
+                            </div>
+                        </div>
+                    `;
+                }
+            } else {
+                document.getElementById('app').innerHTML = `
+                    <div class="flex items-center justify-center min-h-screen">
+                        <div class="text-center">
+                            <i class="fas fa-user-lock text-4xl text-red-600"></i>
+                            <p class="mt-4">Invalid role. Please contact administrator.</p>
+                            <button onclick="logout()" class="mt-4 bg-purple-600 text-white px-6 py-2 rounded-lg">Logout</button>
+                        </div>
+                    </div>
+                `;
+            }
+        });
+        
+        function logout() {
+            localStorage.removeItem('currentUser');
+            window.location.href = '/index.html';
+        }
+    </script>
+</body>
+</html>
