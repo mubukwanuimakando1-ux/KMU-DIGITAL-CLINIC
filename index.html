@@ -1,4 +1,3 @@
-<!-- index.html - CORRECTED VERSION with proper script loading -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -56,7 +55,11 @@
                 </div>
             </div>
             <div class="md:w-1/2">
-                <img src="https://via.placeholder.com/500x400?text=KMU+Health+System" alt="Healthcare" class="rounded-lg shadow-xl">
+                <div class="bg-purple-100 rounded-lg shadow-xl p-8 text-center">
+                    <i class="fas fa-hospital-user text-6xl text-purple-600 mb-4"></i>
+                    <h3 class="text-2xl font-bold text-gray-800">KMU Health Center</h3>
+                    <p class="text-gray-600">Quality Healthcare for the KMU Community</p>
+                </div>
             </div>
         </div>
     </section>
@@ -176,10 +179,10 @@
     </div>
 
     <!-- SCRIPTS - ORDER MATTERS! -->
-    <!-- 1. First load Supabase library -->
-    <script src="https://cdn.jsdelivr.net/npm/supabase-js@2"></script>
+    <!-- 1. First load Supabase library - CORRECT CDN with @ symbol -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     
-    <!-- 2. Then load your config file (which creates the 'supabase' client) -->
+    <!-- 2. Then load your config file -->
     <script src="js/config.js"></script>
     
     <!-- 3. Then load your auth functions -->
@@ -188,7 +191,9 @@
     <!-- 4. Finally the page-specific code -->
     <script>
         // Make sure supabase is defined before using it
+        console.log('Page loaded - checking Supabase...');
         console.log('Supabase client:', typeof supabase !== 'undefined' ? 'Loaded' : 'Not loaded');
+        console.log('window.supabase:', typeof window?.supabase !== 'undefined' ? 'Set' : 'Not set');
         
         function showLoginModal() {
             document.getElementById('loginModal').classList.remove('hidden');
@@ -221,8 +226,8 @@
             const identifier = document.getElementById('loginIdentifier').value;
             const password = document.getElementById('loginPassword').value;
             
-            // Check if supabase is defined
-            if (typeof supabase === 'undefined') {
+            // Check if supabase is defined (try both ways)
+            if (typeof window.supabase === 'undefined' || !window.supabase) {
                 alert('System not initialized. Please check your internet connection and refresh the page.');
                 console.error('Supabase is not defined! Check config.js');
                 return;
@@ -256,6 +261,7 @@
             if (result.success) {
                 alert('Registration successful! Please wait for admin approval.');
                 closeRegisterModal();
+                document.getElementById('registerForm').reset();
             } else {
                 alert(result.error);
             }
