@@ -1,4 +1,4 @@
-// js/auth.js - Complete Authentication
+// js/auth.js - Authentication with Activity Logging
 
 async function handleLogin(identifier, password) {
     try {
@@ -33,7 +33,9 @@ async function handleLogin(identifier, password) {
             return { success: false, error: 'Account inactive. Contact admin.' };
         }
         
+        // Log activity
         await logActivity(user.id, 'Login', 'User logged in successfully');
+        
         localStorage.setItem('currentUser', JSON.stringify(user));
         return { success: true, user };
         
@@ -82,12 +84,14 @@ async function resetPassword(identifier, securityAnswer, newPassword) {
 
 async function logActivity(userId, action, details) {
     try {
+        if (!window.supabase) return;
         await window.supabase.from('activity_logs').insert([{
             user_id: userId,
             action: action,
             details: details,
             timestamp: new Date()
         }]);
+        console.log('Activity logged:', action);
     } catch (e) {
         console.log('Log error:', e);
     }
