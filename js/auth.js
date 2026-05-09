@@ -1,4 +1,4 @@
-// js/auth.js - Complete Authentication with Security Questions
+// js/auth.js - Complete Authentication
 
 async function handleLogin(identifier, password) {
     try {
@@ -33,9 +33,7 @@ async function handleLogin(identifier, password) {
             return { success: false, error: 'Account inactive. Contact admin.' };
         }
         
-        // Log activity
         await logActivity(user.id, 'Login', 'User logged in successfully');
-        
         localStorage.setItem('currentUser', JSON.stringify(user));
         return { success: true, user };
         
@@ -75,7 +73,7 @@ async function resetPassword(identifier, securityAnswer, newPassword) {
         await window.supabase.from('users').update({ password: newPassword }).eq('id', user.id);
         await logActivity(user.id, 'Password Reset', 'User reset their password');
         
-        return { success: true, message: 'Password reset successful! Login with new password.' };
+        return { success: true, message: 'Password reset successful!' };
         
     } catch (error) {
         return { success: false, message: error.message };
