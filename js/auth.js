@@ -1,10 +1,11 @@
-// js/auth.js - Authentication Handler (WORKING VERSION)
+// js/auth.js - Complete Authentication with Security Questions
+
 async function handleLogin(identifier, password) {
     try {
-        console.log('Login attempt for:', identifier);
+        console.log('Login attempt:', identifier);
         
         if (!window.supabase) {
-            return { success: false, error: 'System not initialized. Refresh page.' };
+            return { success: false, error: 'System initializing. Refresh page.' };
         }
         
         const isEmail = identifier.includes('@');
@@ -13,18 +14,13 @@ async function handleLogin(identifier, password) {
         if (isEmail) {
             query = query.eq('email', identifier);
         } else {
-            query = query.eq('id_number', identifier);
+            query = query.eq('staff_id', identifier);
         }
         
         const { data, error } = await query;
         
-        if (error) {
-            console.error('Query error:', error);
-            return { success: false, error: error.message };
-        }
-        
-        if (!data || data.length === 0) {
-            return { success: false, error: 'User not found' };
+        if (error || !data || data.length === 0) {
+            return { success: false, error: 'User not found. Contact admin.' };
         }
         
         const user = data[0];
@@ -34,11 +30,13 @@ async function handleLogin(identifier, password) {
         }
         
         if (user.status !== 'active') {
-            return { success: false, error: 'Account pending approval' };
+            return { success: false, error: 'Account inactive. Contact admin.' };
         }
         
+        // Log activity
+        await logActivity(user.id, 'Login', 'User logged in successfully');
+        
         localStorage.setItem('currentUser', JSON.stringify(user));
-        console.log('Login successful:', user.full_name);
         return { success: true, user };
         
     } catch (error) {
@@ -47,37 +45,53 @@ async function handleLogin(identifier, password) {
     }
 }
 
-async function handleRegistration(userData) {
+async function resetPassword(identifier, securityAnswer, newPassword) {
     try {
         if (!window.supabase) {
-            return { success: false, error: 'System not initialized' };
+            return { success: false, message: 'System error. Try again.' };
         }
         
-        const { data: existing } = await window.supabase
-            .from('users')
-            .select('id')
-            .eq('email', userData.email)
-            .maybeSingle();
+        const isEmail = identifier.includes('@');
+        let query = window.supabase.from('users').select('*');
         
-        if (existing) {
-            return { success: false, error: 'Email already registered' };
+        if (isEmail) {
+            query = query.eq('email', identifier);
+        } else {
+            query = query.eq('staff_id', identifier);
         }
         
-        const { error } = await window.supabase
-            .from('users')
-            .insert([{
-                ...userData,
-                status: 'pending',
-                created_at: new Date()
-            }]);
+        const { data, error } = await query;
         
-        if (error) throw error;
+        if (error || !data || data.length === 0) {
+            return { success: false, message: 'User not found' };
+        }
         
-        return { success: true };
+        const user = data[0];
+        
+        if (user.security_answer !== securityAnswer) {
+            return { success: false, message: 'Security answer incorrect' };
+        }
+        
+        await window.supabase.from('users').update({ password: newPassword }).eq('id', user.id);
+        await logActivity(user.id, 'Password Reset', 'User reset their password');
+        
+        return { success: true, message: 'Password reset successful! Login with new password.' };
         
     } catch (error) {
-        console.error('Registration error:', error);
-        return { success: false, error: error.message };
+        return { success: false, message: error.message };
+    }
+}
+
+async function logActivity(userId, action, details) {
+    try {
+        await window.supabase.from('activity_logs').insert([{
+            user_id: userId,
+            action: action,
+            details: details,
+            timestamp: new Date()
+        }]);
+    } catch (e) {
+        console.log('Log error:', e);
     }
 }
 
