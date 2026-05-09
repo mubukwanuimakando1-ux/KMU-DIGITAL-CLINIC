@@ -3,131 +3,423 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KMU Health System - Dashboard</title>
+    <title>KMU Health System - Complete Dashboard</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="js/config.js"></script>
     <style>
-        .gradient-bg {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        }
+        .gradient-bg { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+        .tab-active { background-color: #7c3aed; color: white; }
+        .tab-inactive { background-color: #e5e7eb; color: #4b5563; }
     </style>
 </head>
 <body class="bg-gray-100">
-    <div class="min-h-screen">
-        <!-- Navigation -->
-        <nav class="gradient-bg text-white shadow-lg">
-            <div class="container mx-auto px-6 py-4 flex justify-between items-center">
-                <div class="flex items-center space-x-3">
-                    <i class="fas fa-hospital-user text-2xl"></i>
-                    <span class="font-bold text-xl">KMU Health Center</span>
-                </div>
-                <div class="flex items-center space-x-4">
-                    <span id="userRole" class="px-3 py-1 bg-white bg-opacity-20 rounded-full text-sm"></span>
-                    <button onclick="logout()" class="bg-red-600 hover:bg-red-700 px-4 py-2 rounded-lg text-sm transition">
-                        <i class="fas fa-sign-out-alt mr-1"></i> Logout
-                    </button>
-                </div>
+    <!-- Header -->
+    <nav class="gradient-bg text-white shadow-lg">
+        <div class="container mx-auto px-6 py-4 flex justify-between items-center">
+            <div class="flex items-center space-x-3">
+                <i class="fas fa-hospital-user text-2xl"></i>
+                <span class="font-bold text-xl">KMU Health Center</span>
             </div>
-        </nav>
-        
-        <!-- Main Content -->
-        <div class="container mx-auto px-6 py-8">
-            <!-- Welcome Card -->
-            <div class="bg-white rounded-lg shadow-md p-6 mb-6">
-                <h1 class="text-2xl font-bold text-gray-800">Welcome, <span id="userName"></span>!</h1>
-                <p class="text-gray-600">You are logged in as <strong id="userRoleText"></strong></p>
+            <div class="flex items-center space-x-4">
+                <span id="userNameDisplay" class="text-sm"></span>
+                <span id="userRoleBadge" class="px-3 py-1 bg-white bg-opacity-20 rounded-full text-xs"></span>
+                <button onclick="logout()" class="bg-red-600 hover:bg-red-700 px-4 py-2 rounded-lg text-sm">
+                    <i class="fas fa-sign-out-alt mr-1"></i> Logout
+                </button>
             </div>
-            
-            <!-- Stats Cards -->
-            <div class="grid md:grid-cols-3 gap-6 mb-8">
-                <div class="bg-white rounded-lg shadow-md p-6">
-                    <div class="flex items-center justify-between">
-                        <div>
-                            <p class="text-gray-500 text-sm">Login Status</p>
-                            <p class="text-3xl font-bold text-green-600">✓ Active</p>
-                        </div>
-                        <i class="fas fa-check-circle text-4xl text-green-600 opacity-50"></i>
-                    </div>
-                </div>
-                <div class="bg-white rounded-lg shadow-md p-6">
-                    <div class="flex items-center justify-between">
-                        <div>
-                            <p class="text-gray-500 text-sm">Your Role</p>
-                            <p id="userRoleDisplay" class="text-3xl font-bold text-purple-600">-</p>
-                        </div>
-                        <i class="fas fa-user-shield text-4xl text-purple-600 opacity-50"></i>
-                    </div>
-                </div>
-                <div class="bg-white rounded-lg shadow-md p-6">
-                    <div class="flex items-center justify-between">
-                        <div>
-                            <p class="text-gray-500 text-sm">System Status</p>
-                            <p class="text-3xl font-bold text-blue-600">Online</p>
-                        </div>
-                        <i class="fas fa-server text-4xl text-blue-600 opacity-50"></i>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Quick Actions -->
-            <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-                <div class="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition cursor-pointer" onclick="alert('Feature coming soon!')">
-                    <i class="fas fa-stethoscope text-3xl text-purple-600 mb-3"></i>
-                    <h3 class="font-bold text-lg">Health Services</h3>
-                    <p class="text-gray-600 text-sm">Access medical consultations</p>
-                </div>
-                <div class="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition cursor-pointer" onclick="alert('Feature coming soon!')">
-                    <i class="fas fa-prescription-bottle text-3xl text-blue-600 mb-3"></i>
-                    <h3 class="font-bold text-lg">Pharmacy</h3>
-                    <p class="text-gray-600 text-sm">Manage prescriptions</p>
-                </div>
-                <div class="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition cursor-pointer" onclick="alert('Feature coming soon!')">
-                    <i class="fas fa-chart-line text-3xl text-green-600 mb-3"></i>
-                    <h3 class="font-bold text-lg">Health Records</h3>
-                    <p class="text-gray-600 text-sm">View medical history</p>
-                </div>
-                <div class="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition cursor-pointer" onclick="alert('Feature coming soon!')">
-                    <i class="fas fa-calendar-check text-3xl text-orange-600 mb-3"></i>
-                    <h3 class="font-bold text-lg">Appointments</h3>
-                    <p class="text-gray-600 text-sm">Schedule visits</p>
-                </div>
-            </div>
+        </div>
+    </nav>
+
+    <div class="container mx-auto px-6 py-8" id="mainContent">
+        <!-- Dynamic content will load here based on role -->
+        <div class="text-center py-12">
+            <i class="fas fa-spinner fa-spin text-3xl text-purple-600"></i>
+            <p class="mt-2">Loading your dashboard...</p>
         </div>
     </div>
 
     <script>
-        // Get user from localStorage
-        const userData = localStorage.getItem('currentUser');
-        
-        if (!userData) {
-            console.log('No user found, redirecting to login');
-            window.location.href = 'index.html';
+        let currentUser = null;
+        let currentModule = 'queue';
+
+        // Initialize
+        window.addEventListener('DOMContentLoaded', async () => {
+            const userData = localStorage.getItem('currentUser');
+            if (!userData) {
+                window.location.href = 'index.html';
+                return;
+            }
+            currentUser = JSON.parse(userData);
+            
+            document.getElementById('userNameDisplay').textContent = currentUser.full_name;
+            document.getElementById('userRoleBadge').textContent = currentUser.role.toUpperCase();
+            
+            // Load role-specific dashboard
+            await loadRoleDashboard();
+        });
+
+        async function loadRoleDashboard() {
+            const role = currentUser.role;
+            const container = document.getElementById('mainContent');
+            
+            if (role === 'admin') {
+                container.innerHTML = getAdminHTML();
+                await loadAdminStats();
+                await loadPendingUsers();
+                await loadInventory();
+            } 
+            else if (role === 'nurse') {
+                container.innerHTML = getNurseHTML();
+                await loadNurseQueue();
+                await loadNurseStats();
+                // Auto-refresh every 10 seconds
+                setInterval(async () => {
+                    if (document.getElementById('nurseQueueList')) {
+                        await loadNurseQueue();
+                        await loadNurseStats();
+                    }
+                }, 10000);
+            }
+            else if (role === 'doctor') {
+                container.innerHTML = getDoctorHTML();
+                await loadDoctorQueue();
+            }
+            else if (role === 'pharmacist') {
+                container.innerHTML = getPharmacistHTML();
+                await loadPharmacyPrescriptions();
+                await loadPharmacyInventory();
+            }
+            else {
+                container.innerHTML = getPatientHTML();
+                await loadPatientDashboard();
+            }
         }
-        
-        const user = JSON.parse(userData);
-        console.log('Dashboard loaded for:', user.full_name);
-        
-        // Display user information
-        document.getElementById('userName').textContent = user.full_name;
-        document.getElementById('userRoleText').textContent = user.role.toUpperCase();
-        document.getElementById('userRoleDisplay').textContent = user.role.toUpperCase();
-        document.getElementById('userRole').textContent = user.role.toUpperCase();
-        
-        // Logout function
-        function logout() {
-            console.log('Logging out user:', user.full_name);
-            localStorage.removeItem('currentUser');
-            window.location.href = 'index.html';
+
+        // ============= NURSE DASHBOARD =============
+        function getNurseHTML() {
+            return `
+                <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+                    <h1 class="text-2xl font-bold text-gray-800">Nurse Dashboard</h1>
+                    <p class="text-gray-600">Manage patient checkups and vital signs</p>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+                    <div class="bg-white rounded-lg shadow-md p-6">
+                        <p class="text-gray-500 text-sm">Waiting Queue</p>
+                        <p id="nurseWaitingCount" class="text-3xl font-bold text-cyan-600">0</p>
+                    </div>
+                    <div class="bg-white rounded-lg shadow-md p-6">
+                        <p class="text-gray-500 text-sm">Checked Today</p>
+                        <p id="nurseCheckedCount" class="text-3xl font-bold text-green-600">0</p>
+                    </div>
+                    <div class="bg-white rounded-lg shadow-md p-6">
+                        <p class="text-gray-500 text-sm">With Doctor</p>
+                        <p id="nurseWithDoctorCount" class="text-3xl font-bold text-purple-600">0</p>
+                    </div>
+                </div>
+                
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="text-xl font-bold"><i class="fas fa-users text-cyan-600 mr-2"></i>Patients Waiting for Checkup</h2>
+                        <button onclick="refreshNurseQueue()" class="bg-cyan-600 text-white px-3 py-1 rounded text-sm">Refresh</button>
+                    </div>
+                    <div id="nurseQueueList" class="space-y-4 max-h-[500px] overflow-y-auto">
+                        <div class="text-center text-gray-500 py-8">Loading queue...</div>
+                    </div>
+                </div>
+                
+                <!-- Vitals Modal -->
+                <div id="vitalsModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+                    <div class="bg-white rounded-lg p-6 w-full max-w-2xl">
+                        <h2 class="text-xl font-bold mb-4">Patient Vitals Assessment</h2>
+                        <div id="vitalsPatientInfo" class="bg-cyan-50 p-3 rounded mb-4"></div>
+                        <form id="vitalsForm">
+                            <div class="grid grid-cols-2 md:grid-cols-3 gap-4 mb-4">
+                                <div><label class="block text-sm">Temperature (°C)</label><input type="number" step="0.1" id="temp" class="w-full border rounded p-2" required></div>
+                                <div><label class="block text-sm">Blood Pressure</label><input type="text" id="bp" placeholder="120/80" class="w-full border rounded p-2" required></div>
+                                <div><label class="block text-sm">Heart Rate (bpm)</label><input type="number" id="hr" class="w-full border rounded p-2" required></div>
+                                <div><label class="block text-sm">Weight (kg)</label><input type="number" step="0.1" id="weight" class="w-full border rounded p-2"></div>
+                                <div><label class="block text-sm">Height (cm)</label><input type="number" step="0.1" id="height" class="w-full border rounded p-2"></div>
+                            </div>
+                            <div class="mb-4"><label class="block text-sm">Chief Complaint</label><textarea id="complaint" rows="2" class="w-full border rounded p-2" required></textarea></div>
+                            <div class="flex gap-2">
+                                <button type="submit" class="bg-green-600 text-white px-4 py-2 rounded">Complete Checkup</button>
+                                <button type="button" onclick="closeVitalsModal()" class="bg-gray-500 text-white px-4 py-2 rounded">Cancel</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            `;
         }
-        
-        // Test Supabase connection (optional)
-        if (typeof window.supabase !== 'undefined' && window.supabase) {
-            console.log('✅ Supabase client available in dashboard');
-        } else {
-            console.log('⚠️ Supabase client not available');
+
+        async function loadNurseQueue() {
+            if (!window.supabase) return;
+            const today = new Date().toISOString().split('T')[0];
+            const { data: visits } = await window.supabase
+                .from('visits')
+                .select(`*, patient:users!patient_id(full_name, id_number, clinic_card, phone)`)
+                .eq('status', 'waiting')
+                .eq('visit_date', today)
+                .order('queue_position', { ascending: true });
+            
+            document.getElementById('nurseWaitingCount').textContent = visits?.length || 0;
+            
+            if (!visits || visits.length === 0) {
+                document.getElementById('nurseQueueList').innerHTML = '<div class="text-center text-gray-500 py-8">No patients waiting</div>';
+                return;
+            }
+            
+            document.getElementById('nurseQueueList').innerHTML = visits.map((v, i) => `
+                <div class="border rounded-lg p-4 ${i === 0 ? 'border-cyan-400 bg-cyan-50' : ''}">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <div class="flex items-center gap-2 mb-1">
+                                <span class="bg-cyan-100 text-cyan-800 text-xs px-2 py-1 rounded-full">Queue #${v.queue_position || i+1}</span>
+                                <span class="font-bold text-lg">${v.patient?.full_name}</span>
+                            </div>
+                            <p class="text-sm text-gray-600">ID: ${v.patient?.id_number} | Card: ${v.patient?.clinic_card || 'N/A'} | Phone: ${v.patient?.phone || 'N/A'}</p>
+                            <p class="text-sm text-gray-600 mt-1">Reason: ${v.reason_for_visit || 'Not specified'}</p>
+                            <p class="text-xs text-gray-400">Check-in: ${new Date(v.check_in_time).toLocaleTimeString()}</p>
+                        </div>
+                        <button onclick="openVitalsModal('${v.id}', '${v.patient_id}', '${v.patient?.full_name}', '${v.patient?.id_number}')" 
+                            class="bg-cyan-600 text-white px-4 py-2 rounded-lg hover:bg-cyan-700">
+                            <i class="fas fa-stethoscope mr-1"></i>Start Checkup
+                        </button>
+                    </div>
+                </div>
+            `).join('');
         }
+
+        async function loadNurseStats() {
+            if (!window.supabase) return;
+            const today = new Date().toISOString().split('T')[0];
+            const { count: checked } = await window.supabase.from('nurse_assessments').select('*', { count: 'exact', head: true }).gte('created_at', today);
+            const { count: withDoctor } = await window.supabase.from('visits').select('*', { count: 'exact', head: true }).eq('status', 'nurse_checked').eq('visit_date', today);
+            document.getElementById('nurseCheckedCount').textContent = checked || 0;
+            document.getElementById('nurseWithDoctorCount').textContent = withDoctor || 0;
+        }
+
+        window.openVitalsModal = async function(visitId, patientId, patientName, patientIdNumber) {
+            window.currentVisitId = visitId;
+            document.getElementById('vitalsPatientInfo').innerHTML = `
+                <div class="grid grid-cols-2 gap-3">
+                    <div><strong>Patient:</strong> ${patientName}</div>
+                    <div><strong>ID Number:</strong> ${patientIdNumber}</div>
+                </div>
+            `;
+            document.getElementById('vitalsForm').reset();
+            document.getElementById('vitalsModal').classList.remove('hidden');
+            document.getElementById('vitalsModal').classList.add('flex');
+        }
+
+        window.closeVitalsModal = function() {
+            document.getElementById('vitalsModal').classList.add('hidden');
+        }
+
+        document.addEventListener('submit', async function(e) {
+            if (e.target.id === 'vitalsForm') {
+                e.preventDefault();
+                await window.supabase.from('nurse_assessments').insert([{
+                    visit_id: window.currentVisitId,
+                    nurse_id: currentUser.id,
+                    temperature: parseFloat(document.getElementById('temp').value),
+                    blood_pressure: document.getElementById('bp').value,
+                    heart_rate: parseInt(document.getElementById('hr').value),
+                    weight: document.getElementById('weight').value ? parseFloat(document.getElementById('weight').value) : null,
+                    height: document.getElementById('height').value ? parseFloat(document.getElementById('height').value) : null,
+                    chief_complaint: document.getElementById('complaint').value,
+                    created_at: new Date()
+                }]);
+                await window.supabase.from('visits').update({ status: 'nurse_checked', nurse_check_time: new Date() }).eq('id', window.currentVisitId);
+                alert('Checkup completed! Patient sent to doctor.');
+                closeVitalsModal();
+                await loadNurseQueue();
+                await loadNurseStats();
+            }
+        });
+
+        window.refreshNurseQueue = function() { loadNurseQueue(); };
+
+        // ============= ADMIN DASHBOARD =============
+        function getAdminHTML() {
+            return `
+                <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+                    <h1 class="text-2xl font-bold text-gray-800">Admin Dashboard</h1>
+                    <p class="text-gray-600">Manage users, inventory, and system settings</p>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
+                    <div class="bg-white rounded-lg shadow-md p-6"><p class="text-gray-500 text-sm">Total Users</p><p id="adminTotalUsers" class="text-3xl font-bold text-purple-600">0</p></div>
+                    <div class="bg-white rounded-lg shadow-md p-6"><p class="text-gray-500 text-sm">Pending Approvals</p><p id="adminPendingCount" class="text-3xl font-bold text-orange-600">0</p></div>
+                    <div class="bg-white rounded-lg shadow-md p-6"><p class="text-gray-500 text-sm">Today's Visits</p><p id="adminTodayVisits" class="text-3xl font-bold text-blue-600">0</p></div>
+                    <div class="bg-white rounded-lg shadow-md p-6"><p class="text-gray-500 text-sm">Low Stock Items</p><p id="adminLowStockCount" class="text-3xl font-bold text-red-600">0</p></div>
+                </div>
+                
+                <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+                    <h2 class="text-xl font-bold mb-4"><i class="fas fa-user-check text-orange-600 mr-2"></i>Pending User Approvals</h2>
+                    <div id="adminPendingList" class="space-y-3 max-h-[300px] overflow-y-auto"></div>
+                </div>
+                
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="text-xl font-bold"><i class="fas fa-capsules text-red-600 mr-2"></i>Low Stock Alerts</h2>
+                        <button onclick="showAddStockModal()" class="bg-green-600 text-white px-3 py-1 rounded text-sm">Add Stock</button>
+                    </div>
+                    <div id="adminStockList" class="space-y-3 max-h-[300px] overflow-y-auto"></div>
+                </div>
+                
+                <div id="addStockModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+                    <div class="bg-white rounded-lg p-6 w-full max-w-md">
+                        <h3 class="text-xl font-bold mb-4">Add Medication</h3>
+                        <input type="text" id="newMedName" placeholder="Medication Name" class="w-full border rounded p-2 mb-2">
+                        <input type="number" id="newMedStock" placeholder="Quantity" class="w-full border rounded p-2 mb-2">
+                        <input type="number" id="newMedMin" placeholder="Min Stock Alert" class="w-full border rounded p-2 mb-2">
+                        <div class="flex gap-2"><button onclick="addNewStock()" class="bg-green-600 text-white px-4 py-2 rounded">Add</button><button onclick="closeAddStockModal()" class="bg-gray-500 text-white px-4 py-2 rounded">Cancel</button></div>
+                    </div>
+                </div>
+            `;
+        }
+
+        async function loadAdminStats() {
+            if (!window.supabase) return;
+            const { count: users } = await window.supabase.from('users').select('*', { count: 'exact', head: true });
+            const { count: pending } = await window.supabase.from('users').select('*', { count: 'exact', head: true }).eq('status', 'pending');
+            const { count: visits } = await window.supabase.from('visits').select('*', { count: 'exact', head: true }).eq('visit_date', new Date().toISOString().split('T')[0]);
+            const { data: lowStock } = await window.supabase.from('pharmacy_inventory').select('*').lte('current_stock', window.supabase.raw('minimum_stock'));
+            document.getElementById('adminTotalUsers').textContent = users || 0;
+            document.getElementById('adminPendingCount').textContent = pending || 0;
+            document.getElementById('adminTodayVisits').textContent = visits || 0;
+            document.getElementById('adminLowStockCount').textContent = lowStock?.length || 0;
+        }
+
+        async function loadPendingUsers() {
+            if (!window.supabase) return;
+            const { data: pending } = await window.supabase.from('users').select('*').eq('status', 'pending');
+            if (!pending || pending.length === 0) {
+                document.getElementById('adminPendingList').innerHTML = '<div class="text-center text-gray-500 py-4">No pending approvals</div>';
+                return;
+            }
+            document.getElementById('adminPendingList').innerHTML = pending.map(u => `
+                <div class="border rounded p-3 flex justify-between items-center">
+                    <div><strong>${u.full_name}</strong><br><small>${u.email} | ${u.id_number} | ${u.role}</small></div>
+                    <button onclick="approveUser('${u.id}')" class="bg-green-600 text-white px-3 py-1 rounded">Approve</button>
+                </div>
+            `).join('');
+        }
+
+        async function loadInventory() {
+            if (!window.supabase) return;
+            const { data: lowStock } = await window.supabase.from('pharmacy_inventory').select('*').lte('current_stock', window.supabase.raw('minimum_stock'));
+            if (!lowStock || lowStock.length === 0) {
+                document.getElementById('adminStockList').innerHTML = '<div class="text-center text-gray-500 py-4">All stock levels are good</div>';
+                return;
+            }
+            document.getElementById('adminStockList').innerHTML = lowStock.map(i => `
+                <div class="border rounded p-3 flex justify-between items-center">
+                    <div><strong>${i.medication_name}</strong><br><small>Stock: ${i.current_stock} | Min: ${i.minimum_stock}</small></div>
+                    <button onclick="restockItem('${i.id}')" class="bg-blue-600 text-white px-3 py-1 rounded">Restock</button>
+                </div>
+            `).join();
+        }
+
+        window.approveUser = async function(id) { await window.supabase.from('users').update({ status: 'active' }).eq('id', id); loadPendingUsers(); loadAdminStats(); alert('User approved'); };
+        window.restockItem = async function(id) { let qty = prompt('Enter quantity to add:'); if(qty) { await window.supabase.from('pharmacy_inventory').update({ current_stock: window.supabase.raw(`current_stock + ${parseInt(qty)}`) }).eq('id', id); loadInventory(); loadAdminStats(); } };
+        window.showAddStockModal = function() { document.getElementById('addStockModal').classList.remove('hidden'); };
+        window.closeAddStockModal = function() { document.getElementById('addStockModal').classList.add('hidden'); };
+        window.addNewStock = async function() { await window.supabase.from('pharmacy_inventory').insert([{ medication_name: document.getElementById('newMedName').value, current_stock: parseInt(document.getElementById('newMedStock').value), minimum_stock: parseInt(document.getElementById('newMedMin').value) }]); closeAddStockModal(); loadInventory(); alert('Added'); };
+
+        // ============= DOCTOR DASHBOARD =============
+        function getDoctorHTML() {
+            return `
+                <div class="bg-white rounded-lg shadow-md p-6 mb-6"><h1 class="text-2xl font-bold">Doctor Dashboard</h1><p class="text-gray-600">Consult patients and prescribe medication</p></div>
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <h2 class="text-xl font-bold mb-4"><i class="fas fa-stethoscope text-blue-600 mr-2"></i>Patients Ready for Consultation</h2>
+                    <div id="doctorQueueList" class="space-y-4 max-h-[600px] overflow-y-auto"></div>
+                </div>
+                
+                <div id="consultModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50 overflow-y-auto">
+                    <div class="bg-white rounded-lg p-6 w-full max-w-3xl my-8">
+                        <h2 class="text-xl font-bold mb-4">Medical Consultation</h2>
+                        <div id="consultPatientInfo"></div>
+                        <div class="mb-3"><label>Diagnosis</label><textarea id="diagnosis" class="w-full border rounded p-2" rows="2" required></textarea></div>
+                        <div class="mb-3"><label>Treatment Plan</label><textarea id="treatment" class="w-full border rounded p-2" rows="2" required></textarea></div>
+                        <div class="mb-3"><label>Medication Prescribed</label><input type="text" id="medication" class="w-full border rounded p-2" placeholder="e.g., Paracetamol 500mg"></div>
+                        <div class="mb-3"><label>Dosage & Duration</label><input type="text" id="dosage" class="w-full border rounded p-2" placeholder="e.g., 2 times daily for 5 days"></div>
+                        <div class="flex gap-2"><button onclick="saveConsultation()" class="bg-green-600 text-white px-4 py-2 rounded">Save & Send to Pharmacy</button><button onclick="closeConsultModal()" class="bg-gray-500 text-white px-4 py-2 rounded">Cancel</button></div>
+                    </div>
+                </div>
+            `;
+        }
+
+        async function loadDoctorQueue() {
+            if (!window.supabase) return;
+            const { data: queue } = await window.supabase.from('queue_management').select('*, visit:visits(id, reason_for_visit, patient:users!patient_id(full_name, id_number, clinic_card), nurse_assessments(*))').eq('queue_type', 'doctor').eq('status', 'waiting');
+            if (!queue || queue.length === 0) { document.getElementById('doctorQueueList').innerHTML = '<div class="text-center text-gray-500 py-8">No patients waiting</div>'; return; }
+            document.getElementById('doctorQueueList').innerHTML = queue.map(q => `
+                <div class="border rounded-lg p-4"><div class="flex justify-between"><div><h3 class="font-bold">${q.visit?.patient?.full_name}</h3><p class="text-sm">ID: ${q.visit?.patient?.id_number} | Card: ${q.visit?.patient?.clinic_card || 'N/A'}</p><p class="text-sm">Reason: ${q.visit?.reason_for_visit}</p>${q.visit?.nurse_assessments?.[0] ? `<div class="mt-2 bg-gray-50 p-2 rounded"><strong>Vitals:</strong> Temp: ${q.visit.nurse_assessments[0].temperature}°C | BP: ${q.visit.nurse_assessments[0].blood_pressure} | HR: ${q.visit.nurse_assessments[0].heart_rate}</div>` : ''}</div><button onclick="openConsultModal('${q.visit_id}', '${q.visit?.patient?.id}', '${q.visit?.patient?.full_name}')" class="bg-blue-600 text-white px-4 py-2 rounded">Consult</button></div></div>
+            `).join('');
+        }
+
+        window.openConsultModal = function(visitId, patientId, patientName) { window.currentConsult = { visitId, patientId }; document.getElementById('consultPatientInfo').innerHTML = `<div class="bg-blue-50 p-3 rounded mb-4"><strong>Patient:</strong> ${patientName}</div>`; document.getElementById('consultModal').classList.remove('hidden'); };
+        window.closeConsultModal = function() { document.getElementById('consultModal').classList.add('hidden'); };
+        window.saveConsultation = async function() { 
+            await window.supabase.from('consultations').insert([{ visit_id: window.currentConsult.visitId, doctor_id: currentUser.id, diagnosis: document.getElementById('diagnosis').value, treatment_plan: document.getElementById('treatment').value }]);
+            await window.supabase.from('prescriptions').insert([{ consultation_id: window.currentConsult.consultationId, patient_id: window.currentConsult.patientId, doctor_id: currentUser.id, medication_name: document.getElementById('medication').value, dosage: document.getElementById('dosage').value, status: 'pending' }]);
+            await window.supabase.from('visits').update({ status: 'prescribed' }).eq('id', window.currentConsult.visitId);
+            alert('Prescription sent to pharmacy!'); closeConsultModal(); loadDoctorQueue();
+        };
+
+        // ============= PHARMACIST DASHBOARD =============
+        function getPharmacistHTML() {
+            return `
+                <div class="bg-white rounded-lg shadow-md p-6 mb-6"><h1 class="text-2xl font-bold">Pharmacy Dashboard</h1><p class="text-gray-600">Dispense medications and manage inventory</p></div>
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <h2 class="text-xl font-bold mb-4"><i class="fas fa-prescription-bottle text-green-600 mr-2"></i>Pending Prescriptions</h2>
+                    <div id="pharmacyPrescriptionsList" class="space-y-4 max-h-[500px] overflow-y-auto"></div>
+                </div>
+            `;
+        }
+
+        async function loadPharmacyPrescriptions() {
+            if (!window.supabase) return;
+            const { data: presc } = await window.supabase.from('prescriptions').select('*, patient:users!patient_id(full_name, id_number, clinic_card), doctor:users!doctor_id(full_name)').eq('status', 'pending');
+            if (!presc || presc.length === 0) { document.getElementById('pharmacyPrescriptionsList').innerHTML = '<div class="text-center text-gray-500 py-8">No pending prescriptions</div>'; return; }
+            document.getElementById('pharmacyPrescriptionsList').innerHTML = presc.map(p => `
+                <div class="border rounded-lg p-4"><div class="flex justify-between"><div><h3 class="font-bold">${p.medication_name}</h3><p class="text-sm">Patient: ${p.patient?.full_name} (ID: ${p.patient?.id_number})<br>Prescribed by: Dr. ${p.doctor?.full_name}<br>Dosage: ${p.dosage}</p></div><button onclick="dispenseMedication('${p.id}', '${p.patient?.full_name}', '${p.patient?.clinic_card}')" class="bg-green-600 text-white px-4 py-2 rounded">Dispense</button></div></div>
+            `).join('');
+        }
+
+        window.dispenseMedication = async function(id, patientName, clinicCard) { if(confirm(`Dispense medication to ${patientName}?`)) { await window.supabase.from('prescriptions').update({ status: 'dispensed', dispensed_by: currentUser.id, dispensed_at: new Date() }).eq('id', id); alert('Dispensed!'); loadPharmacyPrescriptions(); } };
+
+        // ============= PATIENT DASHBOARD =============
+        function getPatientHTML() {
+            return `
+                <div class="bg-white rounded-lg shadow-md p-6 mb-6"><h1 class="text-2xl font-bold">Patient Portal</h1><p class="text-gray-600">View your medical history and prescriptions</p></div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                    <div class="bg-white rounded-lg shadow-md p-6"><p class="text-gray-500">Total Visits</p><p id="patientTotalVisits" class="text-3xl font-bold text-purple-600">0</p></div>
+                    <div class="bg-white rounded-lg shadow-md p-6"><p class="text-gray-500">Active Prescriptions</p><p id="patientActivePresc" class="text-3xl font-bold text-orange-600">0</p></div>
+                </div>
+                <div class="bg-white rounded-lg shadow-md p-6"><h2 class="text-xl font-bold mb-4"><i class="fas fa-history text-purple-600 mr-2"></i>Your Visit History</h2><div id="patientHistory" class="space-y-3 max-h-[500px] overflow-y-auto"></div></div>
+                <button onclick="newPatientVisit()" class="fixed bottom-6 right-6 bg-green-600 text-white p-4 rounded-full shadow-lg hover:bg-green-700"><i class="fas fa-plus text-xl"></i></button>
+            `;
+        }
+
+        async function loadPatientDashboard() {
+            if (!window.supabase) return;
+            const { data: visits } = await window.supabase.from('visits').select('*, consultations(*), prescriptions(*)').eq('patient_id', currentUser.id).order('created_at', { ascending: false });
+            document.getElementById('patientTotalVisits').textContent = visits?.length || 0;
+            const { count: active } = await window.supabase.from('prescriptions').select('*', { count: 'exact', head: true }).eq('patient_id', currentUser.id).eq('status', 'pending');
+            document.getElementById('patientActivePresc').textContent = active || 0;
+            if (!visits || visits.length === 0) { document.getElementById('patientHistory').innerHTML = '<div class="text-center text-gray-500 py-8">No visits yet</div>'; return; }
+            document.getElementById('patientHistory').innerHTML = visits.map(v => `<div class="border rounded p-3"><div class="flex justify-between"><div><p class="font-semibold">${new Date(v.created_at).toLocaleDateString()}</p><p class="text-sm">Reason: ${v.reason_for_visit || 'N/A'}</p><p class="text-sm">Status: ${v.status}</p>${v.consultations?.[0] ? `<p class="text-sm mt-1"><strong>Diagnosis:</strong> ${v.consultations[0].diagnosis}</p>` : ''}</div></div></div>`).join('');
+        }
+
+        window.newPatientVisit = function() { window.location.href = 'new-visit.html'; };
+
+        // ============= LOGOUT =============
+        function logout() { localStorage.removeItem('currentUser'); window.location.href = 'index.html'; }
     </script>
 </body>
 </html>
