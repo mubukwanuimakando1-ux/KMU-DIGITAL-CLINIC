@@ -6,6 +6,7 @@
     <title>KMU Health Center Management System</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
         * { font-family: 'Inter', sans-serif; }
@@ -15,6 +16,26 @@
         .card-hover:hover {
             transform: translateY(-5px);
             transition: all 0.3s ease;
+        }
+        /* Dark Mode Styles */
+        body.dark-mode {
+            background-color: #1a1a2e;
+        }
+        body.dark-mode .bg-white {
+            background-color: #16213e;
+            color: #eee;
+        }
+        body.dark-mode .bg-gray-50, body.dark-mode .bg-gray-100 {
+            background-color: #0f0f1a;
+        }
+        body.dark-mode .text-gray-600, body.dark-mode .text-gray-700, body.dark-mode .text-gray-800 {
+            color: #ccc;
+        }
+        body.dark-mode .border {
+            border-color: #2d2d44;
+        }
+        body.dark-mode .bg-gray-100 {
+            background-color: #1a1a2e;
         }
     </style>
 </head>
@@ -35,6 +56,9 @@
                     <a href="#features" class="hover:text-gray-200 transition">Features</a>
                     <a href="#about" class="hover:text-gray-200 transition">About</a>
                 </div>
+                <button id="darkModeToggle" class="bg-white bg-opacity-20 px-3 py-1 rounded-lg text-sm hover:bg-opacity-30 transition">
+                    <i class="fas fa-moon mr-1"></i> Dark Mode
+                </button>
             </div>
         </div>
     </nav>
@@ -47,12 +71,13 @@
                 <p class="text-xl text-gray-600 mb-6">Streamlining healthcare delivery at KMU with real-time patient management, electronic prescriptions, and integrated pharmacy services.</p>
                 <div class="flex space-x-4">
                     <button onclick="showLoginModal()" class="gradient-bg text-white px-8 py-3 rounded-lg font-semibold hover:opacity-90 transition shadow-lg">
-                        <i class="fas fa-sign-in-alt mr-2"></i>Login
+                        <i class="fas fa-sign-in-alt mr-2"></i>Staff Login
                     </button>
-                    <button onclick="showRegisterModal()" class="border-2 border-purple-600 text-purple-600 px-8 py-3 rounded-lg font-semibold hover:bg-purple-50 transition">
-                        <i class="fas fa-user-plus mr-2"></i>Self Registration
-                    </button>
+                    <a href="checkin.html" class="border-2 border-purple-600 text-purple-600 px-8 py-3 rounded-lg font-semibold hover:bg-purple-50 transition inline-block">
+                        <i class="fas fa-credit-card mr-2"></i>Patient Check-in
+                    </a>
                 </div>
+                <p class="text-sm text-gray-500 mt-4">⚠️ Registration is done by Admin only. Visit the admin office to get registered.</p>
             </div>
             <div class="md:w-1/2">
                 <div class="bg-purple-100 rounded-lg shadow-xl p-8 text-center">
@@ -72,7 +97,7 @@
                 <div class="bg-white rounded-lg p-6 shadow-md card-hover">
                     <i class="fas fa-id-card text-4xl text-purple-600 mb-4"></i>
                     <h4 class="text-xl font-bold mb-2">Smart Registration</h4>
-                    <p class="text-gray-600">Real-time ID verification with role-based access for students, staff, and visitors.</p>
+                    <p class="text-gray-600">Admin-controlled registration with clinic card numbers for patients.</p>
                 </div>
                 <div class="bg-white rounded-lg p-6 shadow-md card-hover">
                     <i class="fas fa-stethoscope text-4xl text-purple-600 mb-4"></i>
@@ -92,14 +117,14 @@
     <div id="loginModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
         <div class="bg-white rounded-lg p-8 w-full max-w-md">
             <div class="flex justify-between items-center mb-6">
-                <h3 class="text-2xl font-bold">Login to System</h3>
+                <h3 class="text-2xl font-bold">Staff Login</h3>
                 <button onclick="closeLoginModal()" class="text-gray-500 hover:text-gray-700">
                     <i class="fas fa-times text-2xl"></i>
                 </button>
             </div>
             <form id="loginForm">
                 <div class="mb-4">
-                    <label class="block text-gray-700 mb-2">Email / Staff/Student ID</label>
+                    <label class="block text-gray-700 mb-2">Email / Staff ID</label>
                     <input type="text" id="loginIdentifier" class="w-full border rounded-lg px-4 py-2 focus:outline-none focus:border-purple-600" required>
                 </div>
                 <div class="mb-6">
@@ -110,91 +135,55 @@
                     Login
                 </button>
             </form>
-            <p class="mt-4 text-center text-gray-600">Don't have an account? <button onclick="switchToRegister()" class="text-purple-600 hover:underline">Register here</button></p>
+            <p class="mt-4 text-center">
+                <a href="#" onclick="showForgotPassword()" class="text-purple-600 hover:underline text-sm">Forgot Password?</a>
+            </p>
         </div>
     </div>
 
-    <!-- Registration Modal -->
-    <div id="registerModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50 overflow-y-auto">
-        <div class="bg-white rounded-lg p-8 w-full max-w-2xl my-8">
-            <div class="flex justify-between items-center mb-6">
-                <h3 class="text-2xl font-bold">User Registration</h3>
-                <button onclick="closeRegisterModal()" class="text-gray-500 hover:text-gray-700">
-                    <i class="fas fa-times text-2xl"></i>
+    <!-- Forgot Password Modal -->
+    <div id="forgotModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+        <div class="bg-white rounded-lg p-6 w-full max-w-md">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-xl font-bold">Reset Password</h3>
+                <button onclick="closeForgotModal()" class="text-gray-500 hover:text-gray-700">
+                    <i class="fas fa-times text-xl"></i>
                 </button>
             </div>
-            <form id="registerForm">
-                <div class="grid md:grid-cols-2 gap-4">
-                    <div>
-                        <label class="block text-gray-700 mb-2">Full Name *</label>
-                        <input type="text" id="regFullName" class="w-full border rounded-lg px-4 py-2" required>
-                    </div>
-                    <div>
-                        <label class="block text-gray-700 mb-2">ID Number (Student/Staff) *</label>
-                        <input type="text" id="regIdNumber" class="w-full border rounded-lg px-4 py-2" required>
-                    </div>
-                    <div>
-                        <label class="block text-gray-700 mb-2">Email *</label>
-                        <input type="email" id="regEmail" class="w-full border rounded-lg px-4 py-2" required>
-                    </div>
-                    <div>
-                        <label class="block text-gray-700 mb-2">Phone Number</label>
-                        <input type="tel" id="regPhone" class="w-full border rounded-lg px-4 py-2">
-                    </div>
-                    <div>
-                        <label class="block text-gray-700 mb-2">Role *</label>
-                        <select id="regRole" class="w-full border rounded-lg px-4 py-2">
-                            <option value="student">Student</option>
-                            <option value="staff">Staff</option>
-                            <option value="visitor">Visitor</option>
-                            <option value="casual_worker">Casual Worker</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="block text-gray-700 mb-2">Program/Department</label>
-                        <input type="text" id="regProgram" class="w-full border rounded-lg px-4 py-2">
-                    </div>
-                    <div>
-                        <label class="block text-gray-700 mb-2">Year of Study</label>
-                        <input type="number" id="regYear" class="w-full border rounded-lg px-4 py-2">
-                    </div>
-                    <div>
-                        <label class="block text-gray-700 mb-2">Hostel & Room Number</label>
-                        <input type="text" id="regHostel" placeholder="e.g., W307A" class="w-full border rounded-lg px-4 py-2">
-                    </div>
-                    <div>
-                        <label class="block text-gray-700 mb-2">Clinic Card Number</label>
-                        <input type="text" id="regClinicCard" class="w-full border rounded-lg px-4 py-2">
-                    </div>
-                    <div class="md:col-span-2">
-                        <label class="block text-gray-700 mb-2">Password *</label>
-                        <input type="password" id="regPassword" class="w-full border rounded-lg px-4 py-2" required>
-                    </div>
+            <form id="forgotForm">
+                <div class="mb-3">
+                    <label class="block text-gray-700 mb-1 text-sm">Staff ID or Email</label>
+                    <input type="text" id="resetIdentifier" class="w-full border rounded-lg px-4 py-2" required>
                 </div>
-                <button type="submit" class="w-full gradient-bg text-white py-2 rounded-lg font-semibold hover:opacity-90 mt-6">
-                    Register
-                </button>
+                <div class="mb-3">
+                    <label class="block text-gray-700 mb-1 text-sm">Security Answer</label>
+                    <input type="text" id="securityAnswer" class="w-full border rounded-lg px-4 py-2" required>
+                </div>
+                <div class="mb-4">
+                    <label class="block text-gray-700 mb-1 text-sm">New Password</label>
+                    <input type="password" id="newPassword" class="w-full border rounded-lg px-4 py-2" required>
+                </div>
+                <button type="submit" class="w-full gradient-bg text-white py-2 rounded-lg font-semibold">Reset Password</button>
             </form>
         </div>
     </div>
 
     <!-- SCRIPTS - ORDER MATTERS! -->
-    <!-- 1. First load Supabase library - CORRECT CDN with @ symbol -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    
-    <!-- 2. Then load your config file -->
     <script src="js/config.js"></script>
-    
-    <!-- 3. Then load your auth functions -->
     <script src="js/auth.js"></script>
     
-    <!-- 4. Finally the page-specific code -->
     <script>
-        // Make sure supabase is defined before using it
-        console.log('Page loaded - checking Supabase...');
-        console.log('Supabase client:', typeof supabase !== 'undefined' ? 'Loaded' : 'Not loaded');
-        console.log('window.supabase:', typeof window?.supabase !== 'undefined' ? 'Set' : 'Not set');
+        // Dark Mode Toggle
+        const darkModeToggle = document.getElementById('darkModeToggle');
+        if (localStorage.getItem('darkMode') === 'true') {
+            document.body.classList.add('dark-mode');
+        }
+        darkModeToggle.addEventListener('click', () => {
+            document.body.classList.toggle('dark-mode');
+            localStorage.setItem('darkMode', document.body.classList.contains('dark-mode'));
+        });
         
+        // Modal functions
         function showLoginModal() {
             document.getElementById('loginModal').classList.remove('hidden');
             document.getElementById('loginModal').classList.add('flex');
@@ -205,19 +194,15 @@
             document.getElementById('loginModal').classList.add('hidden');
         }
         
-        function showRegisterModal() {
-            document.getElementById('registerModal').classList.remove('hidden');
-            document.getElementById('registerModal').classList.add('flex');
-        }
-        
-        function closeRegisterModal() {
-            document.getElementById('registerModal').classList.remove('flex');
-            document.getElementById('registerModal').classList.add('hidden');
-        }
-        
-        function switchToRegister() {
+        function showForgotPassword() {
             closeLoginModal();
-            showRegisterModal();
+            document.getElementById('forgotModal').classList.remove('hidden');
+            document.getElementById('forgotModal').classList.add('flex');
+        }
+        
+        function closeForgotModal() {
+            document.getElementById('forgotModal').classList.remove('flex');
+            document.getElementById('forgotModal').classList.add('hidden');
         }
         
         // Handle Login
@@ -226,10 +211,8 @@
             const identifier = document.getElementById('loginIdentifier').value;
             const password = document.getElementById('loginPassword').value;
             
-            // Check if supabase is defined (try both ways)
             if (typeof window.supabase === 'undefined' || !window.supabase) {
-                alert('System not initialized. Please check your internet connection and refresh the page.');
-                console.error('Supabase is not defined! Check config.js');
+                alert('System initializing. Please wait and refresh.');
                 return;
             }
             
@@ -241,31 +224,22 @@
             }
         });
         
-        // Handle Registration
-        document.getElementById('registerForm').addEventListener('submit', async (e) => {
+        // Handle Forgot Password
+        document.getElementById('forgotForm').addEventListener('submit', async (e) => {
             e.preventDefault();
-            const userData = {
-                full_name: document.getElementById('regFullName').value,
-                id_number: document.getElementById('regIdNumber').value,
-                email: document.getElementById('regEmail').value,
-                phone: document.getElementById('regPhone').value,
-                role: document.getElementById('regRole').value,
-                program: document.getElementById('regProgram').value,
-                year_of_study: document.getElementById('regYear').value,
-                hostel_room: document.getElementById('regHostel').value,
-                clinic_card: document.getElementById('regClinicCard').value,
-                password: document.getElementById('regPassword').value
-            };
+            const identifier = document.getElementById('resetIdentifier').value;
+            const answer = document.getElementById('securityAnswer').value;
+            const newPass = document.getElementById('newPassword').value;
             
-            const result = await handleRegistration(userData);
+            const result = await resetPassword(identifier, answer, newPass);
+            alert(result.message);
             if (result.success) {
-                alert('Registration successful! Please wait for admin approval.');
-                closeRegisterModal();
-                document.getElementById('registerForm').reset();
-            } else {
-                alert(result.error);
+                closeForgotModal();
+                showLoginModal();
             }
         });
+        
+        console.log('Page loaded - Supabase:', typeof window.supabase !== 'undefined' ? 'Connected' : 'Not connected');
     </script>
 </body>
 </html>
