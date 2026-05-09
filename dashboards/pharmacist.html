@@ -1,0 +1,944 @@
+<!-- dashboards/pharmacist.html - Pharmacist Dashboard -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pharmacist Dashboard - KMU Health System</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/supabase-js@2"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body class="bg-gray-100">
+    <div class="flex h-screen">
+        <!-- Sidebar -->
+        <div class="w-64 bg-green-700 text-white flex flex-col">
+            <div class="p-6">
+                <h2 class="text-2xl font-bold">KMU Health</h2>
+                <p class="text-sm opacity-90">Pharmacy Portal</p>
+            </div>
+            <nav class="flex-1 mt-6">
+                <a href="#" onclick="showSection('prescriptions')" class="flex items-center px-6 py-3 hover:bg-green-600 transition sidebar-link active" data-section="prescriptions">
+                    <i class="fas fa-prescription-bottle w-5 mr-3"></i> Prescriptions Queue
+                    <span id="prescriptionBadge" class="ml-auto bg-red-500 text-xs px-2 py-1 rounded-full hidden">0</span>
+                </a>
+                <a href="#" onclick="showSection('inventory')" class="flex items-center px-6 py-3 hover:bg-green-600 transition sidebar-link" data-section="inventory">
+                    <i class="fas fa-capsules w-5 mr-3"></i> Inventory Management
+                </a>
+                <a href="#" onclick="showSection('dispensed')" class="flex items-center px-6 py-3 hover:bg-green-600 transition sidebar-link" data-section="dispensed">
+                    <i class="fas fa-check-circle w-5 mr-3"></i> Dispensed History
+                </a>
+                <a href="#" onclick="showSection('alerts')" class="flex items-center px-6 py-3 hover:bg-green-600 transition sidebar-link" data-section="alerts">
+                    <i class="fas fa-bell w-5 mr-3"></i> Stock Alerts
+                    <span id="alertBadge" class="ml-auto bg-red-500 text-xs px-2 py-1 rounded-full hidden"></span>
+                </a>
+                <a href="#" onclick="showSection('reports')" class="flex items-center px-6 py-3 hover:bg-green-600 transition sidebar-link" data-section="reports">
+                    <i class="fas fa-chart-bar w-5 mr-3"></i> Reports
+                </a>
+                <a href="#" onclick="showSection('chat')" class="flex items-center px-6 py-3 hover:bg-green-600 transition sidebar-link" data-section="chat">
+                    <i class="fas fa-comments w-5 mr-3"></i> Staff Chat
+                </a>
+            </nav>
+            <div class="p-6 border-t border-green-600">
+                <div class="flex items-center mb-4">
+                    <i class="fas fa-user-circle text-2xl mr-3"></i>
+                    <div>
+                        <p class="text-sm font-semibold" id="pharmacistName">Pharmacist</p>
+                        <p class="text-xs opacity-75">Pharmacist</p>
+                    </div>
+                </div>
+                <button onclick="logout()" class="w-full bg-red-600 hover:bg-red-700 text-white py-2 rounded-lg transition">
+                    <i class="fas fa-sign-out-alt mr-2"></i> Logout
+                </button>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="flex-1 overflow-y-auto">
+            <div class="bg-white shadow-md px-6 py-4">
+                <h1 id="pageTitle" class="text-2xl font-bold text-gray-800">Prescriptions Queue</h1>
+            </div>
+
+            <!-- Prescriptions Queue Section -->
+            <div id="prescriptionsSection" class="p-6">
+                <!-- Filters -->
+                <div class="bg-white rounded-lg shadow-md p-4 mb-6">
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium mb-1">Filter by Date</label>
+                            <input type="date" id="filterDate" class="w-full border rounded-lg px-3 py-2" onchange="loadPrescriptions()">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium mb-1">Search Patient</label>
+                            <input type="text" id="searchPatient" placeholder="Name or ID..." class="w-full border rounded-lg px-3 py-2" onkeyup="filterPrescriptions()">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium mb-1">Status</label>
+                            <select id="filterStatus" class="w-full border rounded-lg px-3 py-2" onchange="loadPrescriptions()">
+                                <option value="all">All</option>
+                                <option value="pending">Pending</option>
+                                <option value="dispensed">Dispensed</option>
+                            </select>
+                        </div>
+                        <div class="flex items-end">
+                            <button onclick="refreshQueue()" class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 w-full">
+                                <i class="fas fa-sync-alt mr-2"></i>Refresh
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Statistics Cards -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+                    <div class="bg-white rounded-lg shadow-md p-6">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-gray-500 text-sm">Pending Prescriptions</p>
+                                <p id="pendingCount" class="text-3xl font-bold text-orange-600">0</p>
+                            </div>
+                            <i class="fas fa-clock text-4xl text-orange-600 opacity-50"></i>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-lg shadow-md p-6">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-gray-500 text-sm">Dispensed Today</p>
+                                <p id="dispensedToday" class="text-3xl font-bold text-green-600">0</p>
+                            </div>
+                            <i class="fas fa-check-circle text-4xl text-green-600 opacity-50"></i>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-lg shadow-md p-6">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-gray-500 text-sm">Low Stock Items</p>
+                                <p id="lowStockCount" class="text-3xl font-bold text-red-600">0</p>
+                            </div>
+                            <i class="fas fa-exclamation-triangle text-4xl text-red-600 opacity-50"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Prescriptions List -->
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <h3 class="text-lg font-semibold mb-4">Prescriptions Ready for Dispensing</h3>
+                    <div id="prescriptionsList" class="space-y-4 max-h-[500px] overflow-y-auto"></div>
+                </div>
+            </div>
+
+            <!-- Inventory Section -->
+            <div id="inventorySection" class="p-6 hidden">
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-lg font-semibold">Pharmacy Inventory</h3>
+                        <button onclick="showAddStockModal()" class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700">
+                            <i class="fas fa-plus mr-2"></i>Add New Medication
+                        </button>
+                    </div>
+                    
+                    <!-- Inventory Search -->
+                    <div class="mb-4">
+                        <input type="text" id="inventorySearch" placeholder="Search medications..." class="w-full border rounded-lg px-4 py-2" onkeyup="searchInventory()">
+                    </div>
+                    
+                    <!-- Inventory Table -->
+                    <div class="overflow-x-auto">
+                        <table class="w-full">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th class="px-4 py-2 text-left">Medication</th>
+                                    <th class="px-4 py-2 text-left">Category</th>
+                                    <th class="px-4 py-2 text-left">Current Stock</th>
+                                    <th class="px-4 py-2 text-left">Min Stock</th>
+                                    <th class="px-4 py-2 text-left">Status</th>
+                                    <th class="px-4 py-2 text-left">Expiry Date</th>
+                                    <th class="px-4 py-2 text-left">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="inventoryTable"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Dispensed History Section -->
+            <div id="dispensedSection" class="p-6 hidden">
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <h3 class="text-lg font-semibold mb-4">Dispensed Prescriptions History</h3>
+                    <div class="overflow-x-auto">
+                        <table class="w-full">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th class="px-4 py-2 text-left">Date</th>
+                                    <th class="px-4 py-2 text-left">Patient</th>
+                                    <th class="px-4 py-2 text-left">Medication</th>
+                                    <th class="px-4 py-2 text-left">Quantity</th>
+                                    <th class="px-4 py-2 text-left">Dispensed By</th>
+                                </tr>
+                            </thead>
+                            <tbody id="dispensedTable"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Stock Alerts Section -->
+            <div id="alertsSection" class="p-6 hidden">
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <h3 class="text-lg font-semibold mb-4">Low Stock Alerts</h3>
+                    <div id="stockAlertsList" class="space-y-4"></div>
+                </div>
+            </div>
+
+            <!-- Reports Section -->
+            <div id="reportsSection" class="p-6 hidden">
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div class="bg-white rounded-lg shadow-md p-6">
+                        <h3 class="text-lg font-semibold mb-4">Monthly Dispensing Trends</h3>
+                        <canvas id="dispensingChart" height="200"></canvas>
+                    </div>
+                    <div class="bg-white rounded-lg shadow-md p-6">
+                        <h3 class="text-lg font-semibold mb-4">Top Dispensed Medications</h3>
+                        <canvas id="topMedsChart" height="200"></canvas>
+                    </div>
+                    <div class="bg-white rounded-lg shadow-md p-6 col-span-2">
+                        <h3 class="text-lg font-semibold mb-4">Stock Movement Log</h3>
+                        <div id="stockMovementsLog" class="max-h-96 overflow-y-auto"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Chat Section -->
+            <div id="chatSection" class="p-6 hidden">
+                <div class="bg-white rounded-lg shadow-md p-6 h-[600px] flex flex-col">
+                    <h3 class="text-lg font-semibold mb-4">Staff Communication</h3>
+                    <div id="chatMessages" class="flex-1 overflow-y-auto mb-4 space-y-3 bg-gray-50 p-4 rounded"></div>
+                    <div class="flex space-x-2">
+                        <input type="text" id="chatInput" placeholder="Type your message..." class="flex-1 border rounded-lg px-4 py-2" onkeypress="handleChatKeyPress(event)">
+                        <button onclick="sendChatMessage()" class="bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700">
+                            <i class="fas fa-paper-plane"></i> Send
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Dispense Modal -->
+    <div id="dispenseModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+        <div class="bg-white rounded-lg p-6 w-full max-w-md">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-2xl font-bold">Dispense Medication</h3>
+                <button onclick="closeDispenseModal()" class="text-gray-500 hover:text-gray-700">
+                    <i class="fas fa-times text-2xl"></i>
+                </button>
+            </div>
+            <div id="dispenseContent"></div>
+            <form id="dispenseForm" onsubmit="confirmDispense(event)">
+                <div class="mb-4">
+                    <label class="block text-gray-700 mb-2">Verify Patient Name</label>
+                    <input type="text" id="verifyName" class="w-full border rounded-lg px-4 py-2" required placeholder="Enter patient name">
+                </div>
+                <div class="mb-4">
+                    <label class="block text-gray-700 mb-2">Verify Clinic Card Number</label>
+                    <input type="text" id="verifyClinicCard" class="w-full border rounded-lg px-4 py-2" required placeholder="Enter clinic card number">
+                </div>
+                <div class="mb-4">
+                    <label class="block text-gray-700 mb-2">Quantity to Dispense</label>
+                    <input type="number" id="dispenseQuantity" class="w-full border rounded-lg px-4 py-2" required>
+                </div>
+                <button type="submit" class="w-full bg-green-600 text-white py-2 rounded-lg hover:bg-green-700">
+                    <i class="fas fa-check-circle mr-2"></i>Confirm Dispense
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Add Stock Modal -->
+    <div id="addStockModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+        <div class="bg-white rounded-lg p-6 w-full max-w-md">
+            <h3 class="text-2xl font-bold mb-4">Add New Medication</h3>
+            <form id="addStockForm">
+                <div class="mb-4">
+                    <label class="block text-gray-700 mb-2">Medication Name *</label>
+                    <input type="text" id="medName" class="w-full border rounded-lg px-4 py-2" required>
+                </div>
+                <div class="mb-4">
+                    <label class="block text-gray-700 mb-2">Generic Name</label>
+                    <input type="text" id="genericName" class="w-full border rounded-lg px-4 py-2">
+                </div>
+                <div class="mb-4">
+                    <label class="block text-gray-700 mb-2">Category *</label>
+                    <select id="category" class="w-full border rounded-lg px-4 py-2" required>
+                        <option value="Analgesic">Analgesic</option>
+                        <option value="Antibiotic">Antibiotic</option>
+                        <option value="Antimalarial">Antimalarial</option>
+                        <option value="Antihypertensive">Antihypertensive</option>
+                        <option value="Antidiabetic">Antidiabetic</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+                <div class="mb-4">
+                    <label class="block text-gray-700 mb-2">Initial Stock *</label>
+                    <input type="number" id="initialStock" class="w-full border rounded-lg px-4 py-2" required>
+                </div>
+                <div class="mb-4">
+                    <label class="block text-gray-700 mb-2">Minimum Stock Alert *</label>
+                    <input type="number" id="minStock" class="w-full border rounded-lg px-4 py-2" required>
+                </div>
+                <div class="mb-4">
+                    <label class="block text-gray-700 mb-2">Unit Price (ZMW)</label>
+                    <input type="number" id="unitPrice" step="0.01" class="w-full border rounded-lg px-4 py-2">
+                </div>
+                <div class="mb-4">
+                    <label class="block text-gray-700 mb-2">Expiry Date</label>
+                    <input type="date" id="expiryDate" class="w-full border rounded-lg px-4 py-2">
+                </div>
+                <div class="flex space-x-2">
+                    <button type="submit" class="flex-1 bg-green-600 text-white py-2 rounded-lg hover:bg-green-700">
+                        Add Medication
+                    </button>
+                    <button type="button" onclick="closeAddStockModal()" class="flex-1 bg-gray-600 text-white py-2 rounded-lg hover:bg-gray-700">
+                        Cancel
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="../js/config.js"></script>
+    <script>
+        let currentUser = null;
+        let currentPrescription = null;
+        let chatSubscription = null;
+        let dispensingChart = null;
+        let topMedsChart = null;
+
+        async function initPharmacistDashboard() {
+            currentUser = JSON.parse(localStorage.getItem('currentUser'));
+            document.getElementById('pharmacistName').textContent = currentUser.full_name;
+            
+            // Set default date filter to today
+            document.getElementById('filterDate').value = new Date().toISOString().split('T')[0];
+            
+            await loadPrescriptions();
+            await loadInventory();
+            await loadDispensedHistory();
+            await loadStockAlerts();
+            await loadStats();
+            await loadCharts();
+            setupRealTimeChat();
+            
+            // Auto-refresh every 15 seconds
+            setInterval(() => {
+                if (document.getElementById('prescriptionsSection').classList.contains('hidden') === false) {
+                    loadPrescriptions();
+                }
+                loadStockAlerts();
+                loadStats();
+            }, 15000);
+        }
+
+        async function loadPrescriptions() {
+            try {
+                let query = supabase
+                    .from('prescriptions')
+                    .select(`
+                        *,
+                        patient:users!patient_id(full_name, id_number, clinic_card),
+                        doctor:users!doctor_id(full_name),
+                        consultation:consultations(diagnosis)
+                    `)
+                    .order('created_at', { ascending: true });
+                
+                const filterDate = document.getElementById('filterDate').value;
+                const filterStatus = document.getElementById('filterStatus').value;
+                
+                if (filterDate) {
+                    query = query.gte('created_at', `${filterDate}T00:00:00`)
+                               .lte('created_at', `${filterDate}T23:59:59`);
+                }
+                
+                if (filterStatus !== 'all') {
+                    query = query.eq('status', filterStatus);
+                }
+                
+                const { data: prescriptions, error } = await query;
+                
+                if (error) throw error;
+                
+                const container = document.getElementById('prescriptionsList');
+                const pendingPrescriptions = prescriptions?.filter(p => p.status === 'pending') || [];
+                
+                if (!prescriptions || prescriptions.length === 0) {
+                    container.innerHTML = '<div class="text-center text-gray-500 py-8">No prescriptions found</div>';
+                    return;
+                }
+                
+                container.innerHTML = pendingPrescriptions.map(prescription => `
+                    <div class="border rounded-lg p-4 hover:shadow-lg transition prescription-item" data-patient="${prescription.patient?.full_name} ${prescription.patient?.id_number}">
+                        <div class="flex justify-between items-start">
+                            <div class="flex-1">
+                                <div class="flex items-center space-x-3 mb-2">
+                                    <span class="bg-green-100 text-green-800 text-xs font-semibold px-2 py-1 rounded-full">
+                                        ${prescription.status === 'pending' ? '⏳ Pending' : '✅ Dispensed'}
+                                    </span>
+                                    <h4 class="font-semibold text-lg">${prescription.medication_name}</h4>
+                                </div>
+                                <div class="grid grid-cols-2 gap-4 text-sm">
+                                    <div><strong>Patient:</strong> ${prescription.patient?.full_name}</div>
+                                    <div><strong>ID Number:</strong> ${prescription.patient?.id_number}</div>
+                                    <div><strong>Clinic Card:</strong> ${prescription.patient?.clinic_card || 'N/A'}</div>
+                                    <div><strong>Doctor:</strong> ${prescription.doctor?.full_name}</div>
+                                    <div><strong>Dosage:</strong> ${prescription.dosage}</div>
+                                    <div><strong>Duration:</strong> ${prescription.duration}</div>
+                                </div>
+                                ${prescription.consultation?.diagnosis ? `
+                                    <div class="mt-2 text-sm text-gray-600">
+                                        <strong>Diagnosis:</strong> ${prescription.consultation.diagnosis}
+                                    </div>
+                                ` : ''}
+                            </div>
+                            ${prescription.status === 'pending' ? `
+                                <button onclick="showDispenseModal('${prescription.id}', '${prescription.patient?.full_name}', '${prescription.patient?.clinic_card}', ${prescription.quantity || 1})" 
+                                    class="bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700 ml-4">
+                                    <i class="fas fa-capsules mr-2"></i>Dispense
+                                </button>
+                            ` : `
+                                <span class="text-green-600"><i class="fas fa-check-circle"></i> Dispensed</span>
+                            `}
+                        </div>
+                    </div>
+                `).join('');
+                
+                // Update badge
+                const badge = document.getElementById('prescriptionBadge');
+                if (pendingPrescriptions.length > 0) {
+                    badge.textContent = pendingPrescriptions.length;
+                    badge.classList.remove('hidden');
+                } else {
+                    badge.classList.add('hidden');
+                }
+                
+            } catch (error) {
+                console.error('Error loading prescriptions:', error);
+                document.getElementById('prescriptionsList').innerHTML = '<div class="text-red-600 text-center py-8">Error loading prescriptions</div>';
+            }
+        }
+
+        async function loadInventory() {
+            try {
+                const { data: inventory, error } = await supabase
+                    .from('pharmacy_inventory')
+                    .select('*')
+                    .order('medication_name');
+                
+                if (error) throw error;
+                
+                const tableBody = document.getElementById('inventoryTable');
+                tableBody.innerHTML = inventory.map(item => {
+                    const isLowStock = item.current_stock <= item.minimum_stock;
+                    const isExpiring = item.expiry_date && new Date(item.expiry_date) < new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
+                    
+                    return `
+                        <tr class="border-b hover:bg-gray-50">
+                            <td class="px-4 py-2 font-medium">${item.medication_name}</td>
+                            <td class="px-4 py-2">${item.category || 'N/A'}</td>
+                            <td class="px-4 py-2 ${isLowStock ? 'text-red-600 font-bold' : ''}">${item.current_stock}</td>
+                            <td class="px-4 py-2">${item.minimum_stock}</td>
+                            <td class="px-4 py-2">
+                                ${isLowStock ? '<span class="text-red-600"><i class="fas fa-exclamation-circle"></i> Low Stock</span>' : '<span class="text-green-600"><i class="fas fa-check-circle"></i> OK</span>'}
+                                ${isExpiring ? '<br><span class="text-orange-600 text-xs"><i class="fas fa-clock"></i> Expiring soon</span>' : ''}
+                            </td>
+                            <td class="px-4 py-2">${item.expiry_date ? new Date(item.expiry_date).toLocaleDateString() : 'N/A'}</td>
+                            <td class="px-4 py-2">
+                                <button onclick="restockItem('${item.id}')" class="text-blue-600 hover:text-blue-800 mr-2">
+                                    <i class="fas fa-plus-circle"></i> Restock
+                                </button>
+                                <button onclick="adjustStock('${item.id}', '${item.medication_name}')" class="text-orange-600 hover:text-orange-800">
+                                    <i class="fas fa-edit"></i> Adjust
+                                </button>
+                            </td>
+                        </tr>
+                    `;
+                }).join('');
+                
+            } catch (error) {
+                console.error('Error loading inventory:', error);
+            }
+        }
+
+        async function loadDispensedHistory() {
+            try {
+                const { data: dispensed, error } = await supabase
+                    .from('prescriptions')
+                    .select(`
+                        *,
+                        patient:users!patient_id(full_name, id_number),
+                        dispensed_by_user:users!dispensed_by(full_name)
+                    `)
+                    .eq('status', 'dispensed')
+                    .order('dispensed_at', { ascending: false })
+                    .limit(50);
+                
+                if (error) throw error;
+                
+                const tableBody = document.getElementById('dispensedTable');
+                tableBody.innerHTML = dispensed.map(item => `
+                    <tr class="border-b">
+                        <td class="px-4 py-2">${new Date(item.dispensed_at).toLocaleString()}</td>
+                        <td class="px-4 py-2">${item.patient?.full_name} (${item.patient?.id_number})</td>
+                        <td class="px-4 py-2">${item.medication_name}</td>
+                        <td class="px-4 py-2">${item.quantity || 1}</td>
+                        <td class="px-4 py-2">${item.dispensed_by_user?.full_name || 'Unknown'}</td>
+                    </tr>
+                `).join('');
+                
+            } catch (error) {
+                console.error('Error loading dispensed history:', error);
+            }
+        }
+
+        async function loadStockAlerts() {
+            try {
+                const { data: lowStock, error } = await supabase
+                    .from('pharmacy_inventory')
+                    .select('*')
+                    .lte('current_stock', supabase.raw('minimum_stock'));
+                
+                if (error) throw error;
+                
+                const container = document.getElementById('stockAlertsList');
+                const alertCount = lowStock?.length || 0;
+                
+                document.getElementById('alertBadge').textContent = alertCount;
+                document.getElementById('alertBadge').classList.toggle('hidden', alertCount === 0);
+                document.getElementById('lowStockCount').textContent = alertCount;
+                
+                if (!lowStock || lowStock.length === 0) {
+                    container.innerHTML = '<div class="text-center text-gray-500 py-8">No low stock alerts</div>';
+                    return;
+                }
+                
+                container.innerHTML = lowStock.map(item => `
+                    <div class="border-l-4 border-red-500 bg-red-50 p-4 rounded">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <h4 class="font-semibold">${item.medication_name}</h4>
+                                <p class="text-sm">Current Stock: ${item.current_stock} | Minimum Required: ${item.minimum_stock}</p>
+                                <p class="text-sm text-red-600">⚠️ Please restock immediately!</p>
+                            </div>
+                            <button onclick="restockItem('${item.id}')" class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700">
+                                <i class="fas fa-truck"></i> Restock Now
+                            </button>
+                        </div>
+                    </div>
+                `).join('');
+                
+            } catch (error) {
+                console.error('Error loading stock alerts:', error);
+            }
+        }
+
+        async function loadStats() {
+            try {
+                // Count pending prescriptions
+                const { count: pending } = await supabase
+                    .from('prescriptions')
+                    .select('*', { count: 'exact', head: true })
+                    .eq('status', 'pending');
+                document.getElementById('pendingCount').textContent = pending || 0;
+                
+                // Count dispensed today
+                const today = new Date().toISOString().split('T')[0];
+                const { count: dispensedToday } = await supabase
+                    .from('prescriptions')
+                    .select('*', { count: 'exact', head: true })
+                    .eq('status', 'dispensed')
+                    .gte('dispensed_at', `${today}T00:00:00`)
+                    .lte('dispensed_at', `${today}T23:59:59`);
+                document.getElementById('dispensedToday').textContent = dispensedToday || 0;
+                
+            } catch (error) {
+                console.error('Error loading stats:', error);
+            }
+        }
+
+        async function loadCharts() {
+            try {
+                // Load monthly dispensing data
+                const { data: monthlyData } = await supabase
+                    .from('prescriptions')
+                    .select('dispensed_at, medication_name')
+                    .eq('status', 'dispensed')
+                    .gte('dispensed_at', new Date(new Date().setMonth(new Date().getMonth() - 6)).toISOString());
+                
+                // Process data for chart
+                const monthlyCounts = {};
+                monthlyData?.forEach(item => {
+                    const month = new Date(item.dispensed_at).toLocaleString('default', { month: 'short' });
+                    monthlyCounts[month] = (monthlyCounts[month] || 0) + 1;
+                });
+                
+                if (dispensingChart) dispensingChart.destroy();
+                const dispensingCtx = document.getElementById('dispensingChart').getContext('2d');
+                dispensingChart = new Chart(dispensingCtx, {
+                    type: 'line',
+                    data: {
+                        labels: Object.keys(monthlyCounts),
+                        datasets: [{
+                            label: 'Prescriptions Dispensed',
+                            data: Object.values(monthlyCounts),
+                            borderColor: '#10b981',
+                            backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                            tension: 0.4,
+                            fill: true
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: true
+                    }
+                });
+                
+                // Load top medications
+                const { data: topMeds } = await supabase
+                    .from('prescriptions')
+                    .select('medication_name')
+                    .eq('status', 'dispensed');
+                
+                const medCounts = {};
+                topMeds?.forEach(item => {
+                    medCounts[item.medication_name] = (medCounts[item.medication_name] || 0) + 1;
+                });
+                
+                const sortedMeds = Object.entries(medCounts).sort((a, b) => b[1] - a[1]).slice(0, 5);
+                
+                if (topMedsChart) topMedsChart.destroy();
+                const topMedsCtx = document.getElementById('topMedsChart').getContext('2d');
+                topMedsChart = new Chart(topMedsCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: sortedMeds.map(m => m[0]),
+                        datasets: [{
+                            label: 'Times Dispensed',
+                            data: sortedMeds.map(m => m[1]),
+                            backgroundColor: '#10b981'
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: true
+                    }
+                });
+                
+                // Load stock movements
+                const { data: movements } = await supabase
+                    .from('stock_movements')
+                    .select('*, medication:pharmacy_inventory(medication_name), user:users(full_name)')
+                    .order('created_at', { ascending: false })
+                    .limit(20);
+                
+                const movementsContainer = document.getElementById('stockMovementsLog');
+                movementsContainer.innerHTML = movements?.map(m => `
+                    <div class="border-l-4 ${m.movement_type === 'restock' ? 'border-green-500' : m.movement_type === 'dispensed' ? 'border-blue-500' : 'border-yellow-500'} bg-gray-50 p-3 mb-2 rounded">
+                        <div class="flex justify-between">
+                            <div>
+                                <span class="font-semibold">${m.medication?.medication_name}</span>
+                                <span class="text-sm ${m.quantity_change > 0 ? 'text-green-600' : 'text-red-600'}">
+                                    ${m.quantity_change > 0 ? '+' : ''}${m.quantity_change}
+                                </span>
+                                <p class="text-xs text-gray-500">${m.movement_type} by ${m.user?.full_name || 'System'}</p>
+                            </div>
+                            <span class="text-xs text-gray-500">${new Date(m.created_at).toLocaleString()}</span>
+                        </div>
+                        ${m.notes ? `<p class="text-xs text-gray-600 mt-1">${m.notes}</p>` : ''}
+                    </div>
+                `).join('') || '<div class="text-center text-gray-500">No stock movements recorded</div>';
+                
+            } catch (error) {
+                console.error('Error loading charts:', error);
+            }
+        }
+
+        function showDispenseModal(prescriptionId, patientName, clinicCard, quantity) {
+            currentPrescription = { id: prescriptionId, patientName, clinicCard, quantity };
+            document.getElementById('dispenseContent').innerHTML = `
+                <div class="bg-gray-50 p-3 rounded mb-4">
+                    <p><strong>Medication:</strong> ${currentPrescription.patientName}'s prescription</p>
+                    <p><strong>Expected Quantity:</strong> ${quantity}</p>
+                </div>
+            `;
+            document.getElementById('dispenseQuantity').value = quantity;
+            document.getElementById('dispenseModal').classList.remove('hidden');
+            document.getElementById('dispenseModal').classList.add('flex');
+        }
+
+        async function confirmDispense(event) {
+            event.preventDefault();
+            
+            const verifyName = document.getElementById('verifyName').value;
+            const verifyClinicCard = document.getElementById('verifyClinicCard').value;
+            const dispenseQuantity = parseInt(document.getElementById('dispenseQuantity').value);
+            
+            if (verifyName !== currentPrescription.patientName) {
+                alert('Patient name does not match!');
+                return;
+            }
+            
+            if (verifyClinicCard !== currentPrescription.clinicCard) {
+                alert('Clinic card number does not match!');
+                return;
+            }
+            
+            try {
+                const { error } = await supabase
+                    .from('prescriptions')
+                    .update({ 
+                        status: 'dispensed', 
+                        dispensed_by: currentUser.id,
+                        dispensed_at: new Date(),
+                        quantity: dispenseQuantity
+                    })
+                    .eq('id', currentPrescription.id);
+                
+                if (error) throw error;
+                
+                alert('Medication dispensed successfully!');
+                closeDispenseModal();
+                await loadPrescriptions();
+                await loadInventory();
+                await loadStats();
+                await loadCharts();
+                
+            } catch (error) {
+                alert('Error dispensing medication: ' + error.message);
+            }
+        }
+
+        async function restockItem(itemId) {
+            const quantity = prompt('Enter quantity to add:');
+            if (!quantity || isNaN(quantity)) return;
+            
+            try {
+                // Get current stock
+                const { data: item } = await supabase
+                    .from('pharmacy_inventory')
+                    .select('current_stock')
+                    .eq('id', itemId)
+                    .single();
+                
+                const newStock = item.current_stock + parseInt(quantity);
+                
+                const { error } = await supabase
+                    .from('pharmacy_inventory')
+                    .update({ 
+                        current_stock: newStock,
+                        last_restocked: new Date()
+                    })
+                    .eq('id', itemId);
+                
+                if (error) throw error;
+                
+                // Log stock movement
+                await supabase
+                    .from('stock_movements')
+                    .insert([{
+                        medication_id: itemId,
+                        quantity_change: parseInt(quantity),
+                        movement_type: 'restock',
+                        performed_by: currentUser.id,
+                        notes: `Restocked with ${quantity} units`,
+                        created_at: new Date()
+                    }]);
+                
+                alert('Stock updated successfully!');
+                await loadInventory();
+                await loadStockAlerts();
+                await loadCharts();
+                
+            } catch (error) {
+                alert('Error updating stock: ' + error.message);
+            }
+        }
+
+        function adjustStock(itemId, itemName) {
+            const adjustment = prompt(`Adjust stock for ${itemName}\nEnter positive or negative number:`);
+            if (!adjustment || isNaN(adjustment)) return;
+            
+            const quantity = parseInt(adjustment);
+            
+            supabase
+                .rpc('adjust_stock', { 
+                    p_medication_id: itemId, 
+                    p_quantity: quantity,
+                    p_user_id: currentUser.id
+                })
+                .then(() => {
+                    alert('Stock adjusted successfully!');
+                    loadInventory();
+                    loadStockAlerts();
+                    loadCharts();
+                })
+                .catch(error => alert('Error adjusting stock: ' + error.message));
+        }
+
+        document.getElementById('addStockForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            try {
+                const { error } = await supabase
+                    .from('pharmacy_inventory')
+                    .insert([{
+                        medication_name: document.getElementById('medName').value,
+                        generic_name: document.getElementById('genericName').value,
+                        category: document.getElementById('category').value,
+                        current_stock: parseInt(document.getElementById('initialStock').value),
+                        minimum_stock: parseInt(document.getElementById('minStock').value),
+                        unit_price: document.getElementById('unitPrice').value ? parseFloat(document.getElementById('unitPrice').value) : null,
+                        expiry_date: document.getElementById('expiryDate').value || null,
+                        created_at: new Date()
+                    }]);
+                
+                if (error) throw error;
+                
+                alert('Medication added successfully!');
+                closeAddStockModal();
+                await loadInventory();
+                document.getElementById('addStockForm').reset();
+                
+            } catch (error) {
+                alert('Error adding medication: ' + error.message);
+            }
+        });
+
+        function setupRealTimeChat() {
+            chatSubscription = supabase
+                .channel('pharmacy-chat')
+                .on('postgres_changes', { 
+                    event: 'INSERT', 
+                    schema: 'public', 
+                    table: 'chat_messages',
+                    filter: `room=eq.staff`
+                }, () => loadChatMessages())
+                .subscribe();
+            loadChatMessages();
+        }
+
+        async function loadChatMessages() {
+            const { data: messages } = await supabase
+                .from('chat_messages')
+                .select('*, sender:users(full_name)')
+                .eq('room', 'staff')
+                .order('created_at', { ascending: true })
+                .limit(50);
+            
+            const container = document.getElementById('chatMessages');
+            if (container) {
+                container.innerHTML = messages?.map(msg => `
+                    <div class="${msg.sender_id === currentUser.id ? 'text-right' : 'text-left'}">
+                        <div class="inline-block max-w-[70%] ${msg.sender_id === currentUser.id ? 'bg-green-600 text-white' : 'bg-gray-300'} rounded-lg px-4 py-2">
+                            ${msg.sender_id !== currentUser.id ? `<p class="text-xs font-semibold mb-1">${msg.sender?.full_name}</p>` : ''}
+                            <p>${msg.message}</p>
+                            <p class="text-xs opacity-75 mt-1">${new Date(msg.created_at).toLocaleTimeString()}</p>
+                        </div>
+                    </div>
+                `).join('') || '<div class="text-center text-gray-500">No messages yet</div>';
+                container.scrollTop = container.scrollHeight;
+            }
+        }
+
+        async function sendChatMessage() {
+            const message = document.getElementById('chatInput')?.value.trim();
+            if (!message) return;
+            await supabase.from('chat_messages').insert([{
+                sender_id: currentUser.id,
+                message: message,
+                room: 'staff',
+                is_broadcast: true,
+                created_at: new Date()
+            }]);
+            if (document.getElementById('chatInput')) document.getElementById('chatInput').value = '';
+            await loadChatMessages();
+        }
+
+        function handleChatKeyPress(event) {
+            if (event.key === 'Enter') sendChatMessage();
+        }
+
+        function filterPrescriptions() {
+            const searchTerm = document.getElementById('searchPatient').value.toLowerCase();
+            const items = document.querySelectorAll('#prescriptionsList .prescription-item');
+            items.forEach(item => {
+                const text = item.getAttribute('data-patient') || '';
+                item.style.display = text.includes(searchTerm) ? 'block' : 'none';
+            });
+        }
+
+        function searchInventory() {
+            const searchTerm = document.getElementById('inventorySearch').value.toLowerCase();
+            const rows = document.querySelectorAll('#inventoryTable tr');
+            rows.forEach(row => {
+                const text = row.textContent.toLowerCase();
+                row.style.display = text.includes(searchTerm) ? '' : 'none';
+            });
+        }
+
+        function refreshQueue() {
+            loadPrescriptions();
+        }
+
+        function showAddStockModal() {
+            document.getElementById('addStockModal').classList.remove('hidden');
+            document.getElementById('addStockModal').classList.add('flex');
+        }
+
+        function closeAddStockModal() {
+            document.getElementById('addStockModal').classList.remove('flex');
+            document.getElementById('addStockModal').classList.add('hidden');
+        }
+
+        function closeDispenseModal() {
+            document.getElementById('dispenseModal').classList.remove('flex');
+            document.getElementById('dispenseModal').classList.add('hidden');
+            currentPrescription = null;
+            document.getElementById('dispenseForm').reset();
+        }
+
+        function showSection(section) {
+            const sections = ['prescriptions', 'inventory', 'dispensed', 'alerts', 'reports', 'chat'];
+            sections.forEach(s => {
+                const el = document.getElementById(`${s}Section`);
+                if (el) el.classList.add('hidden');
+            });
+            const targetSection = document.getElementById(`${section}Section`);
+            if (targetSection) targetSection.classList.remove('hidden');
+            
+            const titles = {
+                prescriptions: 'Prescriptions Queue',
+                inventory: 'Inventory Management',
+                dispensed: 'Dispensed History',
+                alerts: 'Stock Alerts',
+                reports: 'Reports & Analytics',
+                chat: 'Staff Chat'
+            };
+            document.getElementById('pageTitle').textContent = titles[section] || 'Dashboard';
+            
+            // Refresh data when switching sections
+            if (section === 'inventory') loadInventory();
+            if (section === 'dispensed') loadDispensedHistory();
+            if (section === 'alerts') loadStockAlerts();
+            if (section === 'reports') loadCharts();
+        }
+
+        function logout() {
+            if (chatSubscription) chatSubscription.unsubscribe();
+            localStorage.removeItem('currentUser');
+            window.location.href = '/index.html';
+        }
+
+        window.addEventListener('DOMContentLoaded', initPharmacistDashboard);
+    </script>
+</body>
+</html>

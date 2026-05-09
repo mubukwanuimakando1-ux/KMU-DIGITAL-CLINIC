@@ -1,0 +1,455 @@
+<!-- dashboards/admin.html - Admin Dashboard -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - KMU Health System</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/supabase-js@2"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-gray-100">
+    <div class="flex h-screen">
+        <!-- Sidebar -->
+        <div class="w-64 gradient-bg text-white flex flex-col">
+            <div class="p-6">
+                <h2 class="text-2xl font-bold">KMU Health</h2>
+                <p class="text-sm opacity-90">Admin Portal</p>
+            </div>
+            <nav class="flex-1 mt-6">
+                <a href="#" onclick="showSection('overview')" class="flex items-center px-6 py-3 hover:bg-purple-700 transition sidebar-link active" data-section="overview">
+                    <i class="fas fa-tachometer-alt w-5 mr-3"></i> Overview
+                </a>
+                <a href="#" onclick="showSection('approvals')" class="flex items-center px-6 py-3 hover:bg-purple-700 transition sidebar-link" data-section="approvals">
+                    <i class="fas fa-user-check w-5 mr-3"></i> User Approvals
+                    <span id="pendingCount" class="ml-auto bg-red-500 text-xs px-2 py-1 rounded-full"></span>
+                </a>
+                <a href="#" onclick="showSection('inventory')" class="flex items-center px-6 py-3 hover:bg-purple-700 transition sidebar-link" data-section="inventory">
+                    <i class="fas fa-capsules w-5 mr-3"></i> Stock Management
+                </a>
+                <a href="#" onclick="showSection('analytics')" class="flex items-center px-6 py-3 hover:bg-purple-700 transition sidebar-link" data-section="analytics">
+                    <i class="fas fa-chart-line w-5 mr-3"></i> Analytics
+                </a>
+                <a href="#" onclick="showSection('staff')" class="flex items-center px-6 py-3 hover:bg-purple-700 transition sidebar-link" data-section="staff">
+                    <i class="fas fa-users w-5 mr-3"></i> Staff Management
+                </a>
+                <a href="#" onclick="showSection('reports')" class="flex items-center px-6 py-3 hover:bg-purple-700 transition sidebar-link" data-section="reports">
+                    <i class="fas fa-file-alt w-5 mr-3"></i> Reports
+                </a>
+            </nav>
+            <div class="p-6 border-t border-purple-700">
+                <div class="flex items-center mb-4">
+                    <i class="fas fa-user-circle text-2xl mr-3"></i>
+                    <div>
+                        <p class="text-sm font-semibold" id="adminName">Admin</p>
+                        <p class="text-xs opacity-75">Administrator</p>
+                    </div>
+                </div>
+                <button onclick="logout()" class="w-full bg-red-600 hover:bg-red-700 text-white py-2 rounded-lg transition">
+                    <i class="fas fa-sign-out-alt mr-2"></i> Logout
+                </button>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="flex-1 overflow-y-auto">
+            <div class="bg-white shadow-md px-6 py-4">
+                <h1 id="pageTitle" class="text-2xl font-bold text-gray-800">Dashboard Overview</h1>
+            </div>
+            
+            <div id="overviewSection" class="p-6">
+                <!-- Stats Cards -->
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+                    <div class="bg-white rounded-lg shadow-md p-6">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-gray-500 text-sm">Total Patients</p>
+                                <p id="totalPatients" class="text-3xl font-bold">0</p>
+                            </div>
+                            <i class="fas fa-users text-4xl text-purple-600 opacity-50"></i>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-lg shadow-md p-6">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-gray-500 text-sm">Today's Visits</p>
+                                <p id="todayVisits" class="text-3xl font-bold">0</p>
+                            </div>
+                            <i class="fas fa-calendar-day text-4xl text-blue-600 opacity-50"></i>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-lg shadow-md p-6">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-gray-500 text-sm">Pending Approvals</p>
+                                <p id="pendingApprovals" class="text-3xl font-bold text-orange-600">0</p>
+                            </div>
+                            <i class="fas fa-clock text-4xl text-orange-600 opacity-50"></i>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-lg shadow-md p-6">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-gray-500 text-sm">Low Stock Items</p>
+                                <p id="lowStockCount" class="text-3xl font-bold text-red-600">0</p>
+                            </div>
+                            <i class="fas fa-exclamation-triangle text-4xl text-red-600 opacity-50"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Charts -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+                    <div class="bg-white rounded-lg shadow-md p-6">
+                        <h3 class="text-lg font-semibold mb-4">Disease Trends (Last 30 Days)</h3>
+                        <canvas id="diseaseChart" height="200"></canvas>
+                    </div>
+                    <div class="bg-white rounded-lg shadow-md p-6">
+                        <h3 class="text-lg font-semibold mb-4">Visit Trends</h3>
+                        <canvas id="visitsChart" height="200"></canvas>
+                    </div>
+                </div>
+
+                <!-- Recent Activity -->
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <h3 class="text-lg font-semibold mb-4">Recent System Activity</h3>
+                    <div id="activityLog" class="space-y-3 max-h-96 overflow-y-auto"></div>
+                </div>
+            </div>
+
+            <div id="approvalsSection" class="p-6 hidden">
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <h3 class="text-lg font-semibold mb-4">Pending User Approvals</h3>
+                    <div id="pendingUsersList" class="space-y-4"></div>
+                </div>
+            </div>
+
+            <div id="inventorySection" class="p-6 hidden">
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-lg font-semibold">Pharmacy Inventory</h3>
+                        <button onclick="showAddStockModal()" class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700">
+                            <i class="fas fa-plus mr-2"></i>Add Stock
+                        </button>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th class="px-4 py-2 text-left">Medication</th>
+                                    <th class="px-4 py-2 text-left">Current Stock</th>
+                                    <th class="px-4 py-2 text-left">Min Stock</th>
+                                    <th class="px-4 py-2 text-left">Status</th>
+                                    <th class="px-4 py-2 text-left">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="inventoryTable"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div id="analyticsSection" class="p-6 hidden">
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div class="bg-white rounded-lg shadow-md p-6">
+                        <h3 class="text-lg font-semibold mb-4">Common Illnesses</h3>
+                        <canvas id="commonIllnessesChart" height="250"></canvas>
+                    </div>
+                    <div class="bg-white rounded-lg shadow-md p-6">
+                        <h3 class="text-lg font-semibold mb-4">Queue Performance</h3>
+                        <canvas id="queuePerformanceChart" height="250"></canvas>
+                    </div>
+                    <div class="bg-white rounded-lg shadow-md p-6 col-span-2">
+                        <h3 class="text-lg font-semibold mb-4">Stock Alerts</h3>
+                        <div id="stockAlertsList"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="../js/config.js"></script>
+    <script>
+        let currentUser = null;
+        let diseaseChart = null;
+        let visitsChart = null;
+        
+        async function initAdminDashboard() {
+            currentUser = JSON.parse(localStorage.getItem('currentUser'));
+            document.getElementById('adminName').textContent = currentUser.full_name;
+            
+            await loadDashboardStats();
+            await loadPendingApprovals();
+            await loadInventory();
+            await loadActivityLog();
+            await loadCharts();
+            
+            // Refresh data every 30 seconds
+            setInterval(() => {
+                loadDashboardStats();
+                loadPendingApprovals();
+                loadActivityLog();
+            }, 30000);
+        }
+        
+        async function loadDashboardStats() {
+            try {
+                // Total patients
+                const { count: patients } = await supabase
+                    .from('users')
+                    .select('*', { count: 'exact', head: true })
+                    .in('role', ['student', 'staff', 'visitor', 'casual_worker']);
+                document.getElementById('totalPatients').textContent = patients || 0;
+                
+                // Today's visits
+                const today = new Date().toISOString().split('T')[0];
+                const { count: visits } = await supabase
+                    .from('visits')
+                    .select('*', { count: 'exact', head: true })
+                    .eq('visit_date', today);
+                document.getElementById('todayVisits').textContent = visits || 0;
+                
+                // Pending approvals
+                const { count: pending } = await supabase
+                    .from('users')
+                    .select('*', { count: 'exact', head: true })
+                    .eq('status', 'pending');
+                document.getElementById('pendingApprovals').textContent = pending || 0;
+                document.getElementById('pendingCount').textContent = pending || 0;
+                
+                // Low stock items
+                const { data: lowStock } = await supabase
+                    .from('pharmacy_inventory')
+                    .select('*')
+                    .lte('current_stock', supabase.raw('minimum_stock'));
+                document.getElementById('lowStockCount').textContent = lowStock?.length || 0;
+                
+            } catch (error) {
+                console.error('Error loading stats:', error);
+            }
+        }
+        
+        async function loadPendingApprovals() {
+            try {
+                const { data: pendingUsers } = await supabase
+                    .from('users')
+                    .select('*')
+                    .eq('status', 'pending')
+                    .order('created_at', { ascending: false });
+                
+                const container = document.getElementById('pendingUsersList');
+                if (!pendingUsers || pendingUsers.length === 0) {
+                    container.innerHTML = '<p class="text-gray-500 text-center py-8">No pending approvals</p>';
+                    return;
+                }
+                
+                container.innerHTML = pendingUsers.map(user => `
+                    <div class="border rounded-lg p-4 flex justify-between items-center">
+                        <div>
+                            <h4 class="font-semibold">${user.full_name}</h4>
+                            <p class="text-sm text-gray-600">ID: ${user.id_number} | Role: ${user.role} | Email: ${user.email}</p>
+                            ${user.program ? `<p class="text-sm text-gray-600">Program: ${user.program}</p>` : ''}
+                        </div>
+                        <div class="space-x-2">
+                            <button onclick="approveUser('${user.id}')" class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700">
+                                <i class="fas fa-check mr-1"></i>Approve
+                            </button>
+                            <button onclick="rejectUser('${user.id}')" class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700">
+                                <i class="fas fa-times mr-1"></i>Reject
+                            </button>
+                        </div>
+                    </div>
+                `).join('');
+            } catch (error) {
+                console.error('Error loading pending users:', error);
+            }
+        }
+        
+        async function approveUser(userId) {
+            if (!confirm('Approve this user?')) return;
+            
+            try {
+                const { error } = await supabase
+                    .from('users')
+                    .update({ status: 'active', requires_approval: false })
+                    .eq('id', userId);
+                
+                if (error) throw error;
+                
+                // Send notification
+                await supabase.from('notifications').insert([{
+                    user_id: userId,
+                    title: 'Account Approved',
+                    message: 'Your account has been approved. You can now login to the KMU Health System.',
+                    type: 'admin_approval',
+                    priority: 'high'
+                }]);
+                
+                alert('User approved successfully!');
+                await loadPendingApprovals();
+                await loadDashboardStats();
+            } catch (error) {
+                alert('Error approving user: ' + error.message);
+            }
+        }
+        
+        async function rejectUser(userId) {
+            if (!confirm('Reject this user?')) return;
+            
+            try {
+                const { error } = await supabase
+                    .from('users')
+                    .delete()
+                    .eq('id', userId);
+                
+                if (error) throw error;
+                
+                alert('User rejected and removed!');
+                await loadPendingApprovals();
+                await loadDashboardStats();
+            } catch (error) {
+                alert('Error rejecting user: ' + error.message);
+            }
+        }
+        
+        async function loadInventory() {
+            try {
+                const { data: inventory } = await supabase
+                    .from('pharmacy_inventory')
+                    .select('*')
+                    .order('medication_name');
+                
+                const tableBody = document.getElementById('inventoryTable');
+                tableBody.innerHTML = inventory.map(item => {
+                    const isLowStock = item.current_stock <= item.minimum_stock;
+                    return `
+                        <tr class="border-b">
+                            <td class="px-4 py-2">${item.medication_name}</td>
+                            <td class="px-4 py-2 ${isLowStock ? 'text-red-600 font-bold' : ''}">${item.current_stock}</td>
+                            <td class="px-4 py-2">${item.minimum_stock}</td>
+                            <td class="px-4 py-2">
+                                ${isLowStock ? '<span class="text-red-600"><i class="fas fa-exclamation-circle"></i> Low Stock</span>' : '<span class="text-green-600">OK</span>'}
+                            </td>
+                            <td class="px-4 py-2">
+                                <button onclick="restockItem('${item.id}')" class="text-blue-600 hover:text-blue-800">
+                                    <i class="fas fa-plus-circle"></i> Restock
+                                </button>
+                            </td>
+                        </tr>
+                    `;
+                }).join('');
+            } catch (error) {
+                console.error('Error loading inventory:', error);
+            }
+        }
+        
+        async function loadActivityLog() {
+            try {
+                const { data: logs } = await supabase
+                    .from('activity_logs')
+                    .select('*, users(full_name)')
+                    .order('timestamp', { ascending: false })
+                    .limit(20);
+                
+                const container = document.getElementById('activityLog');
+                container.innerHTML = logs.map(log => `
+                    <div class="border-l-4 border-purple-600 bg-gray-50 p-3 rounded">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <p class="font-semibold">${log.users?.full_name || 'System'}</p>
+                                <p class="text-sm text-gray-600">${log.action}</p>
+                                <p class="text-xs text-gray-500">${log.details || ''}</p>
+                            </div>
+                            <span class="text-xs text-gray-500">${new Date(log.timestamp).toLocaleString()}</span>
+                        </div>
+                    </div>
+                `).join('');
+            } catch (error) {
+                console.error('Error loading activity log:', error);
+            }
+        }
+        
+        async function loadCharts() {
+            // Load disease data
+            const { data: diseases } = await supabase
+                .from('disease_tracking')
+                .select('disease_name, count')
+                .group('disease_name');
+            
+            if (diseaseChart) diseaseChart.destroy();
+            const diseaseCtx = document.getElementById('diseaseChart').getContext('2d');
+            diseaseChart = new Chart(diseaseCtx, {
+                type: 'bar',
+                data: {
+                    labels: diseases?.map(d => d.disease_name) || ['Malaria', 'URTI', 'Hypertension'],
+                    datasets: [{
+                        label: 'Number of Cases',
+                        data: diseases?.map(d => d.count) || [45, 32, 18],
+                        backgroundColor: '#8b5cf6'
+                    }]
+                }
+            });
+            
+            // Load visit trends
+            const { data: visits } = await supabase
+                .from('visits')
+                .select('visit_date, count')
+                .group('visit_date')
+                .limit(7);
+            
+            if (visitsChart) visitsChart.destroy();
+            const visitsCtx = document.getElementById('visitsChart').getContext('2d');
+            visitsChart = new Chart(visitsCtx, {
+                type: 'line',
+                data: {
+                    labels: visits?.map(v => v.visit_date) || ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+                    datasets: [{
+                        label: 'Daily Visits',
+                        data: visits?.map(v => v.count) || [12, 19, 15, 17, 14, 10, 8],
+                        borderColor: '#8b5cf6',
+                        tension: 0.4
+                    }]
+                }
+            });
+        }
+        
+        function showSection(section) {
+            // Hide all sections
+            document.getElementById('overviewSection').classList.add('hidden');
+            document.getElementById('approvalsSection').classList.add('hidden');
+            document.getElementById('inventorySection').classList.add('hidden');
+            document.getElementById('analyticsSection').classList.add('hidden');
+            
+            // Show selected section
+            document.getElementById(`${section}Section`).classList.remove('hidden');
+            
+            // Update page title
+            const titles = {
+                overview: 'Dashboard Overview',
+                approvals: 'User Approvals',
+                inventory: 'Stock Management',
+                analytics: 'Analytics & Reports',
+                staff: 'Staff Management',
+                reports: 'System Reports'
+            };
+            document.getElementById('pageTitle').textContent = titles[section] || 'Dashboard';
+            
+            // Update active sidebar link
+            document.querySelectorAll('.sidebar-link').forEach(link => {
+                link.classList.remove('active', 'bg-purple-700');
+            });
+            event.currentTarget.classList.add('active', 'bg-purple-700');
+        }
+        
+        function logout() {
+            localStorage.removeItem('currentUser');
+            window.location.href = '/index.html';
+        }
+        
+        // Initialize when page loads
+        window.addEventListener('DOMContentLoaded', initAdminDashboard);
+    </script>
+</body>
+</html>

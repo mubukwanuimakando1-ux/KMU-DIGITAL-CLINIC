@@ -1,0 +1,475 @@
+<!-- dashboards/nurse.html - Nurse Dashboard -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nurse Dashboard - KMU Health System</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/supabase-js@2"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-gray-100">
+    <div class="flex h-screen">
+        <!-- Sidebar -->
+        <div class="w-64 bg-teal-700 text-white flex flex-col">
+            <div class="p-6">
+                <h2 class="text-2xl font-bold">KMU Health</h2>
+                <p class="text-sm opacity-90">Nurse Portal</p>
+            </div>
+            <nav class="flex-1 mt-6">
+                <a href="#" onclick="showSection('queue')" class="flex items-center px-6 py-3 hover:bg-teal-600 transition">
+                    <i class="fas fa-users w-5 mr-3"></i> Patient Queue
+                </a>
+                <a href="#" onclick="showSection('checkup')" class="flex items-center px-6 py-3 hover:bg-teal-600 transition">
+                    <i class="fas fa-stethoscope w-5 mr-3"></i> Vitals Checkup
+                </a>
+                <a href="#" onclick="showSection('todayPatients')" class="flex items-center px-6 py-3 hover:bg-teal-600 transition">
+                    <i class="fas fa-calendar-day w-5 mr-3"></i> Today's Patients
+                </a>
+                <a href="#" onclick="showSection('chat')" class="flex items-center px-6 py-3 hover:bg-teal-600 transition">
+                    <i class="fas fa-comments w-5 mr-3"></i> Staff Chat
+                </a>
+            </nav>
+            <div class="p-6 border-t border-teal-600">
+                <div class="flex items-center mb-4">
+                    <i class="fas fa-user-circle text-2xl mr-3"></i>
+                    <div>
+                        <p class="text-sm font-semibold" id="nurseName">Nurse</p>
+                        <p class="text-xs opacity-75">Nurse</p>
+                    </div>
+                </div>
+                <button onclick="logout()" class="w-full bg-red-600 hover:bg-red-700 text-white py-2 rounded-lg transition">
+                    <i class="fas fa-sign-out-alt mr-2"></i> Logout
+                </button>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="flex-1 overflow-y-auto">
+            <div class="bg-white shadow-md px-6 py-4">
+                <h1 id="pageTitle" class="text-2xl font-bold text-gray-800">Patient Queue</h1>
+            </div>
+
+            <!-- Queue Section -->
+            <div id="queueSection" class="p-6">
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-lg font-semibold">Waiting Patients</h3>
+                        <div class="flex space-x-2">
+                            <input type="text" id="searchQueue" placeholder="Search patient..." class="border rounded-lg px-4 py-2" onkeyup="searchQueue()">
+                            <button onclick="refreshQueue()" class="bg-teal-600 text-white px-4 py-2 rounded-lg">
+                                <i class="fas fa-sync-alt"></i> Refresh
+                            </button>
+                        </div>
+                    </div>
+                    <div id="queueList" class="space-y-4 max-h-[600px] overflow-y-auto"></div>
+                </div>
+            </div>
+
+            <!-- Checkup Section -->
+            <div id="checkupSection" class="p-6 hidden">
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <h3 class="text-lg font-semibold mb-4">Patient Vitals Assessment</h3>
+                    <div id="selectedPatientInfo" class="bg-teal-50 p-4 rounded-lg mb-4"></div>
+                    <form id="vitalsForm">
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                            <div>
+                                <label class="block text-gray-700 mb-2">Temperature (°C)</label>
+                                <input type="number" step="0.1" id="temperature" class="w-full border rounded-lg px-4 py-2" required>
+                            </div>
+                            <div>
+                                <label class="block text-gray-700 mb-2">Blood Pressure</label>
+                                <input type="text" id="bloodPressure" placeholder="120/80" class="w-full border rounded-lg px-4 py-2" required>
+                            </div>
+                            <div>
+                                <label class="block text-gray-700 mb-2">Heart Rate (bpm)</label>
+                                <input type="number" id="heartRate" class="w-full border rounded-lg px-4 py-2" required>
+                            </div>
+                            <div>
+                                <label class="block text-gray-700 mb-2">Respiratory Rate</label>
+                                <input type="number" id="respiratoryRate" class="w-full border rounded-lg px-4 py-2">
+                            </div>
+                            <div>
+                                <label class="block text-gray-700 mb-2">Weight (kg)</label>
+                                <input type="number" step="0.1" id="weight" class="w-full border rounded-lg px-4 py-2">
+                            </div>
+                            <div>
+                                <label class="block text-gray-700 mb-2">Height (cm)</label>
+                                <input type="number" step="0.1" id="height" class="w-full border rounded-lg px-4 py-2">
+                            </div>
+                        </div>
+                        <div class="mb-4">
+                            <label class="block text-gray-700 mb-2">Chief Complaint</label>
+                            <textarea id="chiefComplaint" rows="3" class="w-full border rounded-lg px-4 py-2" placeholder="Describe the main symptoms..." required></textarea>
+                        </div>
+                        <div class="mb-4">
+                            <label class="block text-gray-700 mb-2">Allergies</label>
+                            <input type="text" id="allergies" class="w-full border rounded-lg px-4 py-2" placeholder="Any known allergies">
+                        </div>
+                        <div class="mb-4">
+                            <label class="block text-gray-700 mb-2">Chronic Conditions</label>
+                            <input type="text" id="chronicConditions" class="w-full border rounded-lg px-4 py-2" placeholder="Any chronic illnesses">
+                        </div>
+                        <div class="flex space-x-2">
+                            <button type="submit" class="bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700">
+                                <i class="fas fa-save mr-2"></i>Complete Checkup
+                            </button>
+                            <button type="button" onclick="showSection('queue')" class="bg-gray-600 text-white px-6 py-2 rounded-lg hover:bg-gray-700">
+                                Cancel
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Today's Patients Section -->
+            <div id="todayPatientsSection" class="p-6 hidden">
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <h3 class="text-lg font-semibold mb-4">Today's Checked Patients</h3>
+                    <div id="todayPatientsList" class="space-y-4 max-h-[600px] overflow-y-auto"></div>
+                </div>
+            </div>
+
+            <!-- Chat Section -->
+            <div id="chatSection" class="p-6 hidden">
+                <div class="bg-white rounded-lg shadow-md p-6 h-[600px] flex flex-col">
+                    <h3 class="text-lg font-semibold mb-4">Staff Communication</h3>
+                    <div id="chatMessages" class="flex-1 overflow-y-auto mb-4 space-y-3 bg-gray-50 p-4 rounded"></div>
+                    <div class="flex space-x-2">
+                        <input type="text" id="chatInput" placeholder="Type your message..." class="flex-1 border rounded-lg px-4 py-2" onkeypress="handleChatKeyPress(event)">
+                        <button onclick="sendChatMessage()" class="bg-teal-600 text-white px-6 py-2 rounded-lg hover:bg-teal-700">
+                            <i class="fas fa-paper-plane"></i> Send
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="../js/config.js"></script>
+    <script>
+        let currentUser = null;
+        let currentPatientId = null;
+        let currentVisitId = null;
+        let chatSubscription = null;
+
+        async function initNurseDashboard() {
+            currentUser = JSON.parse(localStorage.getItem('currentUser'));
+            document.getElementById('nurseName').textContent = currentUser.full_name;
+            
+            await loadQueue();
+            await loadTodayPatients();
+            setupRealTimeChat();
+            
+            // Auto-refresh queue every 10 seconds
+            setInterval(() => {
+                if (document.getElementById('queueSection').classList.contains('hidden') === false) {
+                    loadQueue();
+                }
+            }, 10000);
+        }
+
+        async function loadQueue() {
+            try {
+                const { data: visits, error } = await supabase
+                    .from('visits')
+                    .select(`
+                        *,
+                        patient:users(full_name, id_number, clinic_card, role)
+                    `)
+                    .eq('status', 'waiting')
+                    .eq('visit_date', new Date().toISOString().split('T')[0])
+                    .order('queue_position', { ascending: true });
+
+                if (error) throw error;
+
+                const container = document.getElementById('queueList');
+                if (!visits || visits.length === 0) {
+                    container.innerHTML = '<div class="text-center text-gray-500 py-8">No patients in queue</div>';
+                    return;
+                }
+
+                container.innerHTML = visits.map((visit, index) => `
+                    <div class="border rounded-lg p-4 hover:shadow-lg transition">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <div class="flex items-center space-x-3">
+                                    <span class="bg-teal-100 text-teal-800 text-xs font-semibold px-2 py-1 rounded-full">
+                                        Queue #${index + 1}
+                                    </span>
+                                    <h4 class="font-semibold text-lg">${visit.patient?.full_name || 'Unknown'}</h4>
+                                </div>
+                                <p class="text-sm text-gray-600 mt-1">
+                                    <i class="fas fa-id-card mr-1"></i> ID: ${visit.patient?.id_number} | 
+                                    <i class="fas fa-credit-card mr-1"></i> Clinic Card: ${visit.patient?.clinic_card || 'N/A'} |
+                                    <i class="fas fa-clock mr-1"></i> Check-in: ${new Date(visit.check_in_time).toLocaleTimeString()}
+                                </p>
+                                <p class="text-sm text-gray-600">Reason: ${visit.reason_for_visit || 'Not specified'}</p>
+                            </div>
+                            <button onclick="startCheckup('${visit.id}', '${visit.patient_id}')" 
+                                class="bg-teal-600 text-white px-6 py-2 rounded-lg hover:bg-teal-700">
+                                <i class="fas fa-stethoscope mr-2"></i>Start Checkup
+                            </button>
+                        </div>
+                    </div>
+                `).join('');
+            } catch (error) {
+                console.error('Error loading queue:', error);
+                document.getElementById('queueList').innerHTML = '<div class="text-red-600 text-center py-8">Error loading queue</div>';
+            }
+        }
+
+        async function startCheckup(visitId, patientId) {
+            currentVisitId = visitId;
+            currentPatientId = patientId;
+            
+            // Load patient info
+            const { data: patient } = await supabase
+                .from('users')
+                .select('*')
+                .eq('id', patientId)
+                .single();
+            
+            document.getElementById('selectedPatientInfo').innerHTML = `
+                <div class="grid grid-cols-2 gap-4">
+                    <div><strong>Patient Name:</strong> ${patient.full_name}</div>
+                    <div><strong>ID Number:</strong> ${patient.id_number}</div>
+                    <div><strong>Clinic Card:</strong> ${patient.clinic_card || 'N/A'}</div>
+                    <div><strong>Contact:</strong> ${patient.phone || 'N/A'}</div>
+                </div>
+            `;
+            
+            showSection('checkup');
+        }
+
+        document.getElementById('vitalsForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            try {
+                // Save nurse assessment
+                const assessmentData = {
+                    visit_id: currentVisitId,
+                    nurse_id: currentUser.id,
+                    temperature: parseFloat(document.getElementById('temperature').value),
+                    blood_pressure: document.getElementById('bloodPressure').value,
+                    heart_rate: parseInt(document.getElementById('heartRate').value),
+                    respiratory_rate: document.getElementById('respiratoryRate').value ? parseInt(document.getElementById('respiratoryRate').value) : null,
+                    weight: document.getElementById('weight').value ? parseFloat(document.getElementById('weight').value) : null,
+                    height: document.getElementById('height').value ? parseFloat(document.getElementById('height').value) : null,
+                    chief_complaint: document.getElementById('chiefComplaint').value,
+                    allergies: document.getElementById('allergies').value,
+                    chronic_conditions: document.getElementById('chronicConditions').value,
+                    created_at: new Date()
+                };
+                
+                const { error: assessmentError } = await supabase
+                    .from('nurse_assessments')
+                    .insert([assessmentData]);
+                
+                if (assessmentError) throw assessmentError;
+                
+                // Update visit status
+                const { error: visitError } = await supabase
+                    .from('visits')
+                    .update({ 
+                        status: 'nurse_checked',
+                        nurse_check_time: new Date()
+                    })
+                    .eq('id', currentVisitId);
+                
+                if (visitError) throw visitError;
+                
+                // Add to doctor's queue
+                await supabase
+                    .from('queue_management')
+                    .insert([{
+                        visit_id: currentVisitId,
+                        queue_type: 'doctor',
+                        position: await getNextQueuePosition('doctor'),
+                        status: 'waiting'
+                    }]);
+                
+                // Send notification to doctors
+                await supabase
+                    .from('notifications')
+                    .insert([{
+                        title: 'New Patient Ready for Consultation',
+                        message: `Patient ${document.getElementById('selectedPatientInfo').innerHTML.match(/Patient Name:<\/strong> (.*?)</)?.[1] || 'Ready'} is waiting for doctor`,
+                        type: 'visit',
+                        priority: 'high',
+                        is_global: true,
+                        target_role: 'doctor'
+                    }]);
+                
+                alert('Patient checkup completed! Sent to doctor queue.');
+                
+                // Reset form
+                document.getElementById('vitalsForm').reset();
+                currentPatientId = null;
+                currentVisitId = null;
+                
+                // Refresh queue and go back
+                await loadQueue();
+                showSection('queue');
+                
+            } catch (error) {
+                alert('Error saving assessment: ' + error.message);
+            }
+        });
+
+        async function loadTodayPatients() {
+            try {
+                const { data: assessments, error } = await supabase
+                    .from('nurse_assessments')
+                    .select(`
+                        *,
+                        visit:visits(patient:users(full_name, id_number, clinic_card))
+                    `)
+                    .eq('nurse_id', currentUser.id)
+                    .gte('created_at', new Date().toISOString().split('T')[0])
+                    .order('created_at', { ascending: false });
+                
+                if (error) throw error;
+                
+                const container = document.getElementById('todayPatientsList');
+                if (!assessments || assessments.length === 0) {
+                    container.innerHTML = '<div class="text-center text-gray-500 py-8">No patients checked today</div>';
+                    return;
+                }
+                
+                container.innerHTML = assessments.map(assessment => `
+                    <div class="border rounded-lg p-4">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <h4 class="font-semibold">${assessment.visit?.patient?.full_name || 'Unknown'}</h4>
+                                <p class="text-sm text-gray-600">ID: ${assessment.visit?.patient?.id_number} | Clinic Card: ${assessment.visit?.patient?.clinic_card || 'N/A'}</p>
+                                <div class="grid grid-cols-3 gap-4 mt-2 text-sm">
+                                    <div>Temp: ${assessment.temperature}°C</div>
+                                    <div>BP: ${assessment.blood_pressure}</div>
+                                    <div>HR: ${assessment.heart_rate} bpm</div>
+                                </div>
+                                <p class="text-sm text-gray-700 mt-2"><strong>Complaint:</strong> ${assessment.chief_complaint}</p>
+                            </div>
+                            <span class="text-xs text-gray-500">${new Date(assessment.created_at).toLocaleTimeString()}</span>
+                        </div>
+                    </div>
+                `).join('');
+            } catch (error) {
+                console.error('Error loading today patients:', error);
+            }
+        }
+
+        async function getNextQueuePosition(queueType) {
+            const { data, count } = await supabase
+                .from('queue_management')
+                .select('*', { count: 'exact', head: true })
+                .eq('queue_type', queueType)
+                .eq('status', 'waiting');
+            
+            return (count || 0) + 1;
+        }
+
+        function setupRealTimeChat() {
+            chatSubscription = supabase
+                .channel('chat')
+                .on('postgres_changes', { 
+                    event: 'INSERT', 
+                    schema: 'public', 
+                    table: 'chat_messages',
+                    filter: `room=eq.staff`
+                }, (payload) => {
+                    displayChatMessage(payload.new);
+                })
+                .subscribe();
+            
+            loadChatMessages();
+        }
+
+        async function loadChatMessages() {
+            const { data: messages } = await supabase
+                .from('chat_messages')
+                .select('*, sender:users(full_name)')
+                .eq('room', 'staff')
+                .order('created_at', { ascending: true })
+                .limit(50);
+            
+            const container = document.getElementById('chatMessages');
+            container.innerHTML = messages?.map(msg => `
+                <div class="${msg.sender_id === currentUser.id ? 'text-right' : 'text-left'}">
+                    <div class="inline-block max-w-[70%] ${msg.sender_id === currentUser.id ? 'bg-teal-600 text-white' : 'bg-gray-300'} rounded-lg px-4 py-2">
+                        ${msg.sender_id !== currentUser.id ? `<p class="text-xs font-semibold mb-1">${msg.sender?.full_name}</p>` : ''}
+                        <p>${msg.message}</p>
+                        <p class="text-xs opacity-75 mt-1">${new Date(msg.created_at).toLocaleTimeString()}</p>
+                    </div>
+                </div>
+            `).join('') || '<div class="text-center text-gray-500">No messages yet</div>';
+            
+            // Scroll to bottom
+            container.scrollTop = container.scrollHeight;
+        }
+
+        async function sendChatMessage() {
+            const message = document.getElementById('chatInput').value.trim();
+            if (!message) return;
+            
+            await supabase
+                .from('chat_messages')
+                .insert([{
+                    sender_id: currentUser.id,
+                    message: message,
+                    room: 'staff',
+                    is_broadcast: true,
+                    created_at: new Date()
+                }]);
+            
+            document.getElementById('chatInput').value = '';
+            await loadChatMessages();
+        }
+
+        function handleChatKeyPress(event) {
+            if (event.key === 'Enter') {
+                sendChatMessage();
+            }
+        }
+
+        function searchQueue() {
+            const searchTerm = document.getElementById('searchQueue').value.toLowerCase();
+            const items = document.querySelectorAll('#queueList .border');
+            items.forEach(item => {
+                const text = item.textContent.toLowerCase();
+                item.style.display = text.includes(searchTerm) ? 'block' : 'none';
+            });
+        }
+
+        function refreshQueue() {
+            loadQueue();
+        }
+
+        function showSection(section) {
+            document.getElementById('queueSection').classList.add('hidden');
+            document.getElementById('checkupSection').classList.add('hidden');
+            document.getElementById('todayPatientsSection').classList.add('hidden');
+            document.getElementById('chatSection').classList.add('hidden');
+            
+            document.getElementById(`${section}Section`).classList.remove('hidden');
+            
+            const titles = {
+                queue: 'Patient Queue',
+                checkup: 'Vitals Checkup',
+                todayPatients: "Today's Patients",
+                chat: 'Staff Chat'
+            };
+            document.getElementById('pageTitle').textContent = titles[section] || 'Dashboard';
+        }
+
+        function logout() {
+            if (chatSubscription) chatSubscription.unsubscribe();
+            localStorage.removeItem('currentUser');
+            window.location.href = '/index.html';
+        }
+
+        window.addEventListener('DOMContentLoaded', initNurseDashboard);
+    </script>
+</body>
+</html>
