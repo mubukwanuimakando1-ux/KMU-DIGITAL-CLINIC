@@ -1,103 +1,492 @@
-// js/auth.js - Authentication with Activity Logging
+// assets/js/auth.js
+// KMU Digital Health Centre Management System
+// Complete Authentication Module (Supabase)
 
-async function handleLogin(identifier, password) {
-    try {
-        console.log('Login attempt:', identifier);
-        
-        if (!window.supabase) {
-            return { success: false, error: 'System initializing. Refresh page.' };
-        }
-        
-        const isEmail = identifier.includes('@');
-        let query = window.supabase.from('users').select('*');
-        
-        if (isEmail) {
-            query = query.eq('email', identifier);
-        } else {
-            query = query.eq('staff_id', identifier);
-        }
-        
-        const { data, error } = await query;
-        
-        if (error || !data || data.length === 0) {
-            return { success: false, error: 'User not found. Contact admin.' };
-        }
-        
-        const user = data[0];
-        
-        if (user.password !== password) {
-            return { success: false, error: 'Invalid password' };
-        }
-        
-        if (user.status !== 'active') {
-            return { success: false, error: 'Account inactive. Contact admin.' };
-        }
-        
-        // Log activity
-        await logActivity(user.id, 'Login', 'User logged in successfully');
-        
-        localStorage.setItem('currentUser', JSON.stringify(user));
-        return { success: true, user };
-        
-    } catch (error) {
-        console.error('Login error:', error);
-        return { success: false, error: error.message };
+import { supabase } from "../supabase/config.js";
+
+/* ==========================================================
+   AUTHENTICATION
+========================================================== */
+
+const LOGIN_FORM = document.getElementById("loginForm");
+
+if (LOGIN_FORM) {
+    LOGIN_FORM.addEventListener("submit", loginUser);
+}
+
+/* ==========================================================
+   LOGIN
+========================================================== */
+
+async function loginUser(e) {
+
+    e.preventDefault();
+
+    const identifier = document.getElementById("identifier").value.trim();
+    const password = document.getElementById("password").value.trim();
+
+    if (!identifier || !password) {
+        showToast("Please complete all fields.", "error");
+        return;
     }
-}
 
-async function resetPassword(identifier, securityAnswer, newPassword) {
+    showLoader();
+
     try {
-        if (!window.supabase) {
-            return { success: false, message: 'System error. Try again.' };
+
+        let email = identifier;
+
+        // Student ID or Staff Number login
+        if (!identifier.includes("@")) {
+
+            const { data: profile } = await supabase
+                .from("profiles")
+                .select("email")
+                .or(`student_id.eq.${identifier},staff_number.eq.${identifier}`)
+                .single();
+
+            if (!profile) {
+                hideLoader();
+                showToast("User not found.", "error");
+                return;
+            }
+
+            email = profile.email;
         }
-        
-        const isEmail = identifier.includes('@');
-        let query = window.supabase.from('users').select('*');
-        
-        if (isEmail) {
-            query = query.eq('email', identifier);
-        } else {
-            query = query.eq('staff_id', identifier);
+
+        const { data, error } = await supabase.auth.signInWithPassword({
+
+            email,
+            password
+
+        });
+
+        if (error) {
+
+            hideLoader();
+            showToast(error.message, "error");
+            return;
+
         }
-        
-        const { data, error } = await query;
-        
-        if (error || !data || data.length === 0) {
-            return { success: false, message: 'User not found' };
+
+        const user = data.user;
+
+        const { data: profile } = await supabase
+
+            .from("profiles")
+
+            .select("*")
+
+            .eq("id", user.id)
+
+            .single();
+
+        if (!profile) {
+
+            hideLoader();
+
+            showToast("Profile not found.", "error");
+
+            return;
+
         }
-        
-        const user = data[0];
-        
-        if (user.security_answer !== securityAnswer) {
-            return { success: false, message: 'Security answer incorrect' };
-        }
-        
-        await window.supabase.from('users').update({ password: newPassword }).eq('id', user.id);
-        await logActivity(user.id, 'Password Reset', 'User reset their password');
-        
-        return { success: true, message: 'Password reset successful!' };
-        
-    } catch (error) {
-        return { success: false, message: error.message };
+
+        localStorage.setItem("currentUser", JSON.stringify(profile));
+
+        await logActivity(
+
+            user.id,
+
+            "LOGIN",
+
+            "User Logged In"
+
+        );
+
+        redirectUser(profile.role);
+
     }
+
+    catch (err) {
+
+        console.error(err);
+
+        showToast(err.message, "error");
+
+    }
+
+    hideLoader();
+
 }
 
-async function logActivity(userId, action, details) {
-    try {
-        if (!window.supabase) return;
-        await window.supabase.from('activity_logs').insert([{
-            user_id: userId,
-            action: action,
-            details: details,
-            timestamp: new Date()
-        }]);
-        console.log('Activity logged:', action);
-    } catch (e) {
-        console.log('Log error:', e);
+/* ==========================================================
+   REDIRECT USER
+========================================================== */
+
+function redirectUser(role) {
+
+    switch (role) {
+
+        case "Admin":
+
+            location.href = "admin/dashboard.html";
+
+            break;
+
+        case "Receptionist":
+
+            location.href = "reception/dashboard.html";
+
+            break;
+
+        case "Doctor":
+
+            location.href = "doctor/dashboard.html";
+
+            break;
+
+        case "Nurse":
+
+            location.href = "nurse/dashboard.html";
+
+            break;
+
+        case "Pharmacist":
+
+            location.href = "pharmacy/dashboard.html";
+
+            break;
+
+        case "Laboratory":
+
+            location.href = "laboratory/dashboard.html";
+
+            break;
+
+        case "Counsellor":
+
+            location.href = "counselling/dashboard.html";
+
+            break;
+
+        case "Student":
+
+            location.href = "student/dashboard.html";
+
+            break;
+
+        case "Visitor":
+
+            location.href = "visitor/dashboard.html";
+
+            break;
+
+        default:
+
+            location.href = "dashboard.html";
+
     }
+
 }
 
-function logout() {
-    localStorage.removeItem('currentUser');
-    window.location.href = 'index.html';
+/* ==========================================================
+   SESSION
+========================================================== */
+
+async function checkSession() {
+
+    const {
+
+        data: { session }
+
+    } = await supabase.auth.getSession();
+
+    if (!session) {
+
+        location.href = "../index.html";
+
+    }
+
 }
+
+checkSession();
+
+/* ==========================================================
+   LOGOUT
+========================================================== */
+
+window.logout = async function () {
+
+    const currentUser = JSON.parse(
+
+        localStorage.getItem("currentUser")
+
+    );
+
+    if (currentUser) {
+
+        await logActivity(
+
+            currentUser.id,
+
+            "LOGOUT",
+
+            "User Logged Out"
+
+        );
+
+    }
+
+    await supabase.auth.signOut();
+
+    localStorage.clear();
+
+    location.href = "../index.html";
+
+};
+
+/* ==========================================================
+   FORGOT PASSWORD
+========================================================== */
+
+window.resetPassword = async function (email) {
+
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+
+        redirectTo:
+
+            window.location.origin + "/reset-password.html"
+
+    });
+
+    if (error) {
+
+        showToast(error.message, "error");
+
+        return;
+
+    }
+
+    showToast("Password reset email sent.");
+
+};
+
+/* ==========================================================
+   CHANGE PASSWORD
+========================================================== */
+
+window.changePassword = async function (
+
+    newPassword
+
+) {
+
+    const { error } = await supabase.auth.updateUser({
+
+        password: newPassword
+
+    });
+
+    if (error) {
+
+        showToast(error.message, "error");
+
+        return;
+
+    }
+
+    showToast("Password Updated.");
+
+};
+
+/* ==========================================================
+   LOAD PROFILE
+========================================================== */
+
+window.loadCurrentUser = function () {
+
+    return JSON.parse(
+
+        localStorage.getItem("currentUser")
+
+    );
+
+};
+
+/* ==========================================================
+   AUDIT LOG
+========================================================== */
+
+async function logActivity(
+
+    user,
+
+    action,
+
+    details
+
+) {
+
+    await supabase
+
+        .from("audit_logs")
+
+        .insert([
+
+            {
+
+                user_id: user,
+
+                action,
+
+                details,
+
+                created_at: new Date()
+
+            }
+
+        ]);
+
+}
+
+/* ==========================================================
+   ROLE GUARD
+========================================================== */
+
+window.requireRole = function (roles) {
+
+    const currentUser = loadCurrentUser();
+
+    if (!currentUser) {
+
+        location.href = "../index.html";
+
+        return;
+
+    }
+
+    if (!roles.includes(currentUser.role)) {
+
+        alert("Access Denied");
+
+        location.href = "../index.html";
+
+    }
+
+};
+
+/* ==========================================================
+   LOADER
+========================================================== */
+
+function showLoader() {
+
+    const loader = document.getElementById("loader");
+
+    if (loader)
+
+        loader.classList.remove("hidden");
+
+}
+
+function hideLoader() {
+
+    const loader = document.getElementById("loader");
+
+    if (loader)
+
+        loader.classList.add("hidden");
+
+}
+
+/* ==========================================================
+   TOAST
+========================================================== */
+
+function showToast(message, type = "success") {
+
+    if (window.showToast) {
+
+        window.showToast(message, type);
+
+    } else {
+
+        alert(message);
+
+    }
+
+}
+
+/* ==========================================================
+   AUTO SESSION REFRESH
+========================================================== */
+
+setInterval(async () => {
+
+    await supabase.auth.refreshSession();
+
+}, 300000);
+
+/* ==========================================================
+   REMEMBER ME
+========================================================== */
+
+const remember = document.getElementById("rememberMe");
+
+if (remember) {
+
+    remember.addEventListener("change", () => {
+
+        localStorage.setItem(
+
+            "remember",
+
+            remember.checked
+
+        );
+
+    });
+
+}
+
+/* ==========================================================
+   PASSWORD VISIBILITY
+========================================================== */
+
+const togglePassword = document.getElementById("togglePassword");
+
+if (togglePassword) {
+
+    togglePassword.onclick = () => {
+
+        const input = document.getElementById("password");
+
+        input.type =
+
+            input.type === "password"
+
+                ? "text"
+
+                : "password";
+
+    };
+
+}
+
+/* ==========================================================
+   EXPORTS
+========================================================== */
+
+export {
+
+    loginUser,
+
+    logout,
+
+    resetPassword,
+
+    loadCurrentUser,
+
+    requireRole
+
+};
