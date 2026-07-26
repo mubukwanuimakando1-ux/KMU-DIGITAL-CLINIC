@@ -1,76 +1,1213 @@
-// js/notifications.js - Notification Engine
-let notificationSubscription = null;
+/*
+=====================================================
+KMU DIGITAL HEALTH CENTRE MANAGEMENT SYSTEM
+NOTIFICATION MANAGEMENT MODULE
+=====================================================
 
-async function initNotifications(userId) {
-    if (notificationSubscription) {
-        notificationSubscription.unsubscribe();
+Functions:
+- Load notifications
+- Display notification panel
+- Mark notifications as read
+- Delete notifications
+- Real-time notification alerts
+- User notification history
+
+=====================================================
+*/
+
+
+
+
+
+
+// =====================================
+// NOTIFICATION INITIALIZATION
+// =====================================
+
+
+document.addEventListener(
+
+"DOMContentLoaded",
+
+()=>{
+
+
+    setupNotificationButton();
+
+
+    loadNotifications();
+
+
+    setupNotificationRealtime();
+
+
+});
+
+
+
+
+
+
+
+// =====================================
+// OPEN NOTIFICATION PANEL
+// =====================================
+
+
+function setupNotificationButton(){
+
+
+    const button =
+    document.getElementById(
+        "notificationButton"
+    );
+
+
+
+    const panel =
+    document.getElementById(
+        "notificationPanel"
+    );
+
+
+
+    const closeButton =
+    document.getElementById(
+        "closeNotifications"
+    );
+
+
+
+
+
+    if(button){
+
+
+        button.addEventListener(
+
+            "click",
+
+            ()=>{
+
+
+                panel.classList.toggle(
+                    "active"
+                );
+
+
+                loadNotifications();
+
+
+            }
+
+        );
+
+
     }
-    
-    notificationSubscription = supabase
-        .channel('notifications')
-        .on('postgres_changes', {
-            event: 'INSERT',
-            schema: 'public',
-            table: 'notifications',
-            filter: `user_id=eq.${userId}`
-        }, (payload) => {
-            showNotification(payload.new);
-        })
-        .subscribe();
-    
-    await loadUnreadCount();
+
+
+
+
+
+    if(closeButton){
+
+
+        closeButton.addEventListener(
+
+            "click",
+
+            ()=>{
+
+
+                panel.classList.remove(
+                    "active"
+                );
+
+
+            }
+
+        );
+
+
+    }
+
+
 }
 
-async function loadUnreadCount() {
-    const currentUser = JSON.parse(localStorage.getItem('currentUser'));
-    if (!currentUser) return;
-    
-    const { count } = await supabase
-        .from('notifications')
-        .select('*', { count: 'exact', head: true })
-        .eq('user_id', currentUser.id)
-        .eq('is_read', false);
-    
-    const badge = document.getElementById('notificationBadge');
-    if (badge) {
-        if (count > 0) {
-            badge.textContent = count;
-            badge.classList.remove('hidden');
-        } else {
-            badge.classList.add('hidden');
+
+
+
+
+
+
+// =====================================
+// LOAD USER NOTIFICATIONS
+// =====================================
+
+
+async function loadNotifications(){
+
+
+    try{
+
+
+        const {
+
+            data:user
+
+        } =
+        await supabaseClient
+        .auth
+        .getUser();
+
+
+
+
+
+        let query =
+        supabaseClient
+        .from("notifications")
+        .select("*")
+        .order(
+
+            "created_at",
+
+            {
+
+            ascending:false
+
+            }
+
+        )
+        .limit(20);
+
+
+
+
+
+        if(user.user){
+
+
+            query =
+            query.eq(
+
+                "user_id",
+
+                user.user.id
+
+            );
+
+
         }
+
+
+
+
+
+
+
+        const {
+
+            data,
+
+            error
+
+        } =
+        await query;
+
+
+
+
+
+
+        if(error){
+
+            throw error;
+
+        }
+
+
+
+
+
+        displayNotifications(
+            data
+        );
+
+
+
+
+
     }
+    catch(error){
+
+
+        console.error(
+
+            "Notification loading error",
+
+            error
+
+        );
+
+
+    }
+
+
 }
 
-async function markNotificationAsRead(notificationId) {
-    await supabase
-        .from('notifications')
-        .update({ is_read: true })
-        .eq('id', notificationId);
-    
-    await loadUnreadCount();
+
+
+
+
+
+
+// =====================================
+// DISPLAY NOTIFICATIONS
+// =====================================
+
+
+function displayNotifications(
+notifications
+){
+
+
+    const container =
+    document.getElementById(
+        "notificationList"
+    );
+
+
+
+
+
+    if(!container)
+    return;
+
+
+
+
+
+    container.innerHTML="";
+
+
+
+
+
+
+
+    if(
+        !notifications ||
+        notifications.length===0
+    ){
+
+
+        container.innerHTML =
+
+
+        `
+
+        <p>
+        No notifications available
+        </p>
+
+        `;
+
+
+        return;
+
+
+    }
+
+
+
+
+
+
+    notifications.forEach(
+
+        notification=>{
+
+
+            container.innerHTML +=
+
+
+            `
+
+            <div 
+            class="notification-item"
+            onclick="markNotificationRead('${notification.id}')">
+
+
+            <h4>
+
+            ${notification.title || "Notification"}
+
+            </h4>
+
+
+            <p>
+
+            ${notification.message}
+
+            </p>
+
+
+            <small>
+
+            ${formatDate(notification.created_at)}
+
+            </small>
+
+
+
+            </div>
+
+            `;
+
+
+
+        }
+
+    );
+
+
+
 }
 
-function showNotification(notification) {
-    // Show browser notification if permitted
-    if (Notification.permission === 'granted') {
-        new Notification(notification.title, {
-            body: notification.message,
-            icon: '/favicon.ico'
-        });
+
+
+
+
+
+
+// =====================================
+// MARK NOTIFICATION AS READ
+// =====================================
+
+
+async function markNotificationRead(
+
+notificationID
+
+){
+
+
+    try{
+
+
+        const {
+
+            error
+
+        } =
+        await supabaseClient
+        .from("notifications")
+        .update({
+
+
+            read:
+
+            true
+
+
+
+        })
+        .eq(
+
+            "id",
+
+            notificationID
+
+        );
+
+
+
+
+
+
+        if(error){
+
+            throw error;
+
+        }
+
+
+
+
+
+
+        updateNotificationBadge();
+
+
+        loadNotifications();
+
+
+
+
+
     }
-    
-    // Show in-app toast
-    showToast(notification.message, notification.priority === 'high' ? 'warning' : 'success');
-    
-    // Play sound for high priority
-    if (notification.priority === 'high') {
-        const audio = new Audio('/notification.mp3');
-        audio.play().catch(e => console.log('Audio playback failed'));
+    catch(error){
+
+
+        console.error(
+
+            "Mark notification error",
+
+            error
+
+        );
+
+
     }
+
+
 }
 
-// Request notification permission
-if ('Notification' in window) {
-    Notification.requestPermission();
+
+
+
+
+
+
+// =====================================
+// MARK ALL NOTIFICATIONS READ
+// =====================================
+
+
+async function markAllNotificationsRead(){
+
+
+    try{
+
+
+        const {
+
+            data:user
+
+        } =
+        await supabaseClient
+        .auth
+        .getUser();
+
+
+
+
+
+        if(!user.user)
+        return;
+
+
+
+
+
+
+
+        const {
+
+            error
+
+        } =
+        await supabaseClient
+        .from("notifications")
+        .update({
+
+
+            read:
+
+            true
+
+
+
+        })
+        .eq(
+
+            "user_id",
+
+            user.user.id
+
+        );
+
+
+
+
+
+
+
+        if(error){
+
+            throw error;
+
+        }
+
+
+
+
+
+
+        updateNotificationBadge();
+
+
+        loadNotifications();
+
+
+
+
+
+    }
+    catch(error){
+
+
+        handleError(error);
+
+
+    }
+
+
 }
+
+
+
+
+
+
+
+
+// =====================================
+// DELETE NOTIFICATION
+// =====================================
+
+
+async function deleteNotification(
+
+notificationID
+
+){
+
+
+    try{
+
+
+        const {
+
+            error
+
+        } =
+        await supabaseClient
+        .from("notifications")
+        .delete()
+        .eq(
+
+            "id",
+
+            notificationID
+
+        );
+
+
+
+
+
+
+
+        if(error){
+
+            throw error;
+
+        }
+
+
+
+
+
+
+        loadNotifications();
+
+
+        updateNotificationBadge();
+
+
+
+
+
+    }
+    catch(error){
+
+
+        handleError(error);
+
+
+    }
+
+
+}
+
+/*
+=====================================================
+NOTIFICATION ADVANCED FEATURES
+KMU DIGITAL HEALTH CENTRE MANAGEMENT SYSTEM
+=====================================================
+
+Functions:
+- Real-time notifications
+- Browser alerts
+- Notification sound
+- Notification statistics
+- Automatic refresh
+
+=====================================================
+*/
+
+
+
+
+
+
+// =====================================
+// REAL-TIME NOTIFICATION LISTENER
+// =====================================
+
+
+function setupNotificationRealtime(){
+
+
+    try{
+
+
+        supabaseClient
+
+        .channel(
+
+            "notifications-realtime"
+
+        )
+
+        .on(
+
+            "postgres_changes",
+
+            {
+
+
+                event:"INSERT",
+
+
+                schema:"public",
+
+
+                table:"notifications"
+
+
+
+            },
+
+
+            payload=>{
+
+
+                const notification =
+                payload.new;
+
+
+
+                displayNewNotificationAlert(
+                    notification
+                );
+
+
+
+                updateNotificationBadge();
+
+
+
+                loadNotifications();
+
+
+
+            }
+
+
+        )
+
+        .subscribe();
+
+
+
+
+    }
+    catch(error){
+
+
+        console.error(
+
+            "Notification realtime error",
+
+            error
+
+        );
+
+
+    }
+
+
+}
+
+
+
+
+
+
+
+// =====================================
+// DISPLAY LIVE ALERT
+// =====================================
+
+
+function displayNewNotificationAlert(
+
+notification
+
+){
+
+
+
+    showNotification(
+
+        notification.message,
+
+        "success"
+
+    );
+
+
+
+    playNotificationSound();
+
+
+
+    if(
+        Notification.permission ===
+        "granted"
+    ){
+
+
+        new Notification(
+
+            notification.title ||
+
+            "KMU Health Centre",
+
+            {
+
+
+                body:
+
+                notification.message
+
+
+
+            }
+
+        );
+
+
+    }
+
+
+}
+
+
+
+
+
+
+
+// =====================================
+// REQUEST BROWSER NOTIFICATION ACCESS
+// =====================================
+
+
+async function requestNotificationPermission(){
+
+
+    if(
+        "Notification" in window
+    ){
+
+
+        const permission =
+        await Notification.requestPermission();
+
+
+
+        return permission;
+
+
+    }
+
+
+    return null;
+
+
+}
+
+
+
+
+
+
+
+// =====================================
+// NOTIFICATION SOUND
+// =====================================
+
+
+function playNotificationSound(){
+
+
+    try{
+
+
+        const audio =
+        new Audio(
+
+        "assets/audio/notification.mp3"
+
+        );
+
+
+        audio.play();
+
+
+
+    }
+    catch(error){
+
+
+        console.log(
+
+            "Sound unavailable"
+
+        );
+
+
+    }
+
+
+}
+
+
+
+
+
+
+
+// =====================================
+// GET NOTIFICATION STATISTICS
+// =====================================
+
+
+async function getNotificationStatistics(){
+
+
+    try{
+
+
+        const {
+
+            count:total
+
+        } =
+        await supabaseClient
+        .from("notifications")
+        .select(
+
+            "*",
+
+            {
+
+                count:"exact",
+
+                head:true
+
+            }
+
+        );
+
+
+
+
+
+
+        const {
+
+            count:unread
+
+        } =
+        await supabaseClient
+        .from("notifications")
+        .select(
+
+            "*",
+
+            {
+
+                count:"exact",
+
+                head:true
+
+            }
+
+        )
+        .eq(
+
+            "read",
+
+            false
+
+        );
+
+
+
+
+
+
+
+        return {
+
+
+            total:
+
+            total || 0,
+
+
+
+            unread:
+
+            unread || 0
+
+
+
+        };
+
+
+
+
+
+    }
+    catch(error){
+
+
+        console.error(
+
+            "Notification statistics error",
+
+            error
+
+        );
+
+
+    }
+
+
+}
+
+
+
+
+
+
+
+// =====================================
+// CLEAR OLD NOTIFICATIONS
+// =====================================
+
+
+async function clearOldNotifications(){
+
+
+    try{
+
+
+        const oldDate =
+        new Date();
+
+
+
+        oldDate.setDate(
+
+            oldDate.getDate()-30
+
+        );
+
+
+
+
+
+
+        const {
+
+            error
+
+        } =
+        await supabaseClient
+        .from("notifications")
+        .delete()
+        .lt(
+
+            "created_at",
+
+            oldDate.toISOString()
+
+        );
+
+
+
+
+
+
+
+        if(error){
+
+            throw error;
+
+        }
+
+
+
+
+
+
+        showNotification(
+
+            "Old notifications removed",
+
+            "success"
+
+        );
+
+
+
+    }
+    catch(error){
+
+
+        console.error(
+
+            "Clear notification error",
+
+            error
+
+        );
+
+
+    }
+
+
+}
+
+
+
+
+
+
+
+// =====================================
+// AUTO REFRESH NOTIFICATIONS
+// =====================================
+
+
+function startNotificationRefresh(){
+
+
+    setInterval(
+
+        ()=>{
+
+
+            loadNotifications();
+
+
+            updateNotificationBadge();
+
+
+        },
+
+        60000
+
+    );
+
+
+}
+
+
+
+
+
+
+
+// =====================================
+// INITIALIZE NOTIFICATIONS
+// =====================================
+
+
+document.addEventListener(
+
+"DOMContentLoaded",
+
+()=>{
+
+
+    requestNotificationPermission();
+
+
+
+    startNotificationRefresh();
+
+
+
+});
+
+
+
+
+
+
+
+
+// =====================================
+// EXPORT FUNCTIONS
+// =====================================
+
+
+window.loadNotifications =
+loadNotifications;
+
+
+window.markNotificationRead =
+markNotificationRead;
+
+
+window.markAllNotificationsRead =
+markAllNotificationsRead;
+
+
+window.deleteNotification =
+deleteNotification;
+
+
+window.setupNotificationRealtime =
+setupNotificationRealtime;
+
+
+window.requestNotificationPermission =
+requestNotificationPermission;
+
+
+window.getNotificationStatistics =
+getNotificationStatistics;
+
+
+window.clearOldNotifications =
+clearOldNotifications;
+
