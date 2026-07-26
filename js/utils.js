@@ -1,71 +1,615 @@
-// js/utils.js - Utility Functions
-function showToast(message, type = 'success') {
-    const toast = document.createElement('div');
-    toast.className = `toast toast-${type}`;
-    toast.innerHTML = `
-        <div class="flex items-center space-x-3">
-            <i class="fas ${type === 'success' ? 'fa-check-circle text-green-500' : type === 'error' ? 'fa-exclamation-circle text-red-500' : 'fa-info-circle text-yellow-500'}"></i>
-            <span>${message}</span>
-        </div>
-    `;
-    document.body.appendChild(toast);
-    setTimeout(() => toast.remove(), 3000);
+/*
+=====================================================
+KMU DIGITAL HEALTH CENTRE MANAGEMENT SYSTEM
+UTILITY FUNCTIONS
+=====================================================
+
+This file contains reusable functions used by:
+- Authentication
+- App Dashboard
+- Appointments
+- Visitors
+- Notifications
+- AI Assistant
+
+=====================================================
+*/
+
+
+
+// =====================================
+// PAGE LOADER CONTROL
+// =====================================
+
+
+function hideLoader(){
+
+
+    const loader =
+    document.getElementById("loader");
+
+
+    if(loader){
+
+        loader.style.display="none";
+
+    }
+
 }
 
-function formatDate(date) {
-    return new Date(date).toLocaleDateString('en-ZM', {
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric'
-    });
+
+
+
+function showLoader(){
+
+
+    const loader =
+    document.getElementById("loader");
+
+
+    if(loader){
+
+        loader.style.display="flex";
+
+    }
+
 }
 
-function formatTime(date) {
-    return new Date(date).toLocaleTimeString('en-ZM', {
-        hour: '2-digit',
-        minute: '2-digit'
-    });
+
+
+
+
+// =====================================
+// DATE AND TIME FUNCTIONS
+// =====================================
+
+
+function getCurrentDate(){
+
+
+    const date =
+    new Date();
+
+
+    return date
+    .toISOString()
+    .split("T")[0];
+
+
 }
 
-function formatDateTime(date) {
-    return `${formatDate(date)} at ${formatTime(date)}`;
+
+
+
+
+function getCurrentDateTime(){
+
+
+    const date =
+    new Date();
+
+
+    return date.toLocaleString(
+        "en-GB",
+        {
+            timeZone:
+            "Africa/Lusaka"
+        }
+    );
+
+
 }
 
-function generateQRCode(data) {
-    // QR Code generation using an API or library
-    return `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(data)}`;
+
+
+
+
+function formatDate(date){
+
+
+    if(!date)
+    return "";
+
+
+    return new Date(date)
+    .toLocaleDateString(
+        "en-GB"
+    );
+
+
 }
 
-function downloadPDF(content, filename) {
-    const element = document.createElement('a');
-    const file = new Blob([content], { type: 'application/pdf' });
-    element.href = URL.createObjectURL(file);
-    element.download = filename;
-    document.body.appendChild(element);
-    element.click();
-    document.body.removeChild(element);
+
+
+
+
+function formatTime(date){
+
+
+    if(!date)
+    return "";
+
+
+    return new Date(date)
+    .toLocaleTimeString(
+        "en-GB",
+        {
+            hour:"2-digit",
+            minute:"2-digit"
+        }
+    );
+
+
 }
 
-function validateEmail(email) {
-    return /^[^\s@]+@([^\s@.,]+\.)+[^\s@.,]{2,}$/.test(email);
+
+
+
+
+
+// =====================================
+// UNIQUE ID GENERATOR
+// =====================================
+
+
+function generateID(prefix="KMU"){
+
+
+    const random =
+    Math.floor(
+        Math.random()*100000
+    );
+
+
+    return `${prefix}-${Date.now()}-${random}`;
+
+
 }
 
-function validateZambiaPhone(phone) {
-    return /^09[567]\d{7}$/.test(phone);
+
+
+
+
+
+// =====================================
+// INPUT VALIDATION
+// =====================================
+
+
+function validateEmail(email){
+
+
+    const pattern =
+    /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+
+    return pattern.test(email);
+
+
 }
 
-function getInitials(name) {
-    return name.split(' ').map(n => n[0]).join('').toUpperCase();
+
+
+
+
+function validatePhone(phone){
+
+
+    const pattern =
+    /^[0-9+\s]{9,15}$/;
+
+
+    return pattern.test(phone);
+
+
 }
 
-function debounce(func, wait) {
-    let timeout;
-    return function executedFunction(...args) {
-        const later = () => {
-            clearTimeout(timeout);
-            func(...args);
-        };
-        clearTimeout(timeout);
-        timeout = setTimeout(later, wait);
+
+
+
+
+function validatePassword(password){
+
+
+    return (
+
+        password.length >= 8 &&
+
+        /[A-Z]/.test(password) &&
+
+        /[a-z]/.test(password) &&
+
+        /[0-9]/.test(password)
+
+    );
+
+
+}
+
+
+
+
+
+// =====================================
+// PASSWORD VISIBILITY TOGGLE
+// =====================================
+
+
+function togglePassword(inputID){
+
+
+    const input =
+    document.getElementById(inputID);
+
+
+
+    if(input.type==="password"){
+
+
+        input.type="text";
+
+
+    }
+    else{
+
+
+        input.type="password";
+
+
+    }
+
+
+}
+
+
+
+
+
+
+
+// =====================================
+// DEVICE INFORMATION
+// =====================================
+
+
+function getDeviceInfo(){
+
+
+    return {
+
+
+        browser:
+        navigator.userAgent,
+
+
+        platform:
+        navigator.platform,
+
+
+        language:
+        navigator.language,
+
+
+        screen:
+        `${screen.width}x${screen.height}`
+
+
     };
+
+
 }
+
+
+
+
+
+// =====================================
+// LOCATION SERVICE
+// =====================================
+
+
+async function getUserLocation(){
+
+
+    return new Promise(
+        (resolve)=>{
+
+
+        if(!navigator.geolocation){
+
+
+            resolve(
+                "Location unavailable"
+            );
+
+
+            return;
+
+
+        }
+
+
+
+
+        navigator.geolocation.getCurrentPosition(
+
+            position=>{
+
+
+                resolve({
+
+                    latitude:
+                    position.coords.latitude,
+
+
+                    longitude:
+                    position.coords.longitude
+
+
+                });
+
+
+            },
+
+
+            ()=>{
+
+
+                resolve(
+                    "Permission denied"
+                );
+
+
+            }
+
+
+        );
+
+
+    });
+
+
+}
+
+
+
+
+
+
+// =====================================
+// SECURITY AUDIT LOGGING
+// =====================================
+
+
+async function createAuditLog(
+    action,
+    details=""
+){
+
+
+    try{
+
+
+        const user =
+        await supabaseClient
+        .auth
+        .getUser();
+
+
+
+        const device =
+        getDeviceInfo();
+
+
+
+        const location =
+        await getUserLocation();
+
+
+
+
+        await supabaseClient
+        .from("audit_logs")
+        .insert({
+
+
+            user_id:
+            user.data.user?.id || null,
+
+
+            action:
+            action,
+
+
+            details:
+            details,
+
+
+            device:
+            JSON.stringify(device),
+
+
+            location:
+            JSON.stringify(location),
+
+
+            created_at:
+            new Date()
+
+
+        });
+
+
+
+    }
+    catch(error){
+
+
+        console.error(
+            "Audit Error:",
+            error
+        );
+
+
+    }
+
+
+}
+
+
+
+
+
+
+// =====================================
+// ERROR HANDLING
+// =====================================
+
+
+function handleError(error){
+
+
+    console.error(error);
+
+
+    showNotification(
+        "Something went wrong. Please try again.",
+        "error"
+    );
+
+
+}
+
+
+
+
+
+
+// =====================================
+// LOCAL STORAGE HELPERS
+// =====================================
+
+
+function saveLocal(
+    key,
+    value
+){
+
+
+    localStorage.setItem(
+        key,
+        JSON.stringify(value)
+    );
+
+
+}
+
+
+
+
+function getLocal(key){
+
+
+    const data =
+    localStorage.getItem(key);
+
+
+    return data ?
+    JSON.parse(data)
+    :
+    null;
+
+
+}
+
+
+
+
+function removeLocal(key){
+
+
+    localStorage.removeItem(key);
+
+
+}
+
+
+
+
+
+
+// =====================================
+// EXPORT FUNCTIONS
+// =====================================
+
+
+window.hideLoader =
+hideLoader;
+
+
+window.showLoader =
+showLoader;
+
+
+window.getCurrentDate =
+getCurrentDate;
+
+
+window.getCurrentDateTime =
+getCurrentDateTime;
+
+
+window.formatDate =
+formatDate;
+
+
+window.formatTime =
+formatTime;
+
+
+window.generateID =
+generateID;
+
+
+window.validateEmail =
+validateEmail;
+
+
+window.validatePhone =
+validatePhone;
+
+
+window.validatePassword =
+validatePassword;
+
+
+window.togglePassword =
+togglePassword;
+
+
+window.getDeviceInfo =
+getDeviceInfo;
+
+
+window.getUserLocation =
+getUserLocation;
+
+
+window.createAuditLog =
+createAuditLog;
+
+
+window.handleError =
+handleError;
+
+
+window.saveLocal =
+saveLocal;
+
+
+window.getLocal =
+getLocal;
+
+
+window.removeLocal =
+removeLocal;
