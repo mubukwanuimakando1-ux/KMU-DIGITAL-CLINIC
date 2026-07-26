@@ -1,898 +1,914 @@
 <!DOCTYPE html>
-<html lang="en" class="scroll-smooth">
+<html lang="en">
+
 <head>
 
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>KMU Digital Health Centre Management System</title>
+<meta name="viewport"
+content="width=device-width, initial-scale=1.0">
 
-<meta name="description" content="Kapasa Makasa University Digital Health Centre Management System">
+<title>
+Kapasa Makasa University Digital Health Centre
+</title>
 
-<link rel="icon" href="assets/images/logo.png">
+<meta
+name="description"
+content="KMU Digital Health Centre Management System">
 
-<script src="https://cdn.tailwindcss.com"></script>
+<link
+rel="icon"
+href="assets/images/logo.png">
 
-<link rel="stylesheet"
-href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css"/>
+<link
+href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap"
+rel="stylesheet">
 
-<link rel="stylesheet" href="assets/css/style.css">
+<link
+rel="stylesheet"
+href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
 
-<script>
+<link
+rel="stylesheet"
+href="assets/css/style.css">
 
-tailwind.config={
-darkMode:'class',
-theme:{
-extend:{
-colors:{
-primary:'#005BAC',
-secondary:'#0EA5E9',
-success:'#10B981',
-danger:'#EF4444',
-warning:'#F59E0B',
-dark:'#0F172A'
-},
-boxShadow:{
-glass:'0 8px 32px rgba(31,38,135,.2)'
-},
-animation:{
-float:'float 5s ease-in-out infinite'
-},
-keyframes:{
-float:{
-'0%,100%':{transform:'translateY(0px)'},
-'50%':{transform:'translateY(-12px)'}
-}
-}
-}
-}
-}
+<script
+src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2">
+</script>
 
+<script
+src="assets/js/config.js"
+defer>
+</script>
+
+<script
+src="assets/js/utils.js"
+defer>
+</script>
+
+<script
+src="assets/js/auth.js"
+defer>
+</script>
+
+<script
+src="assets/js/app.js"
+defer>
 </script>
 
 </head>
 
-<body class="bg-slate-100 dark:bg-slate-900 text-gray-800 dark:text-white">
+<body>
 
-<!-- PRELOADER -->
+<div id="loader">
 
-<div id="loader"
-class="fixed inset-0 bg-white dark:bg-slate-900 z-[9999] flex items-center justify-center">
+<div class="spinner"></div>
 
-<div class="text-center">
-
-<div class="w-20 h-20 border-8 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto"></div>
-
-<h2 class="mt-6 text-2xl font-bold text-blue-700">
-KMU Health Centre
-</h2>
-
-<p class="text-gray-500">
-Loading System...
-</p>
+<h3>
+Loading KMU Digital Health Centre...
+</h3>
 
 </div>
 
-</div>
+<header>
 
-<!-- NAVBAR -->
-
-<header class="fixed top-0 left-0 right-0 z-50 bg-white/80 dark:bg-slate-900/90 backdrop-blur-xl shadow">
-
-<div class="max-w-7xl mx-auto px-6">
-
-<div class="flex items-center justify-between h-20">
-
-<div class="flex items-center gap-4">
+<div class="logo">
 
 <img
 src="assets/images/logo.png"
-class="w-14 h-14 rounded-full shadow-lg">
+alt="KMU Logo">
 
 <div>
 
-<h1 class="font-bold text-xl">
-Kapasa Makasa University
-</h1>
+<h2>
+KMU Digital Health Centre
+</h2>
 
-<p class="text-sm text-gray-500">
-Digital Health Centre
+<p>
+Kapasa Makasa University
 </p>
 
 </div>
 
 </div>
 
-<nav class="hidden lg:flex gap-8 font-semibold">
+<nav>
 
-<a href="#home" class="hover:text-blue-700">Home</a>
+<ul>
 
-<a href="#services" class="hover:text-blue-700">Services</a>
+<li>
+<a href="#home">Home</a>
+</li>
 
-<a href="#statistics" class="hover:text-blue-700">Statistics</a>
+<li>
+<a href="#about">About</a>
+</li>
 
-<a href="#appointments" class="hover:text-blue-700">Appointments</a>
+<li>
+<a href="#services">Services</a>
+</li>
 
-<a href="#announcements" class="hover:text-blue-700">Announcements</a>
+<li>
+<a href="#departments">Departments</a>
+</li>
 
-<a href="#contact" class="hover:text-blue-700">Contact</a>
+<li>
+<a href="#appointment">Appointment</a>
+</li>
+
+<li>
+<a href="#contact">Contact</a>
+</li>
+
+</ul>
 
 </nav>
 
-<div class="flex items-center gap-4">
+<div class="header-buttons">
 
-<button id="darkModeBtn"
-class="w-11 h-11 rounded-full bg-slate-200 dark:bg-slate-700">
+<button
+id="notificationButton">
 
-<i class="fas fa-moon"></i>
+<i class="fa-solid fa-bell"></i>
+
+<span
+id="notificationBadge">
+0
+</span>
 
 </button>
 
-<button id="loginBtn"
-class="bg-blue-700 text-white px-6 py-3 rounded-xl hover:bg-blue-800">
+<button
+id="loginButton">
 
 Login
 
 </button>
-
-</div>
-
-</div>
 
 </div>
 
 </header>
 
-<!-- HERO -->
+<section
+class="hero"
+id="home">
 
-<section id="home"
-class="pt-36 pb-24">
+<div class="hero-left">
 
-<div class="max-w-7xl mx-auto px-6">
+<h1>
 
-<div class="grid lg:grid-cols-2 gap-14 items-center">
+Welcome To
 
-<div>
+<span>
 
-<span
-class="inline-flex items-center px-4 py-2 rounded-full bg-blue-100 text-blue-700 font-semibold">
-
-<i class="fas fa-hospital mr-2"></i>
-
-KMU Smart Clinic
-
-</span>
-
-<h1
-class="text-6xl font-extrabold leading-tight mt-8">
-
-Digital Health Centre
-
-<span class="text-blue-700">
-
-Management System
+KMU Digital Health Centre
 
 </span>
 
 </h1>
 
-<p class="mt-8 text-xl text-gray-600 dark:text-gray-300">
+<p>
 
-A modern healthcare platform for Students,
-Staff,
+A Complete Digital Healthcare Management System
+for Students, Staff,
 Visitors,
 Doctors,
 Nurses,
 Pharmacists,
-Laboratory Personnel,
-Counsellors and Administrators.
+Laboratory Technologists,
+Counsellors
+and Administrators.
 
 </p>
 
-<div class="mt-10 flex flex-wrap gap-4">
+<div class="hero-buttons">
 
 <button
-id="studentLoginBtn"
-class="bg-blue-700 hover:bg-blue-800 text-white px-8 py-4 rounded-xl">
+id="bookAppointment">
 
-Student Login
+Book Appointment
 
 </button>
 
 <button
-id="staffLoginBtn"
-class="bg-emerald-600 hover:bg-emerald-700 text-white px-8 py-4 rounded-xl">
-
-Staff Login
-
-</button>
-
-<button
-id="visitorBtn"
-class="border-2 border-blue-700 text-blue-700 px-8 py-4 rounded-xl">
+id="registerVisitor">
 
 Visitor Registration
 
 </button>
 
-<button
-id="appointmentBtn"
-class="bg-purple-700 text-white px-8 py-4 rounded-xl">
-
-Book Appointment
-
-</button>
-
 </div>
 
-<div class="grid grid-cols-2 lg:grid-cols-4 gap-6 mt-14">
+<div class="statistics">
 
-<div class="bg-white dark:bg-slate-800 rounded-2xl p-5 shadow">
+<div>
 
-<h3 id="todayPatients"
-
-class="text-4xl font-bold text-blue-700">
+<h2
+id="todayPatients">
 
 0
 
-</h3>
+</h2>
 
-<p>Today's Patients</p>
+<p>
 
-</div>
+Patients Today
 
-<div class="bg-white dark:bg-slate-800 rounded-2xl p-5 shadow">
-
-<h3 id="waitingPatients"
-
-class="text-4xl font-bold text-orange-600">
-
-0
-
-</h3>
-
-<p>Waiting Queue</p>
-
-</div>
-
-<div class="bg-white dark:bg-slate-800 rounded-2xl p-5 shadow">
-
-<h3 id="doctorCount"
-
-class="text-4xl font-bold text-green-600">
-
-0
-
-</h3>
-
-<p>Doctors On Duty</p>
-
-</div>
-
-<div class="bg-white dark:bg-slate-800 rounded-2xl p-5 shadow">
-
-<h3 id="medicineCount"
-
-class="text-4xl font-bold text-purple-600">
-
-0
-
-</h3>
-
-<p>Medicine Stock</p>
-
-</div>
-
-</div>
+</p>
 
 </div>
 
 <div>
+
+<h2
+id="waitingPatients">
+
+0
+
+</h2>
+
+<p>
+
+Waiting
+
+</p>
+
+</div>
+
+<div>
+
+<h2
+id="completedPatients">
+
+0
+
+</h2>
+
+<p>
+
+Completed
+
+</p>
+
+</div>
+
+<div>
+
+<h2
+id="medicineStock">
+
+0
+
+</h2>
+
+<p>
+
+Medicines
+
+</p>
+
+</div>
+
+</div>
+
+</div>
+
+<div class="hero-right">
 
 <img
-src="assets/images/hospital-hero.png"
-class="rounded-3xl shadow-2xl animate-float">
-
-</div>
-
-</div>
+src="assets/images/hero.png"
+alt="Healthcare">
 
 </div>
 
 </section>
-<!-- ===========================
-SERVICES
-=========================== -->
 
-<section id="services" class="py-24 bg-white dark:bg-slate-800">
+<section
+id="announcements">
 
-<div class="max-w-7xl mx-auto px-6">
+<h2>
 
-<div class="text-center mb-16">
-
-<h2 class="text-5xl font-bold">
-
-Our Health Services
+Latest Health Announcements
 
 </h2>
 
-<p class="mt-4 text-gray-500">
+<div
+id="announcementContainer">
 
-Comprehensive Digital Healthcare Services for Kapasa Makasa University
+</div>
+
+</section>
+
+<section
+id="queue">
+
+<h2>
+
+Live Queue Monitor
+
+</h2>
+
+<table>
+
+<thead>
+
+<tr>
+
+<th>
+Queue
+</th>
+
+<th>
+Patient
+</th>
+
+<th>
+Department
+</th>
+
+<th>
+Status
+</th>
+
+<th>
+Waiting Time
+</th>
+
+</tr>
+
+</thead>
+
+<tbody
+id="queueTable">
+
+</tbody>
+
+</table>
+
+</section>
+
+<section
+id="services">
+
+<h2>
+
+Our Services
+
+</h2>
+
+<div
+class="service-grid">
+
+<div class="service-card">
+
+<i class="fa-solid fa-user-nurse"></i>
+
+<h3>
+Nursing
+</h3>
+
+<p>
+Vitals,
+Triage,
+Assessment
+</p>
+
+</div>
+
+<div class="service-card">
+
+<i class="fa-solid fa-user-doctor"></i>
+
+<h3>
+
+Doctor Consultation
+
+</h3>
+
+<p>
+
+Diagnosis &
+Treatment
 
 </p>
 
 </div>
 
-<div class="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+<div class="service-card">
 
-<div class="service-card bg-slate-50 dark:bg-slate-900 rounded-2xl p-8 shadow hover:shadow-xl transition">
+<i class="fa-solid fa-flask"></i>
 
-<i class="fas fa-user-graduate text-5xl text-blue-600 mb-5"></i>
+<h3>
 
-<h3 class="font-bold text-xl mb-3">Student Clinic</h3>
+Laboratory
 
-<p>Digital registration and treatment for all registered students.</p>
+</h3>
 
-</div>
+<p>
 
-<div class="service-card bg-slate-50 dark:bg-slate-900 rounded-2xl p-8 shadow hover:shadow-xl transition">
-
-<i class="fas fa-user-tie text-5xl text-green-600 mb-5"></i>
-
-<h3 class="font-bold text-xl mb-3">Staff Clinic</h3>
-
-<p>Medical services for academic and non-academic staff.</p>
-
-</div>
-
-<div class="service-card bg-slate-50 dark:bg-slate-900 rounded-2xl p-8 shadow hover:shadow-xl transition">
-
-<i class="fas fa-user-clock text-5xl text-yellow-500 mb-5"></i>
-
-<h3 class="font-bold text-xl mb-3">Visitor Services</h3>
-
-<p>Quick visitor registration and consultation workflow.</p>
-
-</div>
-
-<div class="service-card bg-slate-50 dark:bg-slate-900 rounded-2xl p-8 shadow hover:shadow-xl transition">
-
-<i class="fas fa-users text-5xl text-red-500 mb-5"></i>
-
-<h3 class="font-bold text-xl mb-3">Casual Workers</h3>
-
-<p>Medical services for temporary university workers.</p>
-
-</div>
-
-<div class="service-card bg-slate-50 dark:bg-slate-900 rounded-2xl p-8 shadow hover:shadow-xl transition">
-
-<i class="fas fa-stethoscope text-5xl text-cyan-600 mb-5"></i>
-
-<h3 class="font-bold text-xl mb-3">Nurse Assessment</h3>
-
-<p>Vitals, BMI, symptoms and patient triage.</p>
-
-</div>
-
-<div class="service-card bg-slate-50 dark:bg-slate-900 rounded-2xl p-8 shadow hover:shadow-xl transition">
-
-<i class="fas fa-user-doctor text-5xl text-indigo-600 mb-5"></i>
-
-<h3 class="font-bold text-xl mb-3">Doctor Consultation</h3>
-
-<p>Diagnosis, treatment, prescriptions and referrals.</p>
-
-</div>
-
-<div class="service-card bg-slate-50 dark:bg-slate-900 rounded-2xl p-8 shadow hover:shadow-xl transition">
-
-<i class="fas fa-flask text-5xl text-pink-600 mb-5"></i>
-
-<h3 class="font-bold text-xl mb-3">Laboratory</h3>
-
-<p>Digital lab requests and laboratory results.</p>
-
-</div>
-
-<div class="service-card bg-slate-50 dark:bg-slate-900 rounded-2xl p-8 shadow hover:shadow-xl transition">
-
-<i class="fas fa-pills text-5xl text-emerald-600 mb-5"></i>
-
-<h3 class="font-bold text-xl mb-3">Pharmacy</h3>
-
-<p>Electronic prescriptions and medicine dispensing.</p>
-
-</div>
-
-<div class="service-card bg-slate-50 dark:bg-slate-900 rounded-2xl p-8 shadow hover:shadow-xl transition">
-
-<i class="fas fa-brain text-5xl text-purple-600 mb-5"></i>
-
-<h3 class="font-bold text-xl mb-3">Counselling</h3>
-
-<p>Private counselling appointments and follow-up.</p>
-
-</div>
-
-<div class="service-card bg-slate-50 dark:bg-slate-900 rounded-2xl p-8 shadow hover:shadow-xl transition">
-
-<i class="fas fa-file-medical text-5xl text-orange-500 mb-5"></i>
-
-<h3 class="font-bold text-xl mb-3">Medical Records</h3>
-
-<p>Secure electronic medical history management.</p>
-
-</div>
-
-<div class="service-card bg-slate-50 dark:bg-slate-900 rounded-2xl p-8 shadow hover:shadow-xl transition">
-
-<i class="fas fa-file-signature text-5xl text-blue-500 mb-5"></i>
-
-<h3 class="font-bold text-xl mb-3">Sick Notes</h3>
-
-<p>QR verified digital medical certificates.</p>
-
-</div>
-
-<div class="service-card bg-slate-50 dark:bg-slate-900 rounded-2xl p-8 shadow hover:shadow-xl transition">
-
-<i class="fas fa-truck-medical text-5xl text-red-600 mb-5"></i>
-
-<h3 class="font-bold text-xl mb-3">Referrals</h3>
-
-<p>Electronic referral management to referral hospitals.</p>
-
-</div>
-
-</div>
-
-</div>
-
-</section>
-
-<!-- ===========================
-LIVE QUEUE
-=========================== -->
-
-<section class="py-24 bg-slate-100 dark:bg-slate-900">
-
-<div class="max-w-7xl mx-auto px-6">
-
-<div class="grid lg:grid-cols-2 gap-10">
-
-<div class="bg-white dark:bg-slate-800 rounded-3xl shadow-xl p-10">
-
-<h2 class="text-4xl font-bold mb-8">
-
-Live Queue
-
-</h2>
-
-<div class="space-y-5">
-
-<div class="flex justify-between">
-
-<span>Reception</span>
-
-<span id="receptionQueue">0</span>
-
-</div>
-
-<div class="flex justify-between">
-
-<span>Nurse</span>
-
-<span id="nurseQueue">0</span>
-
-</div>
-
-<div class="flex justify-between">
-
-<span>Doctor</span>
-
-<span id="doctorQueue">0</span>
-
-</div>
-
-<div class="flex justify-between">
-
-<span>Laboratory</span>
-
-<span id="labQueue">0</span>
-
-</div>
-
-<div class="flex justify-between">
-
-<span>Pharmacy</span>
-
-<span id="pharmacyQueue">0</span>
-
-</div>
-
-</div>
-
-</div>
-
-<div class="bg-white dark:bg-slate-800 rounded-3xl shadow-xl p-10">
-
-<h2 class="text-4xl font-bold mb-8">
-
-Emergency Contacts
-
-</h2>
-
-<div class="space-y-6">
-
-<a href="tel:+260000000000" class="block bg-red-600 text-white rounded-xl p-5">
-
-<i class="fas fa-ambulance mr-3"></i>
-
-Emergency Ambulance
-
-</a>
-
-<a href="tel:+260000000001" class="block bg-blue-600 text-white rounded-xl p-5">
-
-<i class="fas fa-phone mr-3"></i>
-
-Clinic Reception
-
-</a>
-
-<a href="tel:+260000000002" class="block bg-green-600 text-white rounded-xl p-5">
-
-<i class="fas fa-shield-alt mr-3"></i>
-
-University Security
-
-</a>
-
-</div>
-
-</div>
-
-</div>
-
-</div>
-
-</section>
-
-<!-- ===========================
-HEALTH ANNOUNCEMENTS
-=========================== -->
-
-<section id="announcements" class="py-24 bg-white dark:bg-slate-800">
-
-<div class="max-w-7xl mx-auto px-6">
-
-<h2 class="text-5xl font-bold text-center mb-16">
-
-Health Announcements
-
-</h2>
-
-<div id="announcementContainer"
-
-class="grid lg:grid-cols-3 gap-8">
-
-<!-- Loaded From Supabase -->
-
-</div>
-
-</div>
-
-</section>
-
-    <!-- ===========================
-APPOINTMENT BOOKING
-=========================== -->
-
-<section id="appointments" class="py-24 bg-slate-100 dark:bg-slate-900">
-
-<div class="max-w-7xl mx-auto px-6">
-
-<div class="grid lg:grid-cols-2 gap-10 items-center">
-
-<div>
-
-<h2 class="text-5xl font-bold mb-6">
-
-Book Your Appointment
-
-</h2>
-
-<p class="text-lg text-gray-500 mb-10">
-
-Students, Staff and Visitors can request appointments online before visiting the clinic.
+Medical Testing
 
 </p>
 
-<form id="appointmentForm"
-class="bg-white dark:bg-slate-800 rounded-3xl shadow-xl p-10 space-y-6">
+</div>
 
-<input
-id="appointmentName"
-type="text"
-placeholder="Full Name"
-class="w-full p-4 rounded-xl border dark:bg-slate-700">
+<div class="service-card">
 
-<input
-id="appointmentStudentID"
-type="text"
-placeholder="Student ID / Staff Number"
-class="w-full p-4 rounded-xl border dark:bg-slate-700">
+<i class="fa-solid fa-pills"></i>
 
-<input
-id="appointmentPhone"
-type="text"
-placeholder="Phone Number"
-class="w-full p-4 rounded-xl border dark:bg-slate-700">
+<h3>
 
-<input
-id="appointmentDate"
-type="date"
-class="w-full p-4 rounded-xl border dark:bg-slate-700">
+Pharmacy
 
-<input
-id="appointmentTime"
-type="time"
-class="w-full p-4 rounded-xl border dark:bg-slate-700">
+</h3>
 
-<select
-id="appointmentDepartment"
-class="w-full p-4 rounded-xl border dark:bg-slate-700">
+<p>
 
-<option>General Consultation</option>
-<option>Laboratory</option>
-<option>Pharmacy</option>
-<option>Counselling</option>
-<option>Medical Review</option>
+Medicine Dispensing
 
-</select>
+</p>
 
-<button
-class="w-full bg-blue-700 hover:bg-blue-800 text-white p-4 rounded-xl">
+</div>
+
+<div class="service-card">
+
+<i class="fa-solid fa-brain"></i>
+
+<h3>
+
+Counselling
+
+</h3>
+
+<p>
+
+Mental Health Support
+
+</p>
+
+</div>
+
+<div class="service-card">
+
+<i class="fa-solid fa-robot"></i>
+
+<h3>
+
+AI Assistant
+
+</h3>
+
+<p>
+
+24/7 Healthcare Help
+
+</p>
+
+</div>
+
+</div>
+
+</section>
+
+<section id="departments">
+
+<h2>
+
+Medical Departments
+
+</h2>
+
+<div class="department-grid">
+
+<div class="department-card">
+
+<i class="fa-solid fa-stethoscope"></i>
+
+<h3>
+
+Reception
+
+</h3>
+
+<p>
+
+Patient Registration, Student & Staff Verification, Queue Management.
+
+</p>
+
+</div>
+
+<div class="department-card">
+
+<i class="fa-solid fa-heart-pulse"></i>
+
+<h3>
+
+Nursing Department
+
+</h3>
+
+<p>
+
+Vitals, BMI, Blood Pressure, Initial Assessment and Triage.
+
+</p>
+
+</div>
+
+<div class="department-card">
+
+<i class="fa-solid fa-user-doctor"></i>
+
+<h3>
+
+Doctor's Office
+
+</h3>
+
+<p>
+
+Consultation, Diagnosis, Treatment Plans, Prescriptions and Referrals.
+
+</p>
+
+</div>
+
+<div class="department-card">
+
+<i class="fa-solid fa-vials"></i>
+
+<h3>
+
+Laboratory
+
+</h3>
+
+<p>
+
+Laboratory Requests, Sample Collection and Test Results.
+
+</p>
+
+</div>
+
+<div class="department-card">
+
+<i class="fa-solid fa-capsules"></i>
+
+<h3>
+
+Pharmacy
+
+</h3>
+
+<p>
+
+Prescription Verification, Dispensing and Stock Monitoring.
+
+</p>
+
+</div>
+
+<div class="department-card">
+
+<i class="fa-solid fa-comments"></i>
+
+<h3>
+
+Counselling
+
+</h3>
+
+<p>
+
+Private Student Counselling and Mental Health Support.
+
+</p>
+
+</div>
+
+</div>
+
+</section>
+
+<section id="about">
+
+<div class="about-container">
+
+<div class="about-image">
+
+<img
+src="assets/images/about.png"
+alt="KMU Health Centre">
+
+</div>
+
+<div class="about-content">
+
+<h2>
+
+About KMU Digital Health Centre
+
+</h2>
+
+<p>
+
+The KMU Digital Health Centre Management System is a fully integrated
+electronic healthcare platform designed to replace paper-based medical
+records and streamline healthcare delivery for students, staff,
+visitors and healthcare professionals.
+
+</p>
+
+<ul>
+
+<li>
+
+<i class="fa-solid fa-check"></i>
+
+Student & Staff Identification
+
+</li>
+
+<li>
+
+<i class="fa-solid fa-check"></i>
+
+Electronic Medical Records
+
+</li>
+
+<li>
+
+<i class="fa-solid fa-check"></i>
+
+Real-Time Queue Monitoring
+
+</li>
+
+<li>
+
+<i class="fa-solid fa-check"></i>
+
+Laboratory & Pharmacy Integration
+
+</li>
+
+<li>
+
+<i class="fa-solid fa-check"></i>
+
+AI Powered Health Assistant
+
+</li>
+
+<li>
+
+<i class="fa-solid fa-check"></i>
+
+Real-Time Notifications
+
+</li>
+
+<li>
+
+<i class="fa-solid fa-check"></i>
+
+Automatic Reports & Analytics
+
+</li>
+
+</ul>
+
+</div>
+
+</div>
+
+</section>
+
+<section id="appointment">
+
+<h2>
 
 Book Appointment
 
-</button>
+</h2>
 
-</form>
+<form
+id="appointmentForm">
 
-</div>
+<div class="form-grid">
 
 <div>
-
-<img src="assets/images/appointment.png"
-class="rounded-3xl shadow-2xl">
-
-</div>
-
-</div>
-
-</div>
-
-</section>
-
-<!-- ===========================
-WHY CHOOSE US
-=========================== -->
-
-<section class="py-24 bg-white dark:bg-slate-800">
-
-<div class="max-w-7xl mx-auto px-6">
-
-<h2 class="text-5xl font-bold text-center mb-16">
-
-Why Choose KMU Health Centre
-
-</h2>
-
-<div class="grid lg:grid-cols-4 gap-8">
-
-<div class="bg-slate-100 dark:bg-slate-900 p-8 rounded-3xl">
-
-<i class="fas fa-lock text-blue-700 text-5xl mb-5"></i>
-
-<h3 class="font-bold text-2xl mb-3">
-
-Secure Records
-
-</h3>
-
-<p>
-
-Electronic medical records protected using Supabase security.
-
-</p>
-
-</div>
-
-<div class="bg-slate-100 dark:bg-slate-900 p-8 rounded-3xl">
-
-<i class="fas fa-bolt text-yellow-500 text-5xl mb-5"></i>
-
-<h3 class="font-bold text-2xl mb-3">
-
-Realtime System
-
-</h3>
-
-<p>
-
-Live updates for doctors, nurses, pharmacy and reception.
-
-</p>
-
-</div>
-
-<div class="bg-slate-100 dark:bg-slate-900 p-8 rounded-3xl">
-
-<i class="fas fa-heartbeat text-red-600 text-5xl mb-5"></i>
-
-<h3 class="font-bold text-2xl mb-3">
-
-Quality Care
-
-</h3>
-
-<p>
-
-Fast consultations and improved patient management.
-
-</p>
-
-</div>
-
-<div class="bg-slate-100 dark:bg-slate-900 p-8 rounded-3xl">
-
-<i class="fas fa-brain text-purple-600 text-5xl mb-5"></i>
-
-<h3 class="font-bold text-2xl mb-3">
-
-AI Ready
-
-</h3>
-
-<p>
-
-Future integration with intelligent healthcare support.
-
-</p>
-
-</div>
-
-</div>
-
-</div>
-
-</section>
-
-<!-- ===========================
-LOGIN MODAL
-=========================== -->
-
-<div
-id="loginModal"
-class="fixed inset-0 bg-black/60 hidden items-center justify-center z-50">
-
-<div
-class="bg-white dark:bg-slate-800 rounded-3xl p-10 w-full max-w-md">
-
-<div class="flex justify-between items-center mb-8">
-
-<h2 class="text-3xl font-bold">
-
-System Login
-
-</h2>
-
-<button id="closeLogin">
-
-<i class="fas fa-times text-2xl"></i>
-
-</button>
-
-</div>
-
-<form id="loginForm" class="space-y-5">
-
-<input
-id="identifier"
-type="text"
-placeholder="Student ID / Staff Number / Email"
-class="w-full p-4 border rounded-xl dark:bg-slate-700">
-
-<div class="relative">
-
-<input
-id="password"
-type="password"
-placeholder="Password"
-class="w-full p-4 border rounded-xl dark:bg-slate-700">
-
-<button
-type="button"
-id="togglePassword"
-class="absolute right-4 top-4">
-
-<i class="fas fa-eye"></i>
-
-</button>
-
-</div>
-
-<div class="flex justify-between">
 
 <label>
 
-<input type="checkbox">
-
-Remember Me
+Full Name
 
 </label>
 
-<a href="#"
-id="forgotPasswordLink"
-class="text-blue-700">
-
-Forgot Password?
-
-</a>
+<input
+type="text"
+id="appointmentName"
+required>
 
 </div>
 
-<button
-class="w-full bg-blue-700 text-white p-4 rounded-xl">
+<div>
 
-Login
+<label>
+
+Student ID / Staff Number
+
+</label>
+
+<input
+type="text"
+id="appointmentIdentifier"
+required>
+
+</div>
+
+<div>
+
+<label>
+
+Clinic Card Number
+
+</label>
+
+<input
+type="text"
+id="appointmentCard">
+
+</div>
+
+<div>
+
+<label>
+
+Phone Number
+
+</label>
+
+<input
+type="tel"
+id="appointmentPhone">
+
+</div>
+
+<div>
+
+<label>
+
+Department
+
+</label>
+
+<select
+id="appointmentDepartment"
+required>
+
+<option value="">
+
+Select Department
+
+</option>
+
+<option>
+
+General Consultation
+
+</option>
+
+<option>
+
+Laboratory
+
+</option>
+
+<option>
+
+Counselling
+
+</option>
+
+<option>
+
+Pharmacy Review
+
+</option>
+
+</select>
+
+</div>
+
+<div>
+
+<label>
+
+Preferred Date
+
+</label>
+
+<input
+type="date"
+id="appointmentDate"
+required>
+
+</div>
+
+</div>
+
+<label>
+
+Reason For Visit
+
+</label>
+
+<textarea
+id="appointmentReason"
+rows="5"
+required>
+
+</textarea>
+
+<button
+type="submit"
+class="primary-btn">
+
+Book Appointment
 
 </button>
 
 </form>
 
-</div>
+</section>
 
-</div>
+<section id="visitorRegistration">
 
-<!-- ===========================
-VISITOR REGISTRATION
-=========================== -->
-
-<div
-id="visitorModal"
-class="fixed inset-0 bg-black/60 hidden items-center justify-center z-50">
-
-<div
-class="bg-white dark:bg-slate-800 rounded-3xl p-10 w-full max-w-xl">
-
-<h2 class="text-3xl font-bold mb-8">
+<h2>
 
 Visitor Registration
 
 </h2>
 
 <form
-id="visitorForm"
-class="grid md:grid-cols-2 gap-5">
+id="visitorForm">
 
-<input placeholder="Full Name" class="p-4 border rounded-xl">
+<div class="form-grid">
 
-<input placeholder="NRC Number" class="p-4 border rounded-xl">
+<input
+type="text"
+id="visitorName"
+placeholder="Full Name"
+required>
 
-<input placeholder="Phone Number" class="p-4 border rounded-xl">
+<input
+type="text"
+id="visitorNRC"
+placeholder="NRC Number">
 
-<input placeholder="Person To Visit" class="p-4 border rounded-xl">
+<input
+type="text"
+id="visitorPhone"
+placeholder="Phone Number">
 
-<input placeholder="Purpose Of Visit" class="p-4 border rounded-xl">
+<input
+type="email"
+id="visitorEmail"
+placeholder="Email Address">
 
-<input placeholder="Vehicle Number (Optional)" class="p-4 border rounded-xl">
+<input
+type="text"
+id="personToVisit"
+placeholder="Person To Visit"
+required>
+
+<input
+type="text"
+id="visitorOrganisation"
+placeholder="Organisation">
+
+</div>
+
+<label>
+
+Purpose Of Visit
+
+</label>
+
+<textarea
+id="visitorPurpose"
+rows="5"
+required>
+
+</textarea>
 
 <button
-class="md:col-span-2 bg-green-600 text-white p-4 rounded-xl">
+type="submit"
+class="primary-btn">
 
 Register Visitor
 
@@ -900,110 +916,735 @@ Register Visitor
 
 </form>
 
-</div>
+</section>
 
-</div>
+    <section id="contact">
 
-<!-- ===========================
-FOOTER
-=========================== -->
+<div class="contact-container">
 
-<footer
-id="contact"
-class="bg-slate-950 text-white py-16">
+<div class="contact-info">
 
-<div class="max-w-7xl mx-auto px-6">
+<h2>
 
-<div class="grid lg:grid-cols-4 gap-10">
+Contact KMU Digital Health Centre
+
+</h2>
+
+<p>
+
+Need assistance? Contact the health centre support team.
+
+</p>
 
 <div>
 
-<h3 class="text-2xl font-bold mb-5">
+<i class="fa-solid fa-location-dot"></i>
+
+Kapasa Makasa University Campus
+
+</div>
+
+<div>
+
+<i class="fa-solid fa-phone"></i>
+
++260 XXX XXX XXX
+
+</div>
+
+<div>
+
+<i class="fa-solid fa-envelope"></i>
+
+healthcentre@kmu.ac.zm
+
+</div>
+
+</div>
+
+
+<div class="contact-form">
+
+<h3>
+
+Send Message
+
+</h3>
+
+<form id="contactForm">
+
+<input
+type="text"
+id="contactName"
+placeholder="Your Name"
+required>
+
+
+<input
+type="email"
+id="contactEmail"
+placeholder="Your Email"
+required>
+
+
+<textarea
+id="contactMessage"
+rows="5"
+placeholder="Your Message"
+required></textarea>
+
+
+<button
+type="submit"
+class="primary-btn">
+
+Send Message
+
+</button>
+
+
+</form>
+
+</div>
+
+</div>
+
+</section>
+
+
+
+<!-- LOGIN MODAL -->
+
+<div
+class="modal"
+id="loginModal">
+
+
+<div
+class="modal-content">
+
+
+<span
+class="close"
+id="closeLogin">
+
+&times;
+
+</span>
+
+
+<h2>
+
+KMU Health Centre Login
+
+</h2>
+
+
+<form
+id="loginForm">
+
+
+<label>
+
+Email Address
+
+</label>
+
+
+<input
+type="email"
+id="loginEmail"
+required>
+
+
+
+<label>
+
+Password
+
+</label>
+
+
+<div class="password-field">
+
+<input
+type="password"
+id="loginPassword"
+required>
+
+
+<i
+class="fa-solid fa-eye"
+id="showPassword">
+
+</i>
+
+</div>
+
+
+
+<button
+type="submit"
+class="primary-btn">
+
+Login
+
+</button>
+
+
+<p
+class="forgot-password"
+id="forgotPassword">
+
+Forgot Password?
+
+</p>
+
+
+<p>
+
+Don't have an account?
+
+<a
+href="#"
+id="openSignup">
+
+Create Account
+
+</a>
+
+</p>
+
+
+</form>
+
+
+</div>
+
+</div>
+
+
+
+
+
+<!-- SIGNUP MODAL -->
+
+
+<div
+class="modal"
+id="signupModal">
+
+
+<div
+class="modal-content">
+
+
+<span
+class="close"
+id="closeSignup">
+
+&times;
+
+</span>
+
+
+<h2>
+
+Create KMU Account
+
+</h2>
+
+
+<form
+id="signupForm">
+
+
+<label>
+
+Full Name
+
+</label>
+
+
+<input
+type="text"
+id="signupName"
+required>
+
+
+
+<label>
+
+Email Address
+
+</label>
+
+
+<input
+type="email"
+id="signupEmail"
+required>
+
+
+
+<label>
+
+Phone Number
+
+</label>
+
+
+<input
+type="tel"
+id="signupPhone">
+
+
+
+<label>
+
+Account Type
+
+</label>
+
+
+<select
+id="signupRole">
+
+
+<option value="student">
+
+Student
+
+</option>
+
+
+<option value="staff">
+
+Staff
+
+</option>
+
+
+<option value="visitor">
+
+Visitor
+
+</option>
+
+
+</select>
+
+
+
+<label>
+
+Password
+
+</label>
+
+
+<input
+type="password"
+id="signupPassword"
+required>
+
+
+
+<button
+type="submit"
+class="primary-btn">
+
+Register
+
+</button>
+
+
+
+</form>
+
+
+</div>
+
+</div>
+
+
+
+
+
+<!-- FORGOT PASSWORD MODAL -->
+
+
+<div
+class="modal"
+id="forgotModal">
+
+
+<div
+class="modal-content">
+
+
+<span
+class="close"
+id="closeForgot">
+
+&times;
+
+</span>
+
+
+<h2>
+
+Reset Password
+
+</h2>
+
+
+<p>
+
+Enter your registered email address.
+
+</p>
+
+
+<form
+id="forgotForm">
+
+
+<input
+type="email"
+id="forgotEmail"
+placeholder="Email Address"
+required>
+
+
+<button
+type="submit"
+class="primary-btn">
+
+Send Reset Link
+
+</button>
+
+
+</form>
+
+
+</div>
+
+</div>
+
+
+
+
+
+<!-- NOTIFICATION PANEL -->
+
+
+<div
+class="notification-panel"
+id="notificationPanel">
+
+
+<div
+class="notification-header">
+
+
+<h3>
+
+Notifications
+
+</h3>
+
+
+<button
+id="closeNotifications">
+
+&times;
+
+</button>
+
+
+</div>
+
+
+<div
+id="notificationList">
+
+
+<p>
+
+No new notifications
+
+</p>
+
+
+</div>
+
+
+</div>
+
+
+
+
+
+<!-- AI HEALTH ASSISTANT -->
+
+
+<div
+class="ai-chat-button"
+id="aiChatButton">
+
+
+<i
+class="fa-solid fa-robot">
+
+</i>
+
+
+</div>
+
+
+
+<div
+class="ai-chat-window"
+id="aiChatWindow">
+
+
+<div
+class="ai-header">
+
+
+<h3>
+
+KMU AI Health Assistant
+
+</h3>
+
+
+<span
+id="closeAI">
+
+&times;
+
+</span>
+
+
+</div>
+
+
+<div
+class="ai-messages"
+id="aiMessages">
+
+
+<div class="bot-message">
+
+Hello. I am KMU Health Assistant.
+How can I help you?
+
+</div>
+
+
+</div>
+
+
+
+<div class="ai-input">
+
+
+<input
+type="text"
+id="aiQuestion"
+placeholder="Ask a health question...">
+
+
+<button
+id="sendAI">
+
+<i
+class="fa-solid fa-paper-plane">
+
+</i>
+
+</button>
+
+
+</div>
+
+
+</div>
+
+
+
+
+
+<!-- FOOTER -->
+
+
+<footer>
+
+
+<div class="footer-container">
+
+
+<div>
+
+
+<h3>
 
 KMU Digital Health Centre
 
 </h3>
 
+
 <p>
 
-Providing quality healthcare through modern technology.
+Providing smart, secure and efficient healthcare services through digital technology.
 
 </p>
 
+
 </div>
+
+
 
 <div>
 
-<h3 class="font-bold mb-5">
+
+<h3>
 
 Quick Links
 
 </h3>
 
-<ul class="space-y-3">
 
-<li><a href="#home">Home</a></li>
+<a href="#home">
 
-<li><a href="#services">Services</a></li>
+Home
 
-<li><a href="#appointments">Appointments</a></li>
+</a>
 
-<li><a href="#contact">Contact</a></li>
 
-</ul>
+<a href="#services">
+
+Services
+
+</a>
+
+
+<a href="#appointment">
+
+Appointments
+
+</a>
+
+
+<a href="#contact">
+
+Contact
+
+</a>
+
 
 </div>
+
+
 
 <div>
 
-<h3 class="font-bold mb-5">
 
-Clinic Hours
+<h3>
 
-</h3>
-
-<p>Monday - Friday</p>
-
-<p>08:00 - 17:00</p>
-
-</div>
-
-<div>
-
-<h3 class="font-bold mb-5">
-
-Contacts
+Follow Us
 
 </h3>
 
-<p>Email: clinic@kmu.ac.zm</p>
 
-<p>Phone: +260 XXX XXX XXX</p>
+<div class="social-icons">
+
+
+<i class="fa-brands fa-facebook"></i>
+
+
+<i class="fa-brands fa-x-twitter"></i>
+
+
+<i class="fa-brands fa-linkedin"></i>
+
+
+<i class="fa-brands fa-whatsapp"></i>
+
 
 </div>
 
-</div>
-
-<hr class="my-10 border-slate-700">
-
-<div class="text-center">
-
-© 2026 Kapasa Makasa University Digital Health Centre Management System
 
 </div>
 
+
+
 </div>
+
+
+
+<div class="copyright">
+
+
+<p>
+
+© 2026 Kapasa Makasa University Digital Health Centre.
+All Rights Reserved.
+
+</p>
+
+
+</div>
+
 
 </footer>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-<script src="assets/js/utils.js"></script>
-<script src="assets/js/auth.js"></script>
-<script src="assets/js/notifications.js"></script>
-<script src="assets/js/patient.js"></script>
-<script src="assets/js/app.js"></script>
+
+
+
+<!-- JAVASCRIPT CONNECTIONS -->
+
+
+<script
+src="assets/js/appointments.js">
+
+</script>
+
+
+<script
+src="assets/js/visitors.js">
+
+</script>
+
+
+<script
+src="assets/js/notifications.js">
+
+</script>
+
+
+<script
+src="assets/js/ai-assistant.js">
+
+</script>
+
+
+<script
+src="assets/js/dashboard.js">
+
+</script>
+
 
 </body>
 
 </html>
+
+
+
+
+
+    
