@@ -1,118 +1,312 @@
-// assets/js/config.js
-// KMU Digital Health Centre Management System
-// Supabase Configuration
+/*
+=====================================================
+KMU DIGITAL HEALTH CENTRE MANAGEMENT SYSTEM
+SUPABASE CONFIGURATION
+=====================================================
 
-const SUPABASE_URL = "https://oxziulqygcnwenlmcttm.supabase.co";
-const SUPABASE_ANON_KEY = "YOUR_ANON_KEY_HERE";
+Before using this file:
 
-const supabase = window.supabase.createClient(
+1. Create a Supabase project
+2. Go to:
+   Project Settings
+        ↓
+   API
+3. Copy:
+   - Project URL
+   - anon public key
+
+Replace the values below.
+
+=====================================================
+*/
+
+
+// ===============================
+// SUPABASE SETTINGS
+// ===============================
+
+
+const SUPABASE_URL = "YOUR_SUPABASE_PROJECT_URL";
+
+
+const SUPABASE_ANON_KEY = "YOUR_SUPABASE_ANON_KEY";
+
+
+
+
+// ===============================
+// CREATE SUPABASE CLIENT
+// ===============================
+
+
+const supabaseClient = supabase.createClient(
     SUPABASE_URL,
-    SUPABASE_ANON_KEY,
-    {
-        auth: {
-            persistSession: true,
-            autoRefreshToken: true,
-            detectSessionInUrl: true,
-            storage: window.localStorage
-        },
-        realtime: {
-            params: {
-                eventsPerSecond: 20
-            }
-        },
-        global: {
-            headers: {
-                "X-Application-Name": "KMU Digital Health Centre"
-            }
-        }
-    }
+    SUPABASE_ANON_KEY
 );
 
-// Make available everywhere
-window.db = supabase;
-window.supabaseClient = supabase;
 
-/* ==========================================================
-   SYSTEM SETTINGS
-========================================================== */
 
-window.APP = {
 
-    NAME: "KMU Digital Health Centre",
+// ===============================
+// SYSTEM INFORMATION
+// ===============================
 
-    VERSION: "2.0.0",
 
-    UNIVERSITY: "Kapasa Makasa University",
+const SYSTEM_CONFIG = {
 
-    SESSION_TIMEOUT: 30 * 60 * 1000,
 
-    AUTO_REFRESH: 5 * 60 * 1000,
+    systemName:
+    "KMU Digital Health Centre Management System",
 
-    LOW_STOCK_LEVEL: 10
+
+    university:
+    "Kapasa Makasa University",
+
+
+    version:
+    "1.0.0",
+
+
+    timezone:
+    "Africa/Lusaka",
+
+
+    supportEmail:
+    "healthcentre@kmu.ac.zm",
+
+
+    appointmentDuration:
+    30,
+
+
+    maxLoginAttempts:
+    5,
+
+
+    sessionTimeout:
+    30 * 60 * 1000
+
 
 };
 
-/* ==========================================================
-   CONNECTION TEST
-========================================================== */
 
-async function testConnection() {
 
-    try {
 
-        const { error } = await supabase
-            .from("roles")
-            .select("*")
-            .limit(1);
 
-        if (error) throw error;
+// ===============================
+// USER ROLES
+// ===============================
 
-        console.log("✅ Supabase Connected");
 
-    } catch (e) {
+const USER_ROLES = {
 
-        console.error("❌ Database Connection Failed");
 
-        console.error(e);
+    ADMIN:
+    "admin",
 
-    }
+
+    DOCTOR:
+    "doctor",
+
+
+    NURSE:
+    "nurse",
+
+
+    LAB_TECH:
+    "laboratory",
+
+
+    PHARMACIST:
+    "pharmacist",
+
+
+    COUNSELLOR:
+    "counsellor",
+
+
+    RECEPTIONIST:
+    "receptionist",
+
+
+    STUDENT:
+    "student",
+
+
+    STAFF:
+    "staff",
+
+
+    VISITOR:
+    "visitor"
+
+
+};
+
+
+
+
+
+// ===============================
+// DEPARTMENTS
+// ===============================
+
+
+const DEPARTMENTS = [
+
+
+    "Reception",
+
+
+    "Nursing",
+
+
+    "Doctor Consultation",
+
+
+    "Laboratory",
+
+
+    "Pharmacy",
+
+
+    "Counselling"
+
+
+];
+
+
+
+
+
+// ===============================
+// APPOINTMENT STATUS
+// ===============================
+
+
+const APPOINTMENT_STATUS = {
+
+
+    PENDING:
+    "pending",
+
+
+    APPROVED:
+    "approved",
+
+
+    COMPLETED:
+    "completed",
+
+
+    CANCELLED:
+    "cancelled"
+
+
+};
+
+
+
+
+
+// ===============================
+// QUEUE STATUS
+// ===============================
+
+
+const QUEUE_STATUS = {
+
+
+    WAITING:
+    "waiting",
+
+
+    CALLED:
+    "called",
+
+
+    SERVING:
+    "serving",
+
+
+    COMPLETED:
+    "completed"
+
+
+};
+
+
+
+
+
+// ===============================
+// GLOBAL NOTIFICATION FUNCTION
+// ===============================
+
+
+function showNotification(
+    message,
+    type="success"
+){
+
+
+    const alert =
+    document.createElement("div");
+
+
+    alert.className =
+    `alert alert-${type}`;
+
+
+    alert.innerHTML =
+    message;
+
+
+    document.body.appendChild(alert);
+
+
+
+    setTimeout(()=>{
+
+
+        alert.remove();
+
+
+    },4000);
+
 
 }
 
-testConnection();
 
-/* ==========================================================
-   REALTIME CHANNELS
-========================================================== */
 
-window.channels = {
 
-    notifications: supabase.channel("notifications"),
 
-    queue: supabase.channel("queue"),
 
-    appointments: supabase.channel("appointments"),
+// ===============================
+// EXPORT VARIABLES
+// ===============================
 
-    inventory: supabase.channel("inventory"),
 
-    chat: supabase.channel("chat")
+window.KMU_CONFIG = SYSTEM_CONFIG;
 
-};
 
-/* ==========================================================
-   DATE HELPERS
-========================================================== */
+window.USER_ROLES = USER_ROLES;
 
-window.now = () => new Date();
 
-window.today = () =>
-    new Date().toISOString().split("T")[0];
+window.DEPARTMENTS = DEPARTMENTS;
 
-window.time = () =>
-    new Date().toLocaleTimeString();
 
-/* ==========================================================
-   EXPORT
-========================================================== */
+window.APPOINTMENT_STATUS =
+APPOINTMENT_STATUS;
 
-export { supabase };
+
+window.QUEUE_STATUS =
+QUEUE_STATUS;
+
+
+window.supabaseClient =
+supabaseClient;
+
+
+window.showNotification =
+showNotification;
