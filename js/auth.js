@@ -1,492 +1,1580 @@
-// assets/js/auth.js
-// KMU Digital Health Centre Management System
-// Complete Authentication Module (Supabase)
+/*
+=====================================================
+KMU DIGITAL HEALTH CENTRE MANAGEMENT SYSTEM
+AUTHENTICATION MODULE
+=====================================================
 
-import { supabase } from "../supabase/config.js";
+Functions:
+- User Registration
+- Login
+- Logout
+- Session Management
+- Password Reset
+- Role Management
+- Security Monitoring
 
-/* ==========================================================
-   AUTHENTICATION
-========================================================== */
+Backend:
+Supabase Authentication
 
-const LOGIN_FORM = document.getElementById("loginForm");
+=====================================================
+*/
 
-if (LOGIN_FORM) {
-    LOGIN_FORM.addEventListener("submit", loginUser);
-}
 
-/* ==========================================================
-   LOGIN
-========================================================== */
 
-async function loginUser(e) {
 
-    e.preventDefault();
 
-    const identifier = document.getElementById("identifier").value.trim();
-    const password = document.getElementById("password").value.trim();
+// =====================================
+// CURRENT USER SESSION
+// =====================================
 
-    if (!identifier || !password) {
-        showToast("Please complete all fields.", "error");
-        return;
-    }
 
-    showLoader();
+let currentUser = null;
 
-    try {
+let currentProfile = null;
 
-        let email = identifier;
 
-        // Student ID or Staff Number login
-        if (!identifier.includes("@")) {
 
-            const { data: profile } = await supabase
-                .from("profiles")
-                .select("email")
-                .or(`student_id.eq.${identifier},staff_number.eq.${identifier}`)
-                .single();
 
-            if (!profile) {
-                hideLoader();
-                showToast("User not found.", "error");
-                return;
-            }
 
-            email = profile.email;
+
+// =====================================
+// CHECK EXISTING SESSION
+// =====================================
+
+
+async function checkSession(){
+
+
+    try{
+
+
+        const {
+
+            data,
+
+            error
+
+        } = await supabaseClient
+        .auth
+        .getSession();
+
+
+
+
+        if(error){
+
+            throw error;
+
         }
 
-        const { data, error } = await supabase.auth.signInWithPassword({
+
+
+
+        if(data.session){
+
+
+            currentUser =
+            data.session.user;
+
+
+
+            await loadUserProfile(
+                currentUser.id
+            );
+
+
+        }
+
+
+
+
+    }
+    catch(error){
+
+
+        console.error(
+            "Session Error:",
+            error
+        );
+
+
+    }
+
+
+}
+
+
+
+
+
+
+
+// =====================================
+// LOAD USER PROFILE
+// =====================================
+
+
+async function loadUserProfile(
+    userID
+){
+
+
+    try{
+
+
+        const {
+
+            data,
+
+            error
+
+        } = await supabaseClient
+        .from("profiles")
+        .select("*")
+        .eq(
+            "id",
+            userID
+        )
+        .single();
+
+
+
+
+        if(error){
+
+            throw error;
+
+        }
+
+
+
+
+        currentProfile =
+        data;
+
+
+
+        window.currentProfile =
+        data;
+
+
+
+        return data;
+
+
+
+    }
+    catch(error){
+
+
+        console.error(
+            "Profile Loading Error:",
+            error
+        );
+
+
+    }
+
+
+}
+
+
+
+
+
+
+
+// =====================================
+// USER REGISTRATION
+// =====================================
+
+
+async function registerUser(event){
+
+
+    event.preventDefault();
+
+
+
+    const name =
+    document.getElementById(
+        "signupName"
+    ).value;
+
+
+
+    const email =
+    document.getElementById(
+        "signupEmail"
+    ).value;
+
+
+
+    const phone =
+    document.getElementById(
+        "signupPhone"
+    ).value;
+
+
+
+    const role =
+    document.getElementById(
+        "signupRole"
+    ).value;
+
+
+
+    const password =
+    document.getElementById(
+        "signupPassword"
+    ).value;
+
+
+
+
+
+    if(!validateEmail(email)){
+
+
+        showNotification(
+            "Invalid email address",
+            "error"
+        );
+
+
+        return;
+
+
+    }
+
+
+
+
+
+    if(!validatePassword(password)){
+
+
+        showNotification(
+
+        "Password must contain at least 8 characters, uppercase, lowercase and number",
+
+        "error"
+
+        );
+
+
+        return;
+
+
+    }
+
+
+
+
+
+    try{
+
+
+        showLoader();
+
+
+
+        const {
+
+            data,
+
+            error
+
+        } = await supabaseClient
+        .auth
+        .signUp({
+
+            email:
 
             email,
-            password
+
+
+            password:
+
+            password,
+
+
+            options:{
+
+
+                data:{
+
+
+                    full_name:
+
+                    name,
+
+
+                    role:
+
+                    role,
+
+
+                    phone:
+
+                    phone
+
+
+                }
+
+
+            }
+
 
         });
 
-        if (error) {
 
-            hideLoader();
-            showToast(error.message, "error");
-            return;
 
-        }
 
-        const user = data.user;
 
-        const { data: profile } = await supabase
+        if(error){
 
-            .from("profiles")
-
-            .select("*")
-
-            .eq("id", user.id)
-
-            .single();
-
-        if (!profile) {
-
-            hideLoader();
-
-            showToast("Profile not found.", "error");
-
-            return;
+            throw error;
 
         }
 
-        localStorage.setItem("currentUser", JSON.stringify(profile));
 
-        await logActivity(
 
-            user.id,
 
-            "LOGIN",
 
-            "User Logged In"
+        await createAuditLog(
+
+            "ACCOUNT_CREATED",
+
+            `New account created for ${email}`
 
         );
 
-        redirectUser(profile.role);
 
-    }
 
-    catch (err) {
 
-        console.error(err);
 
-        showToast(err.message, "error");
+        showNotification(
 
-    }
+            "Account created successfully. Check email verification.",
 
-    hideLoader();
-
-}
-
-/* ==========================================================
-   REDIRECT USER
-========================================================== */
-
-function redirectUser(role) {
-
-    switch (role) {
-
-        case "Admin":
-
-            location.href = "admin/dashboard.html";
-
-            break;
-
-        case "Receptionist":
-
-            location.href = "reception/dashboard.html";
-
-            break;
-
-        case "Doctor":
-
-            location.href = "doctor/dashboard.html";
-
-            break;
-
-        case "Nurse":
-
-            location.href = "nurse/dashboard.html";
-
-            break;
-
-        case "Pharmacist":
-
-            location.href = "pharmacy/dashboard.html";
-
-            break;
-
-        case "Laboratory":
-
-            location.href = "laboratory/dashboard.html";
-
-            break;
-
-        case "Counsellor":
-
-            location.href = "counselling/dashboard.html";
-
-            break;
-
-        case "Student":
-
-            location.href = "student/dashboard.html";
-
-            break;
-
-        case "Visitor":
-
-            location.href = "visitor/dashboard.html";
-
-            break;
-
-        default:
-
-            location.href = "dashboard.html";
-
-    }
-
-}
-
-/* ==========================================================
-   SESSION
-========================================================== */
-
-async function checkSession() {
-
-    const {
-
-        data: { session }
-
-    } = await supabase.auth.getSession();
-
-    if (!session) {
-
-        location.href = "../index.html";
-
-    }
-
-}
-
-checkSession();
-
-/* ==========================================================
-   LOGOUT
-========================================================== */
-
-window.logout = async function () {
-
-    const currentUser = JSON.parse(
-
-        localStorage.getItem("currentUser")
-
-    );
-
-    if (currentUser) {
-
-        await logActivity(
-
-            currentUser.id,
-
-            "LOGOUT",
-
-            "User Logged Out"
+            "success"
 
         );
 
-    }
 
-    await supabase.auth.signOut();
 
-    localStorage.clear();
 
-    location.href = "../index.html";
+        document
+        .getElementById(
+            "signupForm"
+        )
+        .reset();
 
-};
 
-/* ==========================================================
-   FORGOT PASSWORD
-========================================================== */
-
-window.resetPassword = async function (email) {
-
-    const { error } = await supabase.auth.resetPasswordForEmail(email, {
-
-        redirectTo:
-
-            window.location.origin + "/reset-password.html"
-
-    });
-
-    if (error) {
-
-        showToast(error.message, "error");
-
-        return;
 
     }
+    catch(error){
 
-    showToast("Password reset email sent.");
 
-};
+        showNotification(
 
-/* ==========================================================
-   CHANGE PASSWORD
-========================================================== */
+            error.message,
 
-window.changePassword = async function (
+            "error"
 
-    newPassword
+        );
 
-) {
 
-    const { error } = await supabase.auth.updateUser({
+    }
+    finally{
 
-        password: newPassword
 
-    });
+        hideLoader();
 
-    if (error) {
-
-        showToast(error.message, "error");
-
-        return;
 
     }
 
-    showToast("Password Updated.");
 
-};
+}
 
-/* ==========================================================
-   LOAD PROFILE
-========================================================== */
 
-window.loadCurrentUser = function () {
 
-    return JSON.parse(
 
-        localStorage.getItem("currentUser")
 
-    );
 
-};
 
-/* ==========================================================
-   AUDIT LOG
-========================================================== */
+// =====================================
+// LOGIN USER
+// =====================================
 
-async function logActivity(
 
-    user,
+async function loginUser(event){
 
-    action,
 
-    details
+    event.preventDefault();
 
-) {
 
-    await supabase
 
-        .from("audit_logs")
 
-        .insert([
+    const email =
+    document.getElementById(
+        "loginEmail"
+    ).value;
+
+
+
+
+    const password =
+    document.getElementById(
+        "loginPassword"
+    ).value;
+
+
+
+
+
+    try{
+
+
+        showLoader();
+
+
+
+        const {
+
+            data,
+
+            error
+
+        } = await supabaseClient
+        .auth
+        .signInWithPassword({
+
+            email:
+
+            email,
+
+
+            password:
+
+            password
+
+
+        });
+
+
+
+
+
+
+        if(error){
+
+
+            await createAuditLog(
+
+                "FAILED_LOGIN",
+
+                email
+
+            );
+
+
+
+            throw error;
+
+
+        }
+
+
+
+
+
+        currentUser =
+        data.user;
+
+
+
+        await loadUserProfile(
+            currentUser.id
+        );
+
+
+
+
+
+        await createAuditLog(
+
+            "SUCCESSFUL_LOGIN",
+
+            email
+
+        );
+
+
+
+
+
+        showNotification(
+
+            "Login successful",
+
+            "success"
+
+        );
+
+
+
+
+        closeAllModals();
+
+
+
+        setTimeout(()=>{
+
+
+            window.location.href =
+            "dashboard.html";
+
+
+        },1000);
+
+
+
+
+
+    }
+    catch(error){
+
+
+
+        showNotification(
+
+            "Invalid email or password",
+
+            "error"
+
+        );
+
+
+
+    }
+    finally{
+
+
+        hideLoader();
+
+
+    }
+
+
+}
+
+
+
+
+
+
+// =====================================
+// LOGOUT
+// =====================================
+
+
+async function logoutUser(){
+
+
+    try{
+
+
+        await createAuditLog(
+
+            "USER_LOGOUT",
+
+            currentUser?.email
+
+        );
+
+
+
+
+        await supabaseClient
+        .auth
+        .signOut();
+
+
+
+
+        currentUser=null;
+
+        currentProfile=null;
+
+
+
+        window.location.href =
+        "index.html";
+
+
+
+    }
+    catch(error){
+
+
+        console.error(error);
+
+
+    }
+
+
+}
+
+
+
+
+
+
+// =====================================
+// PASSWORD RESET
+// =====================================
+
+
+async function resetPassword(event){
+
+
+    event.preventDefault();
+
+
+
+    const email =
+    document.getElementById(
+        "forgotEmail"
+    ).value;
+
+
+
+
+    try{
+
+
+        const {
+
+            error
+
+        } = await supabaseClient
+        .auth
+        .resetPasswordForEmail(
+
+            email,
 
             {
 
-                user_id: user,
+            redirectTo:
 
-                action,
-
-                details,
-
-                created_at: new Date()
+            window.location.origin
 
             }
 
-        ]);
+        );
 
-}
 
-/* ==========================================================
-   ROLE GUARD
-========================================================== */
 
-window.requireRole = function (roles) {
 
-    const currentUser = loadCurrentUser();
 
-    if (!currentUser) {
+        if(error){
 
-        location.href = "../index.html";
+            throw error;
 
-        return;
+        }
 
-    }
 
-    if (!roles.includes(currentUser.role)) {
 
-        alert("Access Denied");
 
-        location.href = "../index.html";
+        showNotification(
 
-    }
+            "Password reset link sent",
 
-};
-
-/* ==========================================================
-   LOADER
-========================================================== */
-
-function showLoader() {
-
-    const loader = document.getElementById("loader");
-
-    if (loader)
-
-        loader.classList.remove("hidden");
-
-}
-
-function hideLoader() {
-
-    const loader = document.getElementById("loader");
-
-    if (loader)
-
-        loader.classList.add("hidden");
-
-}
-
-/* ==========================================================
-   TOAST
-========================================================== */
-
-function showToast(message, type = "success") {
-
-    if (window.showToast) {
-
-        window.showToast(message, type);
-
-    } else {
-
-        alert(message);
-
-    }
-
-}
-
-/* ==========================================================
-   AUTO SESSION REFRESH
-========================================================== */
-
-setInterval(async () => {
-
-    await supabase.auth.refreshSession();
-
-}, 300000);
-
-/* ==========================================================
-   REMEMBER ME
-========================================================== */
-
-const remember = document.getElementById("rememberMe");
-
-if (remember) {
-
-    remember.addEventListener("change", () => {
-
-        localStorage.setItem(
-
-            "remember",
-
-            remember.checked
+            "success"
 
         );
 
-    });
+
+
+
+    }
+    catch(error){
+
+
+        showNotification(
+
+            error.message,
+
+            "error"
+
+        );
+
+
+    }
+
 
 }
 
-/* ==========================================================
-   PASSWORD VISIBILITY
-========================================================== */
 
-const togglePassword = document.getElementById("togglePassword");
 
-if (togglePassword) {
 
-    togglePassword.onclick = () => {
 
-        const input = document.getElementById("password");
 
-        input.type =
+// =====================================
+// ROLE PERMISSION CHECK
+// =====================================
 
-            input.type === "password"
 
-                ? "text"
+function hasRole(role){
 
-                : "password";
 
-    };
+    if(!currentProfile)
+
+    return false;
+
+
+
+    return currentProfile.role === role;
+
 
 }
 
-/* ==========================================================
-   EXPORTS
-========================================================== */
 
-export {
 
-    loginUser,
 
-    logout,
 
-    resetPassword,
+function requireRole(role){
 
-    loadCurrentUser,
 
-    requireRole
+    if(!hasRole(role)){
 
-};
+
+        showNotification(
+
+            "Access denied",
+
+            "error"
+
+        );
+
+
+        setTimeout(()=>{
+
+
+            window.location.href =
+            "index.html";
+
+
+        },2000);
+
+
+
+        return false;
+
+
+    }
+
+
+    return true;
+
+
+}
+
+
+
+
+
+
+// =====================================
+// CLOSE ALL MODALS
+// =====================================
+
+
+function closeAllModals(){
+
+
+    document
+    .querySelectorAll(".modal")
+    .forEach(
+
+        modal=>{
+
+            modal.style.display="none";
+
+        }
+
+    );
+
+
+}
+
+
+
+
+
+
+// =====================================
+// EXPORT FUNCTIONS
+// =====================================
+
+
+window.checkSession =
+checkSession;
+
+
+window.registerUser =
+registerUser;
+
+
+window.loginUser =
+loginUser;
+
+
+window.logoutUser =
+logoutUser;
+
+
+window.resetPassword =
+resetPassword;
+
+
+window.hasRole =
+hasRole;
+
+
+window.requireRole =
+requireRole;
+
+
+window.closeAllModals =
+closeAllModals;
+
+/*
+=====================================================
+AUTHENTICATION UI CONTROLS
+KMU DIGITAL HEALTH CENTRE MANAGEMENT SYSTEM
+=====================================================
+*/
+
+
+
+// =====================================
+// LOGIN MODAL CONTROL
+// =====================================
+
+
+function openLoginModal(){
+
+
+    const modal =
+    document.getElementById(
+        "loginModal"
+    );
+
+
+    if(modal){
+
+        modal.style.display="flex";
+
+    }
+
+
+}
+
+
+
+
+
+function closeLoginModal(){
+
+
+    const modal =
+    document.getElementById(
+        "loginModal"
+    );
+
+
+    if(modal){
+
+        modal.style.display="none";
+
+    }
+
+
+}
+
+
+
+
+
+// =====================================
+// SIGNUP MODAL CONTROL
+// =====================================
+
+
+function openSignupModal(){
+
+
+    closeLoginModal();
+
+
+
+    const modal =
+    document.getElementById(
+        "signupModal"
+    );
+
+
+    if(modal){
+
+        modal.style.display="flex";
+
+    }
+
+
+}
+
+
+
+
+
+function closeSignupModal(){
+
+
+    const modal =
+    document.getElementById(
+        "signupModal"
+    );
+
+
+    if(modal){
+
+        modal.style.display="none";
+
+    }
+
+
+}
+
+
+
+
+
+
+
+// =====================================
+// FORGOT PASSWORD MODAL
+// =====================================
+
+
+function openForgotModal(){
+
+
+    closeLoginModal();
+
+
+
+    const modal =
+    document.getElementById(
+        "forgotModal"
+    );
+
+
+    if(modal){
+
+        modal.style.display="flex";
+
+    }
+
+
+}
+
+
+
+
+
+function closeForgotModal(){
+
+
+    const modal =
+    document.getElementById(
+        "forgotModal"
+    );
+
+
+    if(modal){
+
+        modal.style.display="none";
+
+    }
+
+
+}
+
+
+
+
+
+
+
+// =====================================
+// PASSWORD VISIBILITY
+// =====================================
+
+
+function setupPasswordToggle(){
+
+
+    const icon =
+    document.getElementById(
+        "showPassword"
+    );
+
+
+    const password =
+    document.getElementById(
+        "loginPassword"
+    );
+
+
+
+    if(icon && password){
+
+
+        icon.addEventListener(
+
+            "click",
+
+            ()=>{
+
+
+                if(
+                    password.type === "password"
+                ){
+
+
+                    password.type="text";
+
+
+                    icon.classList.remove(
+                        "fa-eye"
+                    );
+
+
+                    icon.classList.add(
+                        "fa-eye-slash"
+                    );
+
+
+                }
+                else{
+
+
+                    password.type="password";
+
+
+                    icon.classList.remove(
+                        "fa-eye-slash"
+                    );
+
+
+                    icon.classList.add(
+                        "fa-eye"
+                    );
+
+
+                }
+
+
+            }
+
+        );
+
+
+    }
+
+
+}
+
+
+
+
+
+
+
+// =====================================
+// FAILED LOGIN MONITORING
+// =====================================
+
+
+let loginAttempts = 0;
+
+
+function monitorLoginAttempts(){
+
+
+    loginAttempts++;
+
+
+
+    if(
+        loginAttempts >=
+        KMU_CONFIG.maxLoginAttempts
+    ){
+
+
+        showNotification(
+
+        "Too many failed attempts. Please wait before trying again.",
+
+        "error"
+
+        );
+
+
+
+        document
+        .getElementById(
+            "loginButton"
+        )
+        ?.setAttribute(
+            "disabled",
+            true
+        );
+
+
+
+        setTimeout(()=>{
+
+
+            loginAttempts=0;
+
+
+
+            document
+            .getElementById(
+                "loginButton"
+            )
+            ?.removeAttribute(
+                "disabled"
+            );
+
+
+
+        },60000);
+
+
+
+    }
+
+
+}
+
+
+
+
+
+
+
+// =====================================
+// SESSION LISTENER
+// =====================================
+
+
+function setupSessionListener(){
+
+
+    supabaseClient
+    .auth
+    .onAuthStateChange(
+
+        async(
+            event,
+            session
+        )=>{
+
+
+            if(session){
+
+
+                currentUser =
+                session.user;
+
+
+
+                await loadUserProfile(
+                    session.user.id
+                );
+
+
+
+            }
+            else{
+
+
+                currentUser=null;
+
+
+                currentProfile=null;
+
+
+            }
+
+
+        }
+
+
+    );
+
+
+}
+
+
+
+
+
+
+
+// =====================================
+// UPDATE USER INFORMATION
+// =====================================
+
+
+function updateUserInterface(){
+
+
+    const loginButton =
+    document.getElementById(
+        "loginButton"
+    );
+
+
+
+    if(
+        loginButton &&
+        currentProfile
+    ){
+
+
+        loginButton.innerHTML =
+
+        `
+
+        ${currentProfile.full_name}
+
+        `;
+
+
+
+        loginButton.onclick =
+        ()=>{
+
+
+            window.location.href =
+            "dashboard.html";
+
+
+        };
+
+
+
+    }
+
+
+}
+
+
+
+
+
+
+
+// =====================================
+// CLOSE MODAL WHEN CLICK OUTSIDE
+// =====================================
+
+
+window.addEventListener(
+
+"click",
+
+(event)=>{
+
+
+    const modals =
+    document.querySelectorAll(
+        ".modal"
+    );
+
+
+
+    modals.forEach(
+
+        modal=>{
+
+
+            if(
+                event.target === modal
+            ){
+
+
+                modal.style.display =
+                "none";
+
+
+            }
+
+
+        }
+
+    );
+
+
+}
+
+);
+
+
+
+
+
+
+
+// =====================================
+// INITIALIZE AUTH SYSTEM
+// =====================================
+
+
+document.addEventListener(
+
+"DOMContentLoaded",
+
+async()=>{
+
+
+    await checkSession();
+
+
+
+    setupSessionListener();
+
+
+
+    setupPasswordToggle();
+
+
+
+    updateUserInterface();
+
+
+
+    const loginForm =
+    document.getElementById(
+        "loginForm"
+    );
+
+
+
+    const signupForm =
+    document.getElementById(
+        "signupForm"
+    );
+
+
+
+    const forgotForm =
+    document.getElementById(
+        "forgotForm"
+    );
+
+
+
+
+    if(loginForm){
+
+
+        loginForm.addEventListener(
+
+            "submit",
+
+            loginUser
+
+        );
+
+
+    }
+
+
+
+
+    if(signupForm){
+
+
+        signupForm.addEventListener(
+
+            "submit",
+
+            registerUser
+
+        );
+
+
+    }
+
+
+
+
+
+    if(forgotForm){
+
+
+        forgotForm.addEventListener(
+
+            "submit",
+
+            resetPassword
+
+        );
+
+
+    }
+
+
+
+
+
+
+    document
+    .getElementById(
+        "loginButton"
+    )
+    ?.addEventListener(
+
+        "click",
+
+        openLoginModal
+
+    );
+
+
+
+
+
+
+    document
+    .getElementById(
+        "openSignup"
+    )
+    ?.addEventListener(
+
+        "click",
+
+        openSignupModal
+
+    );
+
+
+
+
+
+
+    document
+    .getElementById(
+        "forgotPassword"
+    )
+    ?.addEventListener(
+
+        "click",
+
+        openForgotModal
+
+    );
+
+
+
+
+
+
+    document
+    .getElementById(
+        "closeLogin"
+    )
+    ?.addEventListener(
+
+        "click",
+
+        closeLoginModal
+
+    );
+
+
+
+
+
+
+    document
+    .getElementById(
+        "closeSignup"
+    )
+    ?.addEventListener(
+
+        "click",
+
+        closeSignupModal
+
+    );
+
+
+
+
+
+
+    document
+    .getElementById(
+        "closeForgot"
+    )
+    ?.addEventListener(
+
+        "click",
+
+        closeForgotModal
+
+    );
+
+
+
+    hideLoader();
+
+
+
+});
+
+
+
+
+
+
+// =====================================
+// EXPORT
+// =====================================
+
+
+window.openLoginModal =
+openLoginModal;
+
+
+window.openSignupModal =
+openSignupModal;
+
+
+window.openForgotModal =
+openForgotModal;
+
+
+window.logoutUser =
+logoutUser;
+
+
+
