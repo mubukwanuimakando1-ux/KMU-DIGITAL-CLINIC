@@ -1,42 +1,14 @@
-/*
-=====================================================
-KMU DIGITAL HEALTH CENTRE MANAGEMENT SYSTEM
-SUPABASE CONFIGURATION
-=====================================================
-
-Before using this file:
-
-1. Create a Supabase project
-2. Go to:
-   Project Settings
-        ↓
-   API
-3. Copy:
-   - Project URL
-   - anon public key
-
-Replace the values below.
-
-=====================================================
-*/
 
 
-// ===============================
-// SUPABASE SETTINGS
-// ===============================
+
+const SUPABASE_URL = "https://yzjcfdhfkhnablrexibw.supabase.co/rest/v1/";
 
 
-const SUPABASE_URL = "YOUR_SUPABASE_PROJECT_URL";
-
-
-const SUPABASE_ANON_KEY = "YOUR_SUPABASE_ANON_KEY";
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl6amNmZGhma2huYWJscmV4aWJ3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODUyNzIyMzAsImV4cCI6MjEwMDg0ODIzMH0.9vVqT2x2Ft69EUIQdab8Kj-ItG-BMgA6e4mse5S3r9g";
 
 
 
 
-// ===============================
-// CREATE SUPABASE CLIENT
-// ===============================
 
 
 const supabaseClient = supabase.createClient(
@@ -47,20 +19,17 @@ const supabaseClient = supabase.createClient(
 
 
 
-// ===============================
-// SYSTEM INFORMATION
-// ===============================
 
 
 const SYSTEM_CONFIG = {
 
 
     systemName:
-    "KMU Digital Health Centre Management System",
+    "IMAKANDO ZED DIGITAL HEALTH 1",
 
 
-    university:
-    "Kapasa Makasa University",
+    NATION:
+    "ZAMBIA",
 
 
     version:
@@ -72,7 +41,7 @@ const SYSTEM_CONFIG = {
 
 
     supportEmail:
-    "healthcentre@kmu.ac.zm",
+    "healthcentre@IMAKANDO.ac.zm",
 
 
     appointmentDuration:
@@ -93,9 +62,6 @@ const SYSTEM_CONFIG = {
 
 
 
-// ===============================
-// USER ROLES
-// ===============================
 
 
 const USER_ROLES = {
@@ -147,10 +113,6 @@ const USER_ROLES = {
 
 
 
-// ===============================
-// DEPARTMENTS
-// ===============================
-
 
 const DEPARTMENTS = [
 
@@ -179,9 +141,6 @@ const DEPARTMENTS = [
 
 
 
-// ===============================
-// APPOINTMENT STATUS
-// ===============================
 
 
 const APPOINTMENT_STATUS = {
@@ -209,9 +168,6 @@ const APPOINTMENT_STATUS = {
 
 
 
-// ===============================
-// QUEUE STATUS
-// ===============================
 
 
 const QUEUE_STATUS = {
@@ -239,9 +195,6 @@ const QUEUE_STATUS = {
 
 
 
-// ===============================
-// GLOBAL NOTIFICATION FUNCTION
-// ===============================
 
 
 function showNotification(
@@ -282,9 +235,7 @@ function showNotification(
 
 
 
-// ===============================
-// EXPORT VARIABLES
-// ===============================
+
 
 
 window.KMU_CONFIG = SYSTEM_CONFIG;
