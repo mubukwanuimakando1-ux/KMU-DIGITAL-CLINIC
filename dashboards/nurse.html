@@ -1,475 +1,2060 @@
-<!-- dashboards/nurse.html - Nurse Dashboard -->
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nurse Dashboard - KMU Health System</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/supabase-js@2"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+<meta charset="UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>
+KMU Digital Health Centre | Nurse Dashboard
+</title>
+
+
+<link rel="stylesheet" href="../assets/css/dashboard.css">
+
+<link rel="stylesheet" href="../assets/css/responsive.css">
+
+
+<link rel="stylesheet"
+href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script src="../assets/js/config.js"></script>
+
+<script src="../assets/js/utils.js"></script>
+
+<script src="../assets/js/nurse.js" defer></script>
+
+
 </head>
-<body class="bg-gray-100">
-    <div class="flex h-screen">
-        <!-- Sidebar -->
-        <div class="w-64 bg-teal-700 text-white flex flex-col">
-            <div class="p-6">
-                <h2 class="text-2xl font-bold">KMU Health</h2>
-                <p class="text-sm opacity-90">Nurse Portal</p>
-            </div>
-            <nav class="flex-1 mt-6">
-                <a href="#" onclick="showSection('queue')" class="flex items-center px-6 py-3 hover:bg-teal-600 transition">
-                    <i class="fas fa-users w-5 mr-3"></i> Patient Queue
-                </a>
-                <a href="#" onclick="showSection('checkup')" class="flex items-center px-6 py-3 hover:bg-teal-600 transition">
-                    <i class="fas fa-stethoscope w-5 mr-3"></i> Vitals Checkup
-                </a>
-                <a href="#" onclick="showSection('todayPatients')" class="flex items-center px-6 py-3 hover:bg-teal-600 transition">
-                    <i class="fas fa-calendar-day w-5 mr-3"></i> Today's Patients
-                </a>
-                <a href="#" onclick="showSection('chat')" class="flex items-center px-6 py-3 hover:bg-teal-600 transition">
-                    <i class="fas fa-comments w-5 mr-3"></i> Staff Chat
-                </a>
-            </nav>
-            <div class="p-6 border-t border-teal-600">
-                <div class="flex items-center mb-4">
-                    <i class="fas fa-user-circle text-2xl mr-3"></i>
-                    <div>
-                        <p class="text-sm font-semibold" id="nurseName">Nurse</p>
-                        <p class="text-xs opacity-75">Nurse</p>
-                    </div>
-                </div>
-                <button onclick="logout()" class="w-full bg-red-600 hover:bg-red-700 text-white py-2 rounded-lg transition">
-                    <i class="fas fa-sign-out-alt mr-2"></i> Logout
-                </button>
-            </div>
-        </div>
 
-        <!-- Main Content -->
-        <div class="flex-1 overflow-y-auto">
-            <div class="bg-white shadow-md px-6 py-4">
-                <h1 id="pageTitle" class="text-2xl font-bold text-gray-800">Patient Queue</h1>
-            </div>
 
-            <!-- Queue Section -->
-            <div id="queueSection" class="p-6">
-                <div class="bg-white rounded-lg shadow-md p-6">
-                    <div class="flex justify-between items-center mb-4">
-                        <h3 class="text-lg font-semibold">Waiting Patients</h3>
-                        <div class="flex space-x-2">
-                            <input type="text" id="searchQueue" placeholder="Search patient..." class="border rounded-lg px-4 py-2" onkeyup="searchQueue()">
-                            <button onclick="refreshQueue()" class="bg-teal-600 text-white px-4 py-2 rounded-lg">
-                                <i class="fas fa-sync-alt"></i> Refresh
-                            </button>
-                        </div>
-                    </div>
-                    <div id="queueList" class="space-y-4 max-h-[600px] overflow-y-auto"></div>
-                </div>
-            </div>
+<body class="dashboard-body">
 
-            <!-- Checkup Section -->
-            <div id="checkupSection" class="p-6 hidden">
-                <div class="bg-white rounded-lg shadow-md p-6">
-                    <h3 class="text-lg font-semibold mb-4">Patient Vitals Assessment</h3>
-                    <div id="selectedPatientInfo" class="bg-teal-50 p-4 rounded-lg mb-4"></div>
-                    <form id="vitalsForm">
-                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-                            <div>
-                                <label class="block text-gray-700 mb-2">Temperature (°C)</label>
-                                <input type="number" step="0.1" id="temperature" class="w-full border rounded-lg px-4 py-2" required>
-                            </div>
-                            <div>
-                                <label class="block text-gray-700 mb-2">Blood Pressure</label>
-                                <input type="text" id="bloodPressure" placeholder="120/80" class="w-full border rounded-lg px-4 py-2" required>
-                            </div>
-                            <div>
-                                <label class="block text-gray-700 mb-2">Heart Rate (bpm)</label>
-                                <input type="number" id="heartRate" class="w-full border rounded-lg px-4 py-2" required>
-                            </div>
-                            <div>
-                                <label class="block text-gray-700 mb-2">Respiratory Rate</label>
-                                <input type="number" id="respiratoryRate" class="w-full border rounded-lg px-4 py-2">
-                            </div>
-                            <div>
-                                <label class="block text-gray-700 mb-2">Weight (kg)</label>
-                                <input type="number" step="0.1" id="weight" class="w-full border rounded-lg px-4 py-2">
-                            </div>
-                            <div>
-                                <label class="block text-gray-700 mb-2">Height (cm)</label>
-                                <input type="number" step="0.1" id="height" class="w-full border rounded-lg px-4 py-2">
-                            </div>
-                        </div>
-                        <div class="mb-4">
-                            <label class="block text-gray-700 mb-2">Chief Complaint</label>
-                            <textarea id="chiefComplaint" rows="3" class="w-full border rounded-lg px-4 py-2" placeholder="Describe the main symptoms..." required></textarea>
-                        </div>
-                        <div class="mb-4">
-                            <label class="block text-gray-700 mb-2">Allergies</label>
-                            <input type="text" id="allergies" class="w-full border rounded-lg px-4 py-2" placeholder="Any known allergies">
-                        </div>
-                        <div class="mb-4">
-                            <label class="block text-gray-700 mb-2">Chronic Conditions</label>
-                            <input type="text" id="chronicConditions" class="w-full border rounded-lg px-4 py-2" placeholder="Any chronic illnesses">
-                        </div>
-                        <div class="flex space-x-2">
-                            <button type="submit" class="bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700">
-                                <i class="fas fa-save mr-2"></i>Complete Checkup
-                            </button>
-                            <button type="button" onclick="showSection('queue')" class="bg-gray-600 text-white px-6 py-2 rounded-lg hover:bg-gray-700">
-                                Cancel
-                            </button>
-                        </div>
-                    </form>
-                </div>
-            </div>
 
-            <!-- Today's Patients Section -->
-            <div id="todayPatientsSection" class="p-6 hidden">
-                <div class="bg-white rounded-lg shadow-md p-6">
-                    <h3 class="text-lg font-semibold mb-4">Today's Checked Patients</h3>
-                    <div id="todayPatientsList" class="space-y-4 max-h-[600px] overflow-y-auto"></div>
-                </div>
-            </div>
 
-            <!-- Chat Section -->
-            <div id="chatSection" class="p-6 hidden">
-                <div class="bg-white rounded-lg shadow-md p-6 h-[600px] flex flex-col">
-                    <h3 class="text-lg font-semibold mb-4">Staff Communication</h3>
-                    <div id="chatMessages" class="flex-1 overflow-y-auto mb-4 space-y-3 bg-gray-50 p-4 rounded"></div>
-                    <div class="flex space-x-2">
-                        <input type="text" id="chatInput" placeholder="Type your message..." class="flex-1 border rounded-lg px-4 py-2" onkeypress="handleChatKeyPress(event)">
-                        <button onclick="sendChatMessage()" class="bg-teal-600 text-white px-6 py-2 rounded-lg hover:bg-teal-700">
-                            <i class="fas fa-paper-plane"></i> Send
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+<!-- ==========================
+SIDEBAR
+=========================== -->
 
-    <script src="../js/config.js"></script>
-    <script>
-        let currentUser = null;
-        let currentPatientId = null;
-        let currentVisitId = null;
-        let chatSubscription = null;
 
-        async function initNurseDashboard() {
-            currentUser = JSON.parse(localStorage.getItem('currentUser'));
-            document.getElementById('nurseName').textContent = currentUser.full_name;
-            
-            await loadQueue();
-            await loadTodayPatients();
-            setupRealTimeChat();
-            
-            // Auto-refresh queue every 10 seconds
-            setInterval(() => {
-                if (document.getElementById('queueSection').classList.contains('hidden') === false) {
-                    loadQueue();
-                }
-            }, 10000);
-        }
+<aside class="sidebar">
 
-        async function loadQueue() {
-            try {
-                const { data: visits, error } = await supabase
-                    .from('visits')
-                    .select(`
-                        *,
-                        patient:users(full_name, id_number, clinic_card, role)
-                    `)
-                    .eq('status', 'waiting')
-                    .eq('visit_date', new Date().toISOString().split('T')[0])
-                    .order('queue_position', { ascending: true });
 
-                if (error) throw error;
+<div class="sidebar-header">
 
-                const container = document.getElementById('queueList');
-                if (!visits || visits.length === 0) {
-                    container.innerHTML = '<div class="text-center text-gray-500 py-8">No patients in queue</div>';
-                    return;
-                }
 
-                container.innerHTML = visits.map((visit, index) => `
-                    <div class="border rounded-lg p-4 hover:shadow-lg transition">
-                        <div class="flex justify-between items-start">
-                            <div>
-                                <div class="flex items-center space-x-3">
-                                    <span class="bg-teal-100 text-teal-800 text-xs font-semibold px-2 py-1 rounded-full">
-                                        Queue #${index + 1}
-                                    </span>
-                                    <h4 class="font-semibold text-lg">${visit.patient?.full_name || 'Unknown'}</h4>
-                                </div>
-                                <p class="text-sm text-gray-600 mt-1">
-                                    <i class="fas fa-id-card mr-1"></i> ID: ${visit.patient?.id_number} | 
-                                    <i class="fas fa-credit-card mr-1"></i> Clinic Card: ${visit.patient?.clinic_card || 'N/A'} |
-                                    <i class="fas fa-clock mr-1"></i> Check-in: ${new Date(visit.check_in_time).toLocaleTimeString()}
-                                </p>
-                                <p class="text-sm text-gray-600">Reason: ${visit.reason_for_visit || 'Not specified'}</p>
-                            </div>
-                            <button onclick="startCheckup('${visit.id}', '${visit.patient_id}')" 
-                                class="bg-teal-600 text-white px-6 py-2 rounded-lg hover:bg-teal-700">
-                                <i class="fas fa-stethoscope mr-2"></i>Start Checkup
-                            </button>
-                        </div>
-                    </div>
-                `).join('');
-            } catch (error) {
-                console.error('Error loading queue:', error);
-                document.getElementById('queueList').innerHTML = '<div class="text-red-600 text-center py-8">Error loading queue</div>';
-            }
-        }
+<img
+src="../assets/images/logo.png"
+alt="KMU Logo">
 
-        async function startCheckup(visitId, patientId) {
-            currentVisitId = visitId;
-            currentPatientId = patientId;
-            
-            // Load patient info
-            const { data: patient } = await supabase
-                .from('users')
-                .select('*')
-                .eq('id', patientId)
-                .single();
-            
-            document.getElementById('selectedPatientInfo').innerHTML = `
-                <div class="grid grid-cols-2 gap-4">
-                    <div><strong>Patient Name:</strong> ${patient.full_name}</div>
-                    <div><strong>ID Number:</strong> ${patient.id_number}</div>
-                    <div><strong>Clinic Card:</strong> ${patient.clinic_card || 'N/A'}</div>
-                    <div><strong>Contact:</strong> ${patient.phone || 'N/A'}</div>
-                </div>
-            `;
-            
-            showSection('checkup');
-        }
 
-        document.getElementById('vitalsForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            
-            try {
-                // Save nurse assessment
-                const assessmentData = {
-                    visit_id: currentVisitId,
-                    nurse_id: currentUser.id,
-                    temperature: parseFloat(document.getElementById('temperature').value),
-                    blood_pressure: document.getElementById('bloodPressure').value,
-                    heart_rate: parseInt(document.getElementById('heartRate').value),
-                    respiratory_rate: document.getElementById('respiratoryRate').value ? parseInt(document.getElementById('respiratoryRate').value) : null,
-                    weight: document.getElementById('weight').value ? parseFloat(document.getElementById('weight').value) : null,
-                    height: document.getElementById('height').value ? parseFloat(document.getElementById('height').value) : null,
-                    chief_complaint: document.getElementById('chiefComplaint').value,
-                    allergies: document.getElementById('allergies').value,
-                    chronic_conditions: document.getElementById('chronicConditions').value,
-                    created_at: new Date()
-                };
-                
-                const { error: assessmentError } = await supabase
-                    .from('nurse_assessments')
-                    .insert([assessmentData]);
-                
-                if (assessmentError) throw assessmentError;
-                
-                // Update visit status
-                const { error: visitError } = await supabase
-                    .from('visits')
-                    .update({ 
-                        status: 'nurse_checked',
-                        nurse_check_time: new Date()
-                    })
-                    .eq('id', currentVisitId);
-                
-                if (visitError) throw visitError;
-                
-                // Add to doctor's queue
-                await supabase
-                    .from('queue_management')
-                    .insert([{
-                        visit_id: currentVisitId,
-                        queue_type: 'doctor',
-                        position: await getNextQueuePosition('doctor'),
-                        status: 'waiting'
-                    }]);
-                
-                // Send notification to doctors
-                await supabase
-                    .from('notifications')
-                    .insert([{
-                        title: 'New Patient Ready for Consultation',
-                        message: `Patient ${document.getElementById('selectedPatientInfo').innerHTML.match(/Patient Name:<\/strong> (.*?)</)?.[1] || 'Ready'} is waiting for doctor`,
-                        type: 'visit',
-                        priority: 'high',
-                        is_global: true,
-                        target_role: 'doctor'
-                    }]);
-                
-                alert('Patient checkup completed! Sent to doctor queue.');
-                
-                // Reset form
-                document.getElementById('vitalsForm').reset();
-                currentPatientId = null;
-                currentVisitId = null;
-                
-                // Refresh queue and go back
-                await loadQueue();
-                showSection('queue');
-                
-            } catch (error) {
-                alert('Error saving assessment: ' + error.message);
-            }
-        });
+<h2>
 
-        async function loadTodayPatients() {
-            try {
-                const { data: assessments, error } = await supabase
-                    .from('nurse_assessments')
-                    .select(`
-                        *,
-                        visit:visits(patient:users(full_name, id_number, clinic_card))
-                    `)
-                    .eq('nurse_id', currentUser.id)
-                    .gte('created_at', new Date().toISOString().split('T')[0])
-                    .order('created_at', { ascending: false });
-                
-                if (error) throw error;
-                
-                const container = document.getElementById('todayPatientsList');
-                if (!assessments || assessments.length === 0) {
-                    container.innerHTML = '<div class="text-center text-gray-500 py-8">No patients checked today</div>';
-                    return;
-                }
-                
-                container.innerHTML = assessments.map(assessment => `
-                    <div class="border rounded-lg p-4">
-                        <div class="flex justify-between items-start">
-                            <div>
-                                <h4 class="font-semibold">${assessment.visit?.patient?.full_name || 'Unknown'}</h4>
-                                <p class="text-sm text-gray-600">ID: ${assessment.visit?.patient?.id_number} | Clinic Card: ${assessment.visit?.patient?.clinic_card || 'N/A'}</p>
-                                <div class="grid grid-cols-3 gap-4 mt-2 text-sm">
-                                    <div>Temp: ${assessment.temperature}°C</div>
-                                    <div>BP: ${assessment.blood_pressure}</div>
-                                    <div>HR: ${assessment.heart_rate} bpm</div>
-                                </div>
-                                <p class="text-sm text-gray-700 mt-2"><strong>Complaint:</strong> ${assessment.chief_complaint}</p>
-                            </div>
-                            <span class="text-xs text-gray-500">${new Date(assessment.created_at).toLocaleTimeString()}</span>
-                        </div>
-                    </div>
-                `).join('');
-            } catch (error) {
-                console.error('Error loading today patients:', error);
-            }
-        }
+Nurse Portal
 
-        async function getNextQueuePosition(queueType) {
-            const { data, count } = await supabase
-                .from('queue_management')
-                .select('*', { count: 'exact', head: true })
-                .eq('queue_type', queueType)
-                .eq('status', 'waiting');
-            
-            return (count || 0) + 1;
-        }
+</h2>
 
-        function setupRealTimeChat() {
-            chatSubscription = supabase
-                .channel('chat')
-                .on('postgres_changes', { 
-                    event: 'INSERT', 
-                    schema: 'public', 
-                    table: 'chat_messages',
-                    filter: `room=eq.staff`
-                }, (payload) => {
-                    displayChatMessage(payload.new);
-                })
-                .subscribe();
-            
-            loadChatMessages();
-        }
 
-        async function loadChatMessages() {
-            const { data: messages } = await supabase
-                .from('chat_messages')
-                .select('*, sender:users(full_name)')
-                .eq('room', 'staff')
-                .order('created_at', { ascending: true })
-                .limit(50);
-            
-            const container = document.getElementById('chatMessages');
-            container.innerHTML = messages?.map(msg => `
-                <div class="${msg.sender_id === currentUser.id ? 'text-right' : 'text-left'}">
-                    <div class="inline-block max-w-[70%] ${msg.sender_id === currentUser.id ? 'bg-teal-600 text-white' : 'bg-gray-300'} rounded-lg px-4 py-2">
-                        ${msg.sender_id !== currentUser.id ? `<p class="text-xs font-semibold mb-1">${msg.sender?.full_name}</p>` : ''}
-                        <p>${msg.message}</p>
-                        <p class="text-xs opacity-75 mt-1">${new Date(msg.created_at).toLocaleTimeString()}</p>
-                    </div>
-                </div>
-            `).join('') || '<div class="text-center text-gray-500">No messages yet</div>';
-            
-            // Scroll to bottom
-            container.scrollTop = container.scrollHeight;
-        }
+</div>
 
-        async function sendChatMessage() {
-            const message = document.getElementById('chatInput').value.trim();
-            if (!message) return;
-            
-            await supabase
-                .from('chat_messages')
-                .insert([{
-                    sender_id: currentUser.id,
-                    message: message,
-                    room: 'staff',
-                    is_broadcast: true,
-                    created_at: new Date()
-                }]);
-            
-            document.getElementById('chatInput').value = '';
-            await loadChatMessages();
-        }
 
-        function handleChatKeyPress(event) {
-            if (event.key === 'Enter') {
-                sendChatMessage();
-            }
-        }
 
-        function searchQueue() {
-            const searchTerm = document.getElementById('searchQueue').value.toLowerCase();
-            const items = document.querySelectorAll('#queueList .border');
-            items.forEach(item => {
-                const text = item.textContent.toLowerCase();
-                item.style.display = text.includes(searchTerm) ? 'block' : 'none';
-            });
-        }
 
-        function refreshQueue() {
-            loadQueue();
-        }
+<nav class="sidebar-menu">
 
-        function showSection(section) {
-            document.getElementById('queueSection').classList.add('hidden');
-            document.getElementById('checkupSection').classList.add('hidden');
-            document.getElementById('todayPatientsSection').classList.add('hidden');
-            document.getElementById('chatSection').classList.add('hidden');
-            
-            document.getElementById(`${section}Section`).classList.remove('hidden');
-            
-            const titles = {
-                queue: 'Patient Queue',
-                checkup: 'Vitals Checkup',
-                todayPatients: "Today's Patients",
-                chat: 'Staff Chat'
-            };
-            document.getElementById('pageTitle').textContent = titles[section] || 'Dashboard';
-        }
 
-        function logout() {
-            if (chatSubscription) chatSubscription.unsubscribe();
-            localStorage.removeItem('currentUser');
-            window.location.href = '/index.html';
-        }
+<ul>
 
-        window.addEventListener('DOMContentLoaded', initNurseDashboard);
-    </script>
+
+
+<li>
+
+<a class="active" href="#dashboard">
+
+<i class="fa-solid fa-gauge"></i>
+
+<span>
+Dashboard
+</span>
+
+</a>
+
+</li>
+
+
+
+
+<li>
+
+<a href="#patients">
+
+<i class="fa-solid fa-bed"></i>
+
+<span>
+Assigned Patients
+</span>
+
+</a>
+
+</li>
+
+
+
+
+<li>
+
+<a href="#vitals">
+
+<i class="fa-solid fa-heart-pulse"></i>
+
+<span>
+Vital Signs
+</span>
+
+</a>
+
+</li>
+
+
+
+
+<li>
+
+<a href="#notes">
+
+<i class="fa-solid fa-notes-medical"></i>
+
+<span>
+Nursing Notes
+</span>
+
+</a>
+
+</li>
+
+
+
+
+<li>
+
+<a href="#medication">
+
+<i class="fa-solid fa-pills"></i>
+
+<span>
+Medication
+</span>
+
+</a>
+
+</li>
+
+
+
+
+<li>
+
+<a href="#appointments">
+
+<i class="fa-solid fa-calendar-check"></i>
+
+<span>
+Appointments
+</span>
+
+</a>
+
+</li>
+
+
+
+
+<li>
+
+<a href="#alerts">
+
+<i class="fa-solid fa-triangle-exclamation"></i>
+
+<span>
+Emergency Alerts
+</span>
+
+</a>
+
+</li>
+
+
+
+
+<li>
+
+<a href="#reports">
+
+<i class="fa-solid fa-chart-column"></i>
+
+<span>
+Reports
+</span>
+
+</a>
+
+</li>
+
+
+
+
+<li>
+
+<a href="#" id="logoutButton">
+
+<i class="fa-solid fa-right-from-bracket"></i>
+
+<span>
+Logout
+</span>
+
+</a>
+
+</li>
+
+
+
+</ul>
+
+
+</nav>
+
+
+</aside>
+
+
+
+
+
+<!-- ==========================
+MAIN CONTENT
+=========================== -->
+
+
+<div class="main-content">
+
+
+
+<header class="topbar">
+
+
+
+<div class="topbar-left">
+
+
+<h2>
+
+Nurse Dashboard
+
+</h2>
+
+
+</div>
+
+
+
+
+<div class="topbar-right">
+
+
+<div class="profile-box">
+
+
+<img
+src="../assets/images/avatar.png"
+alt="Nurse">
+
+
+<div>
+
+
+<strong id="nurseName">
+
+Nurse Name
+
+</strong>
+
+
+<br>
+
+
+<small>
+
+Nursing Department
+
+</small>
+
+
+</div>
+
+
+</div>
+
+
+</div>
+
+
+</header>
+
+
+
+
+
+
+<main class="dashboard-content">
+
+
+
+
+
+<!-- ==========================
+SUMMARY CARDS
+=========================== -->
+
+
+<section class="dashboard-cards">
+
+
+
+<div class="dashboard-card">
+
+
+<div class="dashboard-card-header">
+
+
+<h3>
+
+Assigned Patients
+
+</h3>
+
+
+<i class="fa-solid fa-bed"></i>
+
+
+</div>
+
+
+<h2 id="assignedPatients">
+
+0
+
+</h2>
+
+
+</div>
+
+
+
+
+
+
+<div class="dashboard-card">
+
+
+<div class="dashboard-card-header">
+
+
+<h3>
+
+Pending Vital Checks
+
+</h3>
+
+
+<i class="fa-solid fa-heart-pulse"></i>
+
+
+</div>
+
+
+<h2 id="pendingVitals">
+
+0
+
+</h2>
+
+
+</div>
+
+
+
+
+
+
+
+<div class="dashboard-card">
+
+
+<div class="dashboard-card-header">
+
+
+<h3>
+
+Medication Tasks
+
+</h3>
+
+
+<i class="fa-solid fa-pills"></i>
+
+
+</div>
+
+
+<h2 id="medicationTasks">
+
+0
+
+</h2>
+
+
+</div>
+
+
+
+
+
+
+
+<div class="dashboard-card">
+
+
+<div class="dashboard-card-header">
+
+
+<h3>
+
+Emergency Alerts
+
+</h3>
+
+
+<i class="fa-solid fa-triangle-exclamation"></i>
+
+
+</div>
+
+
+<h2 id="emergencyAlerts">
+
+0
+
+</h2>
+
+
+</div>
+
+
+
+</section>
+
+
+
+
+
+
+<!-- ==========================
+QUICK ACTIONS
+=========================== -->
+
+
+<section class="quick-actions">
+
+
+
+<div class="action-card" id="recordVitals">
+
+
+<i class="fa-solid fa-heart-pulse"></i>
+
+
+<h4>
+
+Record Vitals
+
+</h4>
+
+
+</div>
+
+
+
+
+
+<div class="action-card" id="addNursingNote">
+
+
+<i class="fa-solid fa-notes-medical"></i>
+
+
+<h4>
+
+Nursing Notes
+
+</h4>
+
+
+</div>
+
+
+
+
+
+<div class="action-card" id="administerMedicine">
+
+
+<i class="fa-solid fa-syringe"></i>
+
+
+<h4>
+
+Medication
+
+</h4>
+
+
+</div>
+
+
+
+
+
+<div class="action-card" id="emergencyButton">
+
+
+<i class="fa-solid fa-bell"></i>
+
+
+<h4>
+
+Emergency Alert
+
+</h4>
+
+
+</div>
+
+
+
+
+</section>
+
+<!-- ==========================
+ASSIGNED PATIENTS
+=========================== -->
+
+
+<section
+
+id="patients"
+
+class="table-card mt-3">
+
+
+
+<div class="flex-between mb-2">
+
+
+<h3>
+
+Assigned Patients
+
+</h3>
+
+
+<button
+
+class="secondary-btn"
+
+id="refreshPatients">
+
+
+Refresh
+
+
+</button>
+
+
+
+</div>
+
+
+
+
+<table>
+
+
+
+<thead>
+
+
+<tr>
+
+
+<th>
+
+Patient No.
+
+</th>
+
+
+<th>
+
+Patient Name
+
+</th>
+
+
+<th>
+
+Ward/Clinic
+
+</th>
+
+
+<th>
+
+Condition
+
+</th>
+
+
+<th>
+
+Priority
+
+</th>
+
+
+<th>
+
+Action
+
+</th>
+
+
+</tr>
+
+
+</thead>
+
+
+
+
+<tbody id="nursePatientTable">
+
+
+</tbody>
+
+
+
+</table>
+
+
+
+</section>
+
+
+
+
+
+
+
+<!-- ==========================
+VITAL SIGNS RECORDING
+=========================== -->
+
+
+<section
+
+id="vitals"
+
+class="table-card mt-3">
+
+
+
+<h3 class="mb-2">
+
+Record Patient Vital Signs
+
+</h3>
+
+
+
+<form id="vitalSignsForm">
+
+
+
+<div class="form-grid">
+
+
+
+<div>
+
+
+<label>
+
+Patient
+
+</label>
+
+
+<select id="vitalPatient">
+
+
+<option>
+
+Select Patient
+
+</option>
+
+
+</select>
+
+
+</div>
+
+
+
+
+<div>
+
+
+<label>
+
+Blood Pressure
+
+</label>
+
+
+<input
+
+type="text"
+
+id="vitalBloodPressure"
+
+placeholder="120/80">
+
+
+</div>
+
+
+
+
+
+<div>
+
+
+<label>
+
+Temperature
+
+</label>
+
+
+<input
+
+type="number"
+
+step="0.1"
+
+id="vitalTemperature"
+
+placeholder="36.5">
+
+
+</div>
+
+
+
+
+
+<div>
+
+
+<label>
+
+Pulse Rate
+
+</label>
+
+
+<input
+
+type="number"
+
+id="vitalPulse">
+
+
+</div>
+
+
+
+
+
+<div>
+
+
+<label>
+
+Respiratory Rate
+
+</label>
+
+
+<input
+
+type="number"
+
+id="respiratoryRate">
+
+
+</div>
+
+
+
+
+
+<div>
+
+
+<label>
+
+Oxygen Saturation
+
+</label>
+
+
+<input
+
+type="number"
+
+id="oxygenSaturation">
+
+
+</div>
+
+
+
+</div>
+
+
+
+
+
+<label>
+
+Additional Observations
+
+</label>
+
+
+<textarea
+
+id="vitalObservation"
+
+rows="4">
+
+</textarea>
+
+
+
+
+<button
+
+class="primary-btn"
+
+type="submit">
+
+
+<i class="fa-solid fa-heart-pulse"></i>
+
+
+Save Vital Signs
+
+
+</button>
+
+
+
+</form>
+
+
+</section>
+
+
+
+
+
+
+
+
+<!-- ==========================
+NURSING NOTES
+=========================== -->
+
+
+<section
+
+id="notes"
+
+class="table-card mt-3">
+
+
+
+<h3 class="mb-2">
+
+Nursing Notes
+
+</h3>
+
+
+
+
+<form id="nursingNotesForm">
+
+
+
+<div class="grid-2">
+
+
+
+<div>
+
+
+<label>
+
+Patient
+
+</label>
+
+
+<select id="notesPatient">
+
+
+<option>
+
+Select Patient
+
+</option>
+
+
+</select>
+
+
+</div>
+
+
+
+
+
+<div>
+
+
+<label>
+
+Note Type
+
+</label>
+
+
+<select id="noteType">
+
+
+<option>
+
+Routine Observation
+
+</option>
+
+
+<option>
+
+Progress Note
+
+</option>
+
+
+<option>
+
+Emergency Note
+
+</option>
+
+
+<option>
+
+Medication Note
+
+</option>
+
+
+</select>
+
+
+</div>
+
+
+
+</div>
+
+
+
+
+<label>
+
+Nurse Notes
+
+</label>
+
+
+<textarea
+
+id="nurseNotes"
+
+rows="5"
+
+placeholder="Enter nursing observations...">
+
+</textarea>
+
+
+
+
+<button
+
+class="primary-btn">
+
+
+<i class="fa-solid fa-notes-medical"></i>
+
+
+Save Nursing Note
+
+
+</button>
+
+
+
+</form>
+
+
+
+</section>
+
+
+
+
+
+
+
+
+<!-- ==========================
+MEDICATION ADMINISTRATION
+=========================== -->
+
+
+<section
+
+id="medication"
+
+class="table-card mt-3">
+
+
+
+<h3 class="mb-2">
+
+Medication Administration
+
+</h3>
+
+
+
+
+<form id="medicationForm">
+
+
+
+<div class="form-grid">
+
+
+
+<div>
+
+
+<label>
+
+Patient
+
+</label>
+
+
+<select id="medicinePatient">
+
+
+<option>
+
+Select Patient
+
+</option>
+
+
+</select>
+
+
+</div>
+
+
+
+
+
+<div>
+
+
+<label>
+
+Medicine Name
+
+</label>
+
+
+<input
+
+type="text"
+
+id="medicine">
+
+</div>
+
+
+
+
+
+<div>
+
+
+<label>
+
+Dosage
+
+</label>
+
+
+<input
+
+type="text"
+
+id="dosage">
+
+</div>
+
+
+
+
+
+<div>
+
+
+<label>
+
+Administration Time
+
+</label>
+
+
+<input
+
+type="time"
+
+id="medicineTime">
+
+</div>
+
+
+
+
+<div>
+
+
+<label>
+
+Route
+
+</label>
+
+
+<select id="medicineRoute">
+
+
+<option>
+
+Oral
+
+</option>
+
+
+<option>
+
+Injection
+
+</option>
+
+
+<option>
+
+IV
+
+</option>
+
+
+<option>
+
+Other
+
+</option>
+
+
+</select>
+
+
+</div>
+
+
+
+<div>
+
+
+<label>
+
+Status
+
+</label>
+
+
+<select id="medicineStatus">
+
+
+<option>
+
+Given
+
+</option>
+
+
+<option>
+
+Pending
+
+</option>
+
+
+<option>
+
+Skipped
+
+</option>
+
+
+</select>
+
+
+</div>
+
+
+
+</div>
+
+
+
+
+<button
+
+class="primary-btn">
+
+
+<i class="fa-solid fa-syringe"></i>
+
+
+Record Medication
+
+
+</button>
+
+
+
+</form>
+
+
+
+</section>
+
+
+
+
+
+
+
+
+<!-- ==========================
+PATIENT MONITORING
+=========================== -->
+
+
+<section
+
+class="table-card mt-3">
+
+
+
+<h3 class="mb-2">
+
+Patient Monitoring
+
+</h3>
+
+
+
+<table>
+
+
+
+<thead>
+
+
+<tr>
+
+
+<th>
+
+Patient
+
+</th>
+
+
+<th>
+
+Latest Vitals
+
+</th>
+
+
+<th>
+
+Last Check
+
+</th>
+
+
+<th>
+
+Condition
+
+</th>
+
+
+<th>
+
+Action
+
+</th>
+
+
+</tr>
+
+
+</thead>
+
+
+
+
+<tbody id="patientMonitoringTable">
+
+
+</tbody>
+
+
+
+</table>
+
+
+</section>
+
+    <!-- ==========================
+DOCTOR COMMUNICATION
+=========================== -->
+
+
+<section
+
+class="table-card mt-3">
+
+
+<h3 class="mb-2">
+
+Doctor Communication
+
+</h3>
+
+
+
+
+<div id="doctorMessages">
+
+
+
+<div class="dashboard-notification">
+
+
+<h5>
+
+No New Messages
+
+</h5>
+
+
+<p>
+
+Messages from doctors will appear here.
+
+</p>
+
+
+</div>
+
+
+
+</div>
+
+
+
+
+
+<div class="flex mt-2">
+
+
+
+<input
+
+type="text"
+
+id="doctorMessageInput"
+
+placeholder="Send message to doctor...">
+
+
+
+<button
+
+class="primary-btn"
+
+id="sendDoctorMessage">
+
+
+Send
+
+
+</button>
+
+
+
+</div>
+
+
+
+</section>
+
+
+
+
+
+
+<!-- ==========================
+EMERGENCY ALERTS
+=========================== -->
+
+
+<section
+
+id="alerts"
+
+class="table-card mt-3">
+
+
+
+<div class="flex-between mb-2">
+
+
+<h3>
+
+Emergency Alerts
+
+</h3>
+
+
+
+<button
+
+class="danger-btn"
+
+id="createEmergencyAlert">
+
+
+<i class="fa-solid fa-triangle-exclamation"></i>
+
+
+Emergency
+
+
+</button>
+
+
+
+</div>
+
+
+
+
+
+<table>
+
+
+
+<thead>
+
+
+<tr>
+
+
+<th>
+
+Time
+
+</th>
+
+
+<th>
+
+Patient
+
+</th>
+
+
+<th>
+
+Alert Type
+
+</th>
+
+
+<th>
+
+Priority
+
+</th>
+
+
+<th>
+
+Status
+
+</th>
+
+
+</tr>
+
+
+</thead>
+
+
+
+
+<tbody id="emergencyAlertTable">
+
+
+</tbody>
+
+
+
+</table>
+
+
+
+</section>
+
+
+
+
+
+
+<!-- ==========================
+NURSING REPORTS
+=========================== -->
+
+
+<section
+
+id="reports"
+
+class="table-card mt-3">
+
+
+
+<h3 class="mb-2">
+
+Nursing Reports
+
+</h3>
+
+
+
+
+<div class="quick-actions">
+
+
+
+<div class="action-card" id="dailyNursingReport">
+
+
+<i class="fa-solid fa-file-lines"></i>
+
+
+<h4>
+
+Daily Report
+
+</h4>
+
+
+</div>
+
+
+
+
+
+<div class="action-card" id="patientCareReport">
+
+
+<i class="fa-solid fa-chart-line"></i>
+
+
+<h4>
+
+Patient Care
+
+</h4>
+
+
+</div>
+
+
+
+
+
+<div class="action-card" id="exportNursingPDF">
+
+
+<i class="fa-solid fa-file-pdf"></i>
+
+
+<h4>
+
+Export PDF
+
+</h4>
+
+
+</div>
+
+
+
+
+</div>
+
+
+
+</section>
+
+
+
+
+
+
+
+
+<!-- ==========================
+NOTIFICATIONS
+=========================== -->
+
+
+<section
+
+class="dashboard-notifications mt-3">
+
+
+
+<h3 class="mb-2">
+
+Nurse Notifications
+
+</h3>
+
+
+
+<div id="nurseNotifications">
+
+
+
+<div class="dashboard-notification">
+
+
+<h5>
+
+System Ready
+
+</h5>
+
+
+<p>
+
+Patient updates and alerts will appear here.
+
+</p>
+
+
+</div>
+
+
+
+</div>
+
+
+
+</section>
+
+
+
+
+
+
+
+<!-- ==========================
+ACTIVITY TIMELINE
+=========================== -->
+
+
+<section
+
+class="timeline mt-3">
+
+
+
+<h3 class="mb-2">
+
+Recent Nursing Activity
+
+</h3>
+
+
+
+
+<div id="nurseActivity">
+
+
+
+<div class="timeline-item">
+
+
+
+<div class="timeline-icon">
+
+
+<i class="fa-solid fa-user-nurse"></i>
+
+
+</div>
+
+
+
+<div class="timeline-content">
+
+
+<h4>
+
+Nurse Portal Started
+
+</h4>
+
+
+<small>
+
+Waiting for activities...
+
+</small>
+
+
+</div>
+
+
+
+</div>
+
+
+
+</div>
+
+
+
+</section>
+
+
+
+
+
+
+
+<!-- ==========================
+NURSE SETTINGS
+=========================== -->
+
+
+<section
+
+class="table-card mt-3">
+
+
+
+<h3 class="mb-2">
+
+Nurse Settings
+
+</h3>
+
+
+
+
+<div class="grid-2">
+
+
+
+<div>
+
+
+<label>
+
+Default Clinic
+
+</label>
+
+
+<select id="defaultClinic">
+
+
+<option>
+
+General Clinic
+
+</option>
+
+
+<option>
+
+Student Clinic
+
+</option>
+
+
+<option>
+
+Staff Clinic
+
+</option>
+
+
+</select>
+
+
+</div>
+
+
+
+
+<div>
+
+
+<label>
+
+Alert Notifications
+
+</label>
+
+
+<select id="alertNotifications">
+
+
+<option>
+
+Enabled
+
+</option>
+
+
+<option>
+
+Disabled
+
+</option>
+
+
+</select>
+
+
+</div>
+
+
+
+
+<div>
+
+
+<label>
+
+Medication Reminder
+
+</label>
+
+
+<select id="medicationReminder">
+
+
+<option>
+
+Enabled
+
+</option>
+
+
+<option>
+
+Disabled
+
+</option>
+
+
+</select>
+
+
+</div>
+
+
+
+
+<div>
+
+
+<label>
+
+Auto Refresh Dashboard
+
+</label>
+
+
+<select id="autoRefresh">
+
+
+<option>
+
+Enabled
+
+</option>
+
+
+<option>
+
+Disabled
+
+</option>
+
+
+</select>
+
+
+</div>
+
+
+
+</div>
+
+
+
+
+<button
+
+class="primary-btn mt-3"
+
+id="saveNurseSettings">
+
+
+Save Settings
+
+
+</button>
+
+
+
+</section>
+
+
+
+
+
+</main>
+
+
+
+</div>
+
+
+
+
+
+<footer>
+
+
+<div class="footer-bottom">
+
+
+<p>
+
+© 2026 Kapasa Makasa University Digital Health Centre.
+All Rights Reserved.
+
+</p>
+
+
+</div>
+
+
+</footer>
+
+
+
+
+
 </body>
+
+
 </html>
+
+
+    
