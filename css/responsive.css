@@ -1,0 +1,290 @@
+/*
+=====================================================
+KMU DIGITAL HEALTH CENTRE MANAGEMENT SYSTEM
+RESPONSIVE STYLESHEET
+=====================================================
+*/
+
+/* =====================================
+LARGE TABLETS
+===================================== */
+
+@media (max-width:1200px){
+
+    header{
+
+        padding:15px 5%;
+
+    }
+
+    section{
+
+        padding:60px 5%;
+
+    }
+
+    .hero{
+
+        padding:130px 5% 70px;
+
+        gap:40px;
+
+    }
+
+    .hero-left h1{
+
+        font-size:3rem;
+
+    }
+
+}
+
+
+
+/* =====================================
+TABLETS
+===================================== */
+
+@media (max-width:992px){
+
+    nav{
+
+        display:none;
+
+    }
+
+    .hero{
+
+        grid-template-columns:1fr;
+
+        text-align:center;
+
+    }
+
+    .hero-left{
+
+        order:2;
+
+    }
+
+    .hero-right{
+
+        order:1;
+
+    }
+
+    .statistics{
+
+        grid-template-columns:repeat(2,1fr);
+
+    }
+
+    .about-container{
+
+        grid-template-columns:1fr;
+
+    }
+
+    .form-grid{
+
+        grid-template-columns:1fr;
+
+    }
+
+    .grid-2{
+
+        grid-template-columns:1fr;
+
+    }
+
+    .grid-3{
+
+        grid-template-columns:1fr;
+
+    }
+
+}
+
+
+
+/* =====================================
+MOBILE DEVICES
+===================================== */
+
+@media (max-width:768px){
+
+    h1{
+
+        font-size:2.3rem;
+
+    }
+
+    h2{
+
+        font-size:1.8rem;
+
+    }
+
+    .hero-left h1{
+
+        font-size:2.4rem;
+
+    }
+
+    .hero-buttons{
+
+        flex-direction:column;
+
+    }
+
+    .statistics{
+
+        grid-template-columns:1fr;
+
+    }
+
+    .service-grid{
+
+        grid-template-columns:1fr;
+
+    }
+
+    .department-grid{
+
+        grid-template-columns:1fr;
+
+    }
+
+    .footer-grid{
+
+        grid-template-columns:1fr;
+
+    }
+
+    table{
+
+        display:block;
+
+        overflow-x:auto;
+
+        white-space:nowrap;
+
+    }
+
+    .notification-panel{
+
+        width:100%;
+
+        right:-100%;
+
+    }
+
+}
+
+
+
+/* =====================================
+SMALL PHONES
+===================================== */
+
+@media (max-width:480px){
+
+    header{
+
+        flex-direction:column;
+
+        gap:15px;
+
+    }
+
+    .logo{
+
+        flex-direction:column;
+
+        text-align:center;
+
+    }
+
+    .header-buttons{
+
+        width:100%;
+
+        justify-content:center;
+
+    }
+
+    .modal-content{
+
+        max-width:95%;
+
+    }
+
+    form{
+
+        padding:20px;
+
+    }
+
+    section{
+
+        padding:50px 20px;
+
+    }
+
+    .hero{
+
+        padding-top:180px;
+
+    }
+
+    .hero-left h1{
+
+        font-size:2rem;
+
+    }
+
+    .hero-left p{
+
+        font-size:15px;
+
+    }
+
+}
+
+
+
+/* =====================================
+PRINT
+===================================== */
+
+@media print{
+
+    header,
+
+    footer,
+
+    .hero-buttons,
+
+    #loader,
+
+    .notification-panel,
+
+    button{
+
+        display:none !important;
+
+    }
+
+    body{
+
+        background:#fff;
+
+    }
+
+    section{
+
+        padding:10px;
+
+    }
+
+}

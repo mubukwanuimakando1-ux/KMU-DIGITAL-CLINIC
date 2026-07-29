@@ -1,0 +1,444 @@
+/*
+=====================================================
+KMU DIGITAL HEALTH CENTRE MANAGEMENT SYSTEM
+AUTHENTICATION STYLESHEET
+=====================================================
+*/
+
+/* =====================================
+AUTH PAGE
+===================================== */
+
+.auth-page{
+
+    min-height:100vh;
+
+    display:flex;
+
+    justify-content:center;
+
+    align-items:center;
+
+    background:linear-gradient(
+        135deg,
+        #0d6efd,
+        #198754
+    );
+
+    padding:30px;
+
+}
+
+
+
+/* =====================================
+AUTH CONTAINER
+===================================== */
+
+.auth-container{
+
+    width:100%;
+
+    max-width:460px;
+
+    background:#fff;
+
+    border-radius:16px;
+
+    overflow:hidden;
+
+    box-shadow:0 20px 50px rgba(0,0,0,.15);
+
+}
+
+.auth-header{
+
+    background:#0d6efd;
+
+    color:#fff;
+
+    padding:35px;
+
+    text-align:center;
+
+}
+
+.auth-header img{
+
+    width:90px;
+
+    margin:auto;
+
+    margin-bottom:15px;
+
+}
+
+.auth-header h1{
+
+    font-size:28px;
+
+    margin-bottom:10px;
+
+}
+
+.auth-header p{
+
+    color:#e9ecef;
+
+}
+
+
+
+/* =====================================
+AUTH BODY
+===================================== */
+
+.auth-body{
+
+    padding:35px;
+
+}
+
+.auth-group{
+
+    margin-bottom:20px;
+
+}
+
+.auth-group label{
+
+    display:block;
+
+    margin-bottom:8px;
+
+    font-weight:600;
+
+}
+
+.auth-group input,
+
+.auth-group select{
+
+    width:100%;
+
+    padding:14px;
+
+    border:1px solid #ced4da;
+
+    border-radius:10px;
+
+    outline:none;
+
+    transition:.3s;
+
+}
+
+.auth-group input:focus,
+
+.auth-group select:focus{
+
+    border-color:#0d6efd;
+
+    box-shadow:0 0 0 3px rgba(13,110,253,.15);
+
+}
+
+
+
+/* =====================================
+PASSWORD FIELD
+===================================== */
+
+.password-wrapper{
+
+    position:relative;
+
+}
+
+.password-wrapper input{
+
+    padding-right:45px;
+
+}
+
+.password-toggle{
+
+    position:absolute;
+
+    right:15px;
+
+    top:50%;
+
+    transform:translateY(-50%);
+
+    cursor:pointer;
+
+    color:#6c757d;
+
+}
+
+
+
+/* =====================================
+BUTTONS
+===================================== */
+
+.auth-btn{
+
+    width:100%;
+
+    padding:15px;
+
+    border:none;
+
+    border-radius:10px;
+
+    background:#0d6efd;
+
+    color:#fff;
+
+    font-size:16px;
+
+    font-weight:600;
+
+    cursor:pointer;
+
+    transition:.3s;
+
+}
+
+.auth-btn:hover{
+
+    background:#0b5ed7;
+
+}
+
+.auth-secondary{
+
+    background:#198754;
+
+}
+
+.auth-secondary:hover{
+
+    background:#157347;
+
+}
+
+
+
+/* =====================================
+AUTH LINKS
+===================================== */
+
+.auth-links{
+
+    display:flex;
+
+    justify-content:space-between;
+
+    margin-top:20px;
+
+    font-size:14px;
+
+}
+
+.auth-links a{
+
+    color:#0d6efd;
+
+    text-decoration:none;
+
+}
+
+.auth-links a:hover{
+
+    text-decoration:underline;
+
+}
+
+
+
+/* =====================================
+DIVIDER
+===================================== */
+
+.auth-divider{
+
+    display:flex;
+
+    align-items:center;
+
+    margin:25px 0;
+
+    color:#6c757d;
+
+}
+
+.auth-divider::before,
+
+.auth-divider::after{
+
+    content:"";
+
+    flex:1;
+
+    height:1px;
+
+    background:#dee2e6;
+
+}
+
+.auth-divider span{
+
+    padding:0 15px;
+
+}
+
+
+
+/* =====================================
+SOCIAL LOGIN
+===================================== */
+
+.social-login{
+
+    display:grid;
+
+    grid-template-columns:repeat(2,1fr);
+
+    gap:15px;
+
+}
+
+.social-btn{
+
+    padding:12px;
+
+    border:1px solid #dee2e6;
+
+    background:#fff;
+
+    border-radius:10px;
+
+    cursor:pointer;
+
+    display:flex;
+
+    justify-content:center;
+
+    align-items:center;
+
+    gap:10px;
+
+    transition:.3s;
+
+}
+
+.social-btn:hover{
+
+    background:#f8f9fa;
+
+}
+
+
+
+/* =====================================
+ALERTS
+===================================== */
+
+.auth-alert{
+
+    padding:14px;
+
+    border-radius:10px;
+
+    margin-bottom:20px;
+
+    font-size:14px;
+
+}
+
+.auth-alert.success{
+
+    background:#d1e7dd;
+
+    color:#146c43;
+
+}
+
+.auth-alert.error{
+
+    background:#f8d7da;
+
+    color:#842029;
+
+}
+
+.auth-alert.warning{
+
+    background:#fff3cd;
+
+    color:#856404;
+
+}
+
+
+
+/* =====================================
+RESPONSIVE
+===================================== */
+
+@media(max-width:768px){
+
+    .auth-container{
+
+        max-width:100%;
+
+    }
+
+    .auth-header{
+
+        padding:25px;
+
+    }
+
+    .auth-body{
+
+        padding:25px;
+
+    }
+
+    .social-login{
+
+        grid-template-columns:1fr;
+
+    }
+
+}
+
+@media(max-width:480px){
+
+    .auth-page{
+
+        padding:15px;
+
+    }
+
+    .auth-header h1{
+
+        font-size:24px;
+
+    }
+
+    .auth-links{
+
+        flex-direction:column;
+
+        gap:10px;
+
+        text-align:center;
+
+    }
+
+}
