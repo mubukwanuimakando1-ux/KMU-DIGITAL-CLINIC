@@ -1,363 +1,1325 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Dashboard - KMU Health System</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script src="../js/config.js"></script>
-    <style>
-        .gradient-bg { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
-        .stat-card { transition: transform 0.2s; }
-        .stat-card:hover { transform: translateY(-5px); }
-    </style>
+
+<meta charset="UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>KMU Digital Health Centre | Administrator Dashboard</title>
+
+<link rel="stylesheet" href="../assets/css/dashboard.css">
+<link rel="stylesheet" href="../assets/css/responsive.css">
+
+<link rel="stylesheet"
+href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script src="../assets/js/config.js"></script>
+<script src="../assets/js/utils.js"></script>
+<script src="../assets/js/admin.js" defer></script>
+
 </head>
-<body class="bg-gray-100">
-    <div class="flex h-screen">
-        <!-- Sidebar -->
-        <div class="w-64 gradient-bg text-white flex flex-col shadow-xl">
-            <div class="p-6 border-b border-purple-800">
-                <div class="flex items-center space-x-2">
-                    <i class="fas fa-hospital-user text-2xl"></i>
-                    <div>
-                        <h2 class="text-xl font-bold">KMU Health</h2>
-                        <p class="text-xs opacity-75">Admin Portal</p>
-                    </div>
-                </div>
-            </div>
-            <nav class="flex-1 py-4">
-                <button onclick="showSection('dashboard')" class="nav-btn w-full flex items-center px-6 py-3 hover:bg-purple-700 transition text-left" data-section="dashboard">
-                    <i class="fas fa-tachometer-alt w-5 mr-3"></i> Dashboard
-                </button>
-                <button onclick="showSection('approvals')" class="nav-btn w-full flex items-center px-6 py-3 hover:bg-purple-700 transition text-left" data-section="approvals">
-                    <i class="fas fa-user-check w-5 mr-3"></i> Pending Approvals
-                    <span id="pendingBadge" class="ml-auto bg-red-500 text-xs px-2 py-1 rounded-full">0</span>
-                </button>
-                <button onclick="showSection('stock')" class="nav-btn w-full flex items-center px-6 py-3 hover:bg-purple-700 transition text-left" data-section="stock">
-                    <i class="fas fa-capsules w-5 mr-3"></i> Stock Management
-                </button>
-                <button onclick="showSection('analytics')" class="nav-btn w-full flex items-center px-6 py-3 hover:bg-purple-700 transition text-left" data-section="analytics">
-                    <i class="fas fa-chart-line w-5 mr-3"></i> Analytics
-                </button>
-                <button onclick="showSection('staff')" class="nav-btn w-full flex items-center px-6 py-3 hover:bg-purple-700 transition text-left" data-section="staff">
-                    <i class="fas fa-users w-5 mr-3"></i> Staff Management
-                </button>
-                <button onclick="showSection('chat')" class="nav-btn w-full flex items-center px-6 py-3 hover:bg-purple-700 transition text-left" data-section="chat">
-                    <i class="fas fa-comments w-5 mr-3"></i> Staff Chat
-                </button>
-            </nav>
-            <div class="p-4 border-t border-purple-800">
-                <div class="flex items-center space-x-3 mb-3">
-                    <i class="fas fa-user-circle text-2xl"></i>
-                    <div class="flex-1">
-                        <p class="text-sm font-semibold" id="adminName">Admin</p>
-                        <p class="text-xs opacity-75">Administrator</p>
-                    </div>
-                </div>
-                <button onclick="logout()" class="w-full bg-red-600 hover:bg-red-700 text-white py-2 rounded-lg transition text-sm">
-                    <i class="fas fa-sign-out-alt mr-2"></i> Logout
-                </button>
-            </div>
-        </div>
 
-        <!-- Main Content -->
-        <div class="flex-1 overflow-y-auto bg-gray-100">
-            <div class="bg-white shadow-sm px-6 py-4 sticky top-0 z-10">
-                <h1 id="pageTitle" class="text-2xl font-bold text-gray-800">Dashboard</h1>
-            </div>
+<body class="dashboard-body">
 
-            <!-- Dashboard Section -->
-            <div id="dashboardSection" class="p-6">
-                <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-                    <div class="bg-white rounded-xl shadow-md p-6 stat-card">
-                        <div class="flex items-center justify-between">
-                            <div>
-                                <p class="text-gray-500 text-sm">Total Patients</p>
-                                <p id="totalPatients" class="text-3xl font-bold text-purple-600">0</p>
-                            </div>
-                            <i class="fas fa-users text-4xl text-purple-300"></i>
-                        </div>
-                    </div>
-                    <div class="bg-white rounded-xl shadow-md p-6 stat-card">
-                        <div class="flex items-center justify-between">
-                            <div>
-                                <p class="text-gray-500 text-sm">Today's Visits</p>
-                                <p id="todayVisits" class="text-3xl font-bold text-blue-600">0</p>
-                            </div>
-                            <i class="fas fa-calendar-day text-4xl text-blue-300"></i>
-                        </div>
-                    </div>
-                    <div class="bg-white rounded-xl shadow-md p-6 stat-card">
-                        <div class="flex items-center justify-between">
-                            <div>
-                                <p class="text-gray-500 text-sm">Pending Approvals</p>
-                                <p id="pendingCount" class="text-3xl font-bold text-orange-600">0</p>
-                            </div>
-                            <i class="fas fa-clock text-4xl text-orange-300"></i>
-                        </div>
-                    </div>
-                    <div class="bg-white rounded-xl shadow-md p-6 stat-card">
-                        <div class="flex items-center justify-between">
-                            <div>
-                                <p class="text-gray-500 text-sm">Low Stock Items</p>
-                                <p id="lowStockCount" class="text-3xl font-bold text-red-600">0</p>
-                            </div>
-                            <i class="fas fa-exclamation-triangle text-4xl text-red-300"></i>
-                        </div>
-                    </div>
-                </div>
+<!-- ==========================
+SIDEBAR
+=========================== -->
 
-                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-                    <div class="bg-white rounded-xl shadow-md p-6">
-                        <h3 class="text-lg font-semibold mb-4">Disease Trends</h3>
-                        <canvas id="diseaseChart" height="200"></canvas>
-                    </div>
-                    <div class="bg-white rounded-xl shadow-md p-6">
-                        <h3 class="text-lg font-semibold mb-4">Weekly Visits</h3>
-                        <canvas id="visitsChart" height="200"></canvas>
-                    </div>
-                </div>
+<aside class="sidebar">
 
-                <div class="bg-white rounded-xl shadow-md p-6">
-                    <h3 class="text-lg font-semibold mb-4">Recent Activity</h3>
-                    <div id="activityLog" class="space-y-3 max-h-96 overflow-y-auto"></div>
-                </div>
-            </div>
+<div class="sidebar-header">
 
-            <!-- Approvals Section -->
-            <div id="approvalsSection" class="p-6 hidden">
-                <div class="bg-white rounded-xl shadow-md p-6">
-                    <h3 class="text-lg font-semibold mb-4">Users Pending Approval</h3>
-                    <div id="pendingUsersList" class="space-y-4"></div>
-                </div>
-            </div>
+<img src="../assets/images/logo.png" alt="KMU">
 
-            <!-- Stock Management Section -->
-            <div id="stockSection" class="p-6 hidden">
-                <div class="bg-white rounded-xl shadow-md p-6">
-                    <div class="flex justify-between items-center mb-4">
-                        <h3 class="text-lg font-semibold">Pharmacy Inventory</h3>
-                        <button onclick="showAddStockModal()" class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700">
-                            <i class="fas fa-plus mr-2"></i>Add Medication
-                        </button>
-                    </div>
-                    <div class="overflow-x-auto">
-                        <table class="w-full">
-                            <thead class="bg-gray-50">
-                                <tr><th class="px-4 py-2 text-left">Medication</th><th class="px-4 py-2 text-left">Stock</th><th class="px-4 py-2 text-left">Min Stock</th><th class="px-4 py-2 text-left">Status</th><th class="px-4 py-2 text-left">Actions</th></tr>
-                            </thead>
-                            <tbody id="inventoryTable"></tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
+<h2>KMU Health</h2>
 
-            <!-- Analytics Section -->
-            <div id="analyticsSection" class="p-6 hidden">
-                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                    <div class="bg-white rounded-xl shadow-md p-6">
-                        <h3 class="text-lg font-semibold mb-4">Top Diseases</h3>
-                        <canvas id="topDiseasesChart" height="250"></canvas>
-                    </div>
-                    <div class="bg-white rounded-xl shadow-md p-6">
-                        <h3 class="text-lg font-semibold mb-4">Department Visits</h3>
-                        <canvas id="deptChart" height="250"></canvas>
-                    </div>
-                </div>
-            </div>
+</div>
 
-            <!-- Staff Management Section -->
-            <div id="staffSection" class="p-6 hidden">
-                <div class="bg-white rounded-xl shadow-md p-6">
-                    <h3 class="text-lg font-semibold mb-4">Staff Accounts</h3>
-                    <button onclick="showAddStaffModal()" class="bg-purple-600 text-white px-4 py-2 rounded-lg mb-4">
-                        <i class="fas fa-user-plus mr-2"></i>Add Staff
-                    </button>
-                    <div id="staffList" class="space-y-3"></div>
-                </div>
-            </div>
+<nav class="sidebar-menu">
 
-            <!-- Chat Section -->
-            <div id="chatSection" class="p-6 hidden">
-                <div class="bg-white rounded-xl shadow-md p-6 h-[600px] flex flex-col">
-                    <h3 class="text-lg font-semibold mb-4">Staff Communication</h3>
-                    <div id="chatMessages" class="flex-1 overflow-y-auto mb-4 space-y-3 bg-gray-50 p-4 rounded"></div>
-                    <div class="flex space-x-2">
-                        <input type="text" id="chatInput" placeholder="Type your message..." class="flex-1 border rounded-lg px-4 py-2" onkeypress="handleChatKeyPress(event)">
-                        <button onclick="sendChatMessage()" class="bg-purple-600 text-white px-6 py-2 rounded-lg hover:bg-purple-700">
-                            <i class="fas fa-paper-plane"></i> Send
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+<ul>
 
-    <!-- Add Stock Modal -->
-    <div id="addStockModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
-        <div class="bg-white rounded-lg p-6 w-full max-w-md">
-            <h3 class="text-xl font-bold mb-4">Add New Medication</h3>
-            <form id="addStockForm">
-                <input type="text" id="medName" placeholder="Medication Name" class="w-full border rounded-lg px-3 py-2 mb-3" required>
-                <input type="text" id="medCategory" placeholder="Category" class="w-full border rounded-lg px-3 py-2 mb-3">
-                <input type="number" id="medStock" placeholder="Initial Stock" class="w-full border rounded-lg px-3 py-2 mb-3" required>
-                <input type="number" id="medMinStock" placeholder="Minimum Stock Alert" class="w-full border rounded-lg px-3 py-2 mb-3" required>
-                <div class="flex space-x-2">
-                    <button type="submit" class="flex-1 bg-green-600 text-white py-2 rounded-lg">Add</button>
-                    <button type="button" onclick="closeAddStockModal()" class="flex-1 bg-gray-600 text-white py-2 rounded-lg">Cancel</button>
-                </div>
-            </form>
-        </div>
-    </div>
+<li>
+<a class="active" href="#dashboard">
+<i class="fa-solid fa-gauge"></i>
+<span>Dashboard</span>
+</a>
+</li>
 
-    <!-- Add Staff Modal -->
-    <div id="addStaffModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
-        <div class="bg-white rounded-lg p-6 w-full max-w-md">
-            <h3 class="text-xl font-bold mb-4">Add Staff Member</h3>
-            <form id="addStaffForm">
-                <input type="text" id="staffName" placeholder="Full Name" class="w-full border rounded-lg px-3 py-2 mb-3" required>
-                <input type="email" id="staffEmail" placeholder="Email" class="w-full border rounded-lg px-3 py-2 mb-3" required>
-                <input type="text" id="staffId" placeholder="Staff ID" class="w-full border rounded-lg px-3 py-2 mb-3" required>
-                <select id="staffRole" class="w-full border rounded-lg px-3 py-2 mb-3" required>
-                    <option value="nurse">Nurse</option>
-                    <option value="doctor">Doctor</option>
-                    <option value="pharmacist">Pharmacist</option>
-                </select>
-                <input type="password" id="staffPassword" placeholder="Password" class="w-full border rounded-lg px-3 py-2 mb-3" required>
-                <div class="flex space-x-2">
-                    <button type="submit" class="flex-1 bg-green-600 text-white py-2 rounded-lg">Add Staff</button>
-                    <button type="button" onclick="closeAddStaffModal()" class="flex-1 bg-gray-600 text-white py-2 rounded-lg">Cancel</button>
-                </div>
-            </form>
-        </div>
-    </div>
+<li>
+<a href="#patients">
+<i class="fa-solid fa-hospital-user"></i>
+<span>Patients</span>
+</a>
+</li>
 
-    <script>
-        let currentUser = null;
-        let diseaseChart = null;
-        let visitsChart = null;
-        let chatSubscription = null;
+<li>
+<a href="#appointments">
+<i class="fa-solid fa-calendar-check"></i>
+<span>Appointments</span>
+</a>
+</li>
 
-        window.addEventListener('DOMContentLoaded', async () => {
-            const userData = localStorage.getItem('currentUser');
-            if (!userData) { window.location.href = '../index.html'; return; }
-            currentUser = JSON.parse(userData);
-            if (currentUser.role !== 'admin') { alert('Access denied'); window.location.href = '../index.html'; return; }
-            
-            document.getElementById('adminName').textContent = currentUser.full_name;
-            
-            await loadDashboardStats();
-            await loadPendingUsers();
-            await loadInventory();
-            await loadStaffList();
-            await loadCharts();
-            await loadActivityLog();
-            setupRealTimeChat();
-            
-            setInterval(() => { loadDashboardStats(); loadPendingUsers(); }, 15000);
-        });
+<li>
+<a href="#queue">
+<i class="fa-solid fa-users"></i>
+<span>Queue</span>
+</a>
+</li>
 
-        async function loadDashboardStats() {
-            if (!window.supabase) return;
-            const { count: patients } = await window.supabase.from('users').select('*', { count: 'exact', head: true }).in('role', ['student', 'staff', 'visitor']);
-            const { count: visits } = await window.supabase.from('visits').select('*', { count: 'exact', head: true }).eq('visit_date', new Date().toISOString().split('T')[0]);
-            const { count: pending } = await window.supabase.from('users').select('*', { count: 'exact', head: true }).eq('status', 'pending');
-            const { data: lowStock } = await window.supabase.from('pharmacy_inventory').select('*').lte('current_stock', window.supabase.raw('minimum_stock'));
-            
-            document.getElementById('totalPatients').textContent = patients || 0;
-            document.getElementById('todayVisits').textContent = visits || 0;
-            document.getElementById('pendingCount').textContent = pending || 0;
-            document.getElementById('pendingBadge').textContent = pending || 0;
-            document.getElementById('lowStockCount').textContent = lowStock?.length || 0;
-        }
+<li>
+<a href="#staff">
+<i class="fa-solid fa-user-doctor"></i>
+<span>Staff</span>
+</a>
+</li>
 
-        async function loadPendingUsers() {
-            if (!window.supabase) return;
-            const { data } = await window.supabase.from('users').select('*').eq('status', 'pending').order('created_at', { ascending: false });
-            const container = document.getElementById('pendingUsersList');
-            if (!data || data.length === 0) { container.innerHTML = '<div class="text-center text-gray-500 py-8">No pending approvals</div>'; return; }
-            container.innerHTML = data.map(user => `
-                <div class="border rounded-lg p-4 bg-yellow-50">
-                    <div class="flex justify-between items-start">
-                        <div><h4 class="font-semibold">${user.full_name}</h4><p class="text-sm">ID: ${user.id_number} | ${user.email} | Role: ${user.role}</p></div>
-                        <div><button onclick="approveUser('${user.id}')" class="bg-green-600 text-white px-4 py-2 rounded-lg mr-2">Approve</button><button onclick="rejectUser('${user.id}')" class="bg-red-600 text-white px-4 py-2 rounded-lg">Reject</button></div>
-                    </div>
-                </div>
-            `).join('');
-        }
+<li>
+<a href="#departments">
+<i class="fa-solid fa-building"></i>
+<span>Departments</span>
+</a>
+</li>
 
-        async function approveUser(id) { if(!confirm('Approve?'))return; await window.supabase.from('users').update({status:'active'}).eq('id',id); loadPendingUsers(); loadDashboardStats(); alert('Approved'); }
-        async function rejectUser(id) { if(!confirm('Reject?'))return; await window.supabase.from('users').delete().eq('id',id); loadPendingUsers(); loadDashboardStats(); alert('Rejected'); }
+<li>
+<a href="#laboratory">
+<i class="fa-solid fa-flask"></i>
+<span>Laboratory</span>
+</a>
+</li>
 
-        async function loadInventory() {
-            if (!window.supabase) return;
-            const { data } = await window.supabase.from('pharmacy_inventory').select('*').order('medication_name');
-            document.getElementById('inventoryTable').innerHTML = data?.map(item => `
-                <tr class="border-b"><td class="px-4 py-2">${item.medication_name}</td><td class="px-4 py-2">${item.current_stock}</td><td class="px-4 py-2">${item.minimum_stock}</td>
-                <td class="px-4 py-2">${item.current_stock <= item.minimum_stock ? '<span class="text-red-600">Low Stock</span>' : '<span class="text-green-600">OK</span>'}</td>
-                <td class="px-4 py-2"><button onclick="restockItem('${item.id}')" class="text-blue-600">Restock</button></td></tr>
-            `).join('') || '<tr><td colspan="5" class="text-center py-4">No inventory</td></tr>';
-        }
+<li>
+<a href="#pharmacy">
+<i class="fa-solid fa-pills"></i>
+<span>Pharmacy</span>
+</a>
+</li>
 
-        async function restockItem(id) { let qty = prompt('Enter quantity to add:'); if(qty) { await window.supabase.rpc('add_stock', {p_id:id, p_qty:parseInt(qty)}); loadInventory(); loadDashboardStats(); } }
+<li>
+<a href="#inventory">
+<i class="fa-solid fa-boxes-stacked"></i>
+<span>Inventory</span>
+</a>
+</li>
 
-        async function loadStaffList() {
-            if (!window.supabase) return;
-            const { data } = await window.supabase.from('users').select('*').in('role', ['nurse','doctor','pharmacist']);
-            document.getElementById('staffList').innerHTML = data?.map(s => `<div class="border rounded-lg p-3 flex justify-between"><div><strong>${s.full_name}</strong><br><small>${s.email} | ${s.role}</small></div><button onclick="deleteStaff('${s.id}')" class="text-red-600">Delete</button></div>`).join('') || '<p>No staff</p>';
-        }
+<li>
+<a href="#reports">
+<i class="fa-solid fa-chart-column"></i>
+<span>Reports</span>
+</a>
+</li>
 
-        async function deleteStaff(id) { if(confirm('Delete staff?')) { await window.supabase.from('users').delete().eq('id',id); loadStaffList(); } }
+<li>
+<a href="#audit">
+<i class="fa-solid fa-shield-halved"></i>
+<span>Audit Logs</span>
+</a>
+</li>
 
-        async function loadCharts() {
-            const ctx1 = document.getElementById('diseaseChart')?.getContext('2d');
-            if(ctx1) diseaseChart = new Chart(ctx1, { type:'bar', data:{ labels:['Malaria','URTI','Hypertension','Diarrhea','Other'], datasets:[{ label:'Cases', data:[45,32,28,19,15], backgroundColor:'#8b5cf6' }] } });
-            const ctx2 = document.getElementById('visitsChart')?.getContext('2d');
-            if(ctx2) visitsChart = new Chart(ctx2, { type:'line', data:{ labels:['Mon','Tue','Wed','Thu','Fri','Sat','Sun'], datasets:[{ label:'Visits', data:[12,19,15,17,14,10,8], borderColor:'#8b5cf6', tension:0.4 }] } });
-        }
+<li>
+<a href="#users">
+<i class="fa-solid fa-users-gear"></i>
+<span>User Accounts</span>
+</a>
+</li>
 
-        async function loadActivityLog() {
-            if (!window.supabase) return;
-            const { data } = await window.supabase.from('activity_logs').select('*, users(full_name)').order('timestamp', { ascending: false }).limit(20);
-            document.getElementById('activityLog').innerHTML = data?.map(log => `<div class="border-l-4 border-purple-600 bg-gray-50 p-3 rounded"><p class="font-semibold">${log.users?.full_name || 'System'}</p><p class="text-sm">${log.action}</p><span class="text-xs text-gray-500">${new Date(log.timestamp).toLocaleString()}</span></div>`).join('') || '<p>No activity</p>';
-        }
+<li>
+<a href="#settings">
+<i class="fa-solid fa-gears"></i>
+<span>Settings</span>
+</a>
+</li>
 
-        function setupRealTimeChat() {
-            if(!window.supabase) return;
-            chatSubscription = window.supabase.channel('chat').on('postgres_changes', { event:'INSERT', schema:'public', table:'chat_messages', filter:'room=eq.staff' }, () => loadChatMessages()).subscribe();
-            loadChatMessages();
-        }
+<li>
+<a href="#" id="logoutButton">
+<i class="fa-solid fa-right-from-bracket"></i>
+<span>Logout</span>
+</a>
+</li>
 
-        async function loadChatMessages() {
-            if(!window.supabase) return;
-            const { data } = await window.supabase.from('chat_messages').select('*, sender:users(full_name)').eq('room','staff').order('created_at', { ascending: true }).limit(50);
-            const container = document.getElementById('chatMessages');
-            if(container) container.innerHTML = data?.map(msg => `<div class="${msg.sender_id === currentUser.id ? 'text-right' : 'text-left'}"><div class="inline-block max-w-[70%] ${msg.sender_id === currentUser.id ? 'bg-purple-600 text-white' : 'bg-gray-300'} rounded-lg px-4 py-2">${msg.sender_id !== currentUser.id ? `<p class="text-xs font-semibold">${msg.sender?.full_name}</p>` : ''}<p>${msg.message}</p><p class="text-xs opacity-75">${new Date(msg.created_at).toLocaleTimeString()}</p></div></div>`).join('') || '<div class="text-center text-gray-500">No messages</div>';
-            if(container) container.scrollTop = container.scrollHeight;
-        }
+</ul>
 
-        async function sendChatMessage() { let msg = document.getElementById('chatInput')?.value.trim(); if(!msg)return; await window.supabase.from('chat_messages').insert([{ sender_id:currentUser.id, message:msg, room:'staff', is_broadcast:true, created_at:new Date() }]); document.getElementById('chatInput').value = ''; loadChatMessages(); }
-        function handleChatKeyPress(e) { if(e.key === 'Enter') sendChatMessage(); }
+</nav>
 
-        document.getElementById('addStockForm')?.addEventListener('submit', async (e) => { e.preventDefault(); await window.supabase.from('pharmacy_inventory').insert([{ medication_name:document.getElementById('medName').value, category:document.getElementById('medCategory').value, current_stock:parseInt(document.getElementById('medStock').value), minimum_stock:parseInt(document.getElementById('medMinStock').value), created_at:new Date() }]); closeAddStockModal(); loadInventory(); alert('Added'); });
-        document.getElementById('addStaffForm')?.addEventListener('submit', async (e) => { e.preventDefault(); await window.supabase.from('users').insert([{ full_name:document.getElementById('staffName').value, email:document.getElementById('staffEmail').value, id_number:document.getElementById('staffId').value, role:document.getElementById('staffRole').value, password:document.getElementById('staffPassword').value, status:'active', created_at:new Date() }]); closeAddStaffModal(); loadStaffList(); alert('Staff added'); });
+</aside>
 
-        function showAddStockModal() { document.getElementById('addStockModal').classList.remove('hidden'); document.getElementById('addStockModal').classList.add('flex'); }
-        function closeAddStockModal() { document.getElementById('addStockModal').classList.add('hidden'); }
-        function showAddStaffModal() { document.getElementById('addStaffModal').classList.remove('hidden'); document.getElementById('addStaffModal').classList.add('flex'); }
-        function closeAddStaffModal() { document.getElementById('addStaffModal').classList.add('hidden'); }
+<!-- ==========================
+MAIN CONTENT
+=========================== -->
 
-        function showSection(section) {
-            ['dashboard','approvals','stock','analytics','staff','chat'].forEach(s => { document.getElementById(`${s}Section`).classList.add('hidden'); });
-            document.getElementById(`${section}Section`).classList.remove('hidden');
-            const titles = { dashboard:'Dashboard', approvals:'Pending Approvals', stock:'Stock Management', analytics:'Analytics', staff:'Staff Management', chat:'Staff Chat' };
-            document.getElementById('pageTitle').textContent = titles[section] || 'Dashboard';
-        }
+<div class="main-content">
 
-        function logout() { if(chatSubscription) chatSubscription.unsubscribe(); localStorage.removeItem('currentUser'); window.location.href = '../index.html'; }
-    </script>
+<header class="topbar">
+
+<div class="topbar-left">
+
+<h2>
+
+Administrator Dashboard
+
+</h2>
+
+</div>
+
+<div class="topbar-right">
+
+<div class="dashboard-search">
+
+<input
+type="text"
+id="dashboardSearch"
+placeholder="Search...">
+
+<i class="fa-solid fa-magnifying-glass"></i>
+
+</div>
+
+<div class="profile-box">
+
+<img
+src="../assets/images/avatar.png"
+alt="Admin">
+
+<div>
+
+<strong id="adminName">
+
+Administrator
+
+</strong>
+
+<br>
+
+<small id="adminRole">
+
+System Administrator
+
+</small>
+
+</div>
+
+</div>
+
+</div>
+
+</header>
+
+<main class="dashboard-content">
+
+<!-- ==========================
+STATISTICS
+=========================== -->
+
+<section class="dashboard-cards">
+
+<div class="dashboard-card">
+
+<div class="dashboard-card-header">
+
+<h3>
+
+Registered Patients
+
+</h3>
+
+<i class="fa-solid fa-hospital-user"></i>
+
+</div>
+
+<h2 id="totalPatients">
+
+0
+
+</h2>
+
+</div>
+
+<div class="dashboard-card">
+
+<div class="dashboard-card-header">
+
+<h3>
+
+Appointments Today
+
+</h3>
+
+<i class="fa-solid fa-calendar-check"></i>
+
+</div>
+
+<h2 id="todayAppointments">
+
+0
+
+</h2>
+
+</div>
+
+<div class="dashboard-card">
+
+<div class="dashboard-card-header">
+
+<h3>
+
+Patients Waiting
+
+</h3>
+
+<i class="fa-solid fa-users"></i>
+
+</div>
+
+<h2 id="queueWaiting">
+
+0
+
+</h2>
+
+</div>
+
+<div class="dashboard-card">
+
+<div class="dashboard-card-header">
+
+<h3>
+
+Available Medicines
+
+</h3>
+
+<i class="fa-solid fa-pills"></i>
+
+</div>
+
+<h2 id="medicineCount">
+
+0
+
+</h2>
+
+</div>
+
+<div class="dashboard-card">
+
+<div class="dashboard-card-header">
+
+<h3>
+
+Active Staff
+
+</h3>
+
+<i class="fa-solid fa-user-doctor"></i>
+
+</div>
+
+<h2 id="staffCount">
+
+0
+
+</h2>
+
+</div>
+
+<div class="dashboard-card">
+
+<div class="dashboard-card-header">
+
+<h3>
+
+Visitors Today
+
+</h3>
+
+<i class="fa-solid fa-id-card"></i>
+
+</div>
+
+<h2 id="visitorCount">
+
+0
+
+</h2>
+
+</div>
+
+</section>
+
+<!-- ==========================
+QUICK ACTIONS
+=========================== -->
+
+<section class="quick-actions">
+
+<div class="action-card" id="addPatient">
+
+<i class="fa-solid fa-user-plus"></i>
+
+<h4>
+
+New Patient
+
+</h4>
+
+</div>
+
+<div class="action-card" id="newAppointment">
+
+<i class="fa-solid fa-calendar-plus"></i>
+
+<h4>
+
+Appointment
+
+</h4>
+
+</div>
+
+<div class="action-card" id="addStaff">
+
+<i class="fa-solid fa-user-doctor"></i>
+
+<h4>
+
+Add Staff
+
+</h4>
+
+</div>
+
+<div class="action-card" id="inventoryButton">
+
+<i class="fa-solid fa-capsules"></i>
+
+<h4>
+
+Inventory
+
+</h4>
+
+</div>
+
+<div class="action-card" id="reportsButton">
+
+<i class="fa-solid fa-file-pdf"></i>
+
+<h4>
+
+Reports
+
+</h4>
+
+</div>
+
+<div class="action-card" id="settingsButton">
+
+<i class="fa-solid fa-gears"></i>
+
+<h4>
+
+Settings
+
+</h4>
+
+</div>
+
+</section>
+
+
+<!-- ==========================
+ANALYTICS
+=========================== -->
+
+<section class="chart-grid">
+
+<div class="chart-card">
+
+<div class="flex-between mb-2">
+
+<h3>
+
+Patient Statistics
+
+</h3>
+
+<select id="patientChartFilter">
+
+<option value="7">
+
+Last 7 Days
+
+</option>
+
+<option value="30" selected>
+
+Last 30 Days
+
+</option>
+
+<option value="365">
+
+Last 12 Months
+
+</option>
+
+</select>
+
+</div>
+
+<canvas id="patientChart"></canvas>
+
+</div>
+
+<div class="chart-card">
+
+<h3>
+
+Department Visits
+
+</h3>
+
+<canvas id="departmentChart"></canvas>
+
+</div>
+
+</section>
+
+<!-- ==========================
+RECENT APPOINTMENTS
+=========================== -->
+
+<section
+id="appointments"
+class="table-card">
+
+<div class="flex-between mb-2">
+
+<h3>
+
+Today's Appointments
+
+</h3>
+
+<button
+class="primary-btn"
+id="viewAppointments">
+
+View All
+
+</button>
+
+</div>
+
+<table>
+
+<thead>
+
+<tr>
+
+<th>
+
+Appointment No.
+
+</th>
+
+<th>
+
+Patient
+
+</th>
+
+<th>
+
+Department
+
+</th>
+
+<th>
+
+Doctor
+
+</th>
+
+<th>
+
+Time
+
+</th>
+
+<th>
+
+Status
+
+</th>
+
+</tr>
+
+</thead>
+
+<tbody id="appointmentTableBody">
+
+</tbody>
+
+</table>
+
+</section>
+
+<!-- ==========================
+LIVE QUEUE
+=========================== -->
+
+<section
+id="queue"
+class="table-card mt-3">
+
+<div class="flex-between mb-2">
+
+<h3>
+
+Live Queue Monitor
+
+</h3>
+
+<button
+class="secondary-btn"
+id="refreshQueue">
+
+Refresh
+
+</button>
+
+</div>
+
+<table>
+
+<thead>
+
+<tr>
+
+<th>
+
+Queue
+
+</th>
+
+<th>
+
+Patient
+
+</th>
+
+<th>
+
+Department
+
+</th>
+
+<th>
+
+Waiting Time
+
+</th>
+
+<th>
+
+Status
+
+</th>
+
+</tr>
+
+</thead>
+
+<tbody id="queueTableBody">
+
+</tbody>
+
+</table>
+
+</section>
+
+<!-- ==========================
+LOW STOCK ALERTS
+=========================== -->
+
+<section
+class="table-card mt-3">
+
+<div class="flex-between mb-2">
+
+<h3>
+
+Low Stock Medicines
+
+</h3>
+
+<button
+class="primary-btn"
+id="manageInventory">
+
+Manage Inventory
+
+</button>
+
+</div>
+
+<table>
+
+<thead>
+
+<tr>
+
+<th>
+
+Medicine
+
+</th>
+
+<th>
+
+Available
+
+</th>
+
+<th>
+
+Minimum
+
+</th>
+
+<th>
+
+Expiry
+
+</th>
+
+<th>
+
+Status
+
+</th>
+
+</tr>
+
+</thead>
+
+<tbody id="lowStockTable">
+
+</tbody>
+
+</table>
+
+</section>
+
+<!-- ==========================
+DASHBOARD WIDGETS
+=========================== -->
+
+<section class="chart-grid mt-3">
+
+<div class="dashboard-notifications">
+
+<h3 class="mb-2">
+
+Recent Notifications
+
+</h3>
+
+<div id="dashboardNotifications">
+
+</div>
+
+</div>
+
+<div class="timeline">
+
+<h3 class="mb-2">
+
+Recent Activity
+
+</h3>
+
+<div id="activityTimeline">
+
+</div>
+
+</div>
+
+</section>
+
+<!-- ==========================
+SYSTEM STATUS
+=========================== -->
+
+<section class="dashboard-cards mt-3">
+
+<div class="dashboard-card">
+
+<div class="dashboard-card-header">
+
+<h3>
+
+Database
+
+</h3>
+
+<i class="fa-solid fa-database"></i>
+
+</div>
+
+<span
+id="databaseStatus"
+class="status status-active">
+
+Online
+
+</span>
+
+</div>
+
+<div class="dashboard-card">
+
+<div class="dashboard-card-header">
+
+<h3>
+
+Supabase
+
+</h3>
+
+<i class="fa-solid fa-cloud"></i>
+
+</div>
+
+<span
+id="supabaseStatus"
+class="status status-active">
+
+Connected
+
+</span>
+
+</div>
+
+<div class="dashboard-card">
+
+<div class="dashboard-card-header">
+
+<h3>
+
+Storage
+
+</h3>
+
+<i class="fa-solid fa-hard-drive"></i>
+
+</div>
+
+<span
+id="storageStatus"
+class="status status-active">
+
+Healthy
+
+</span>
+
+</div>
+
+<div class="dashboard-card">
+
+<div class="dashboard-card-header">
+
+<h3>
+
+AI Assistant
+
+</h3>
+
+<i class="fa-solid fa-robot"></i>
+
+</div>
+
+<span
+id="aiStatus"
+class="status status-active">
+
+Running
+
+</span>
+
+</div>
+
+</section>
+
+    <!-- ==========================
+PATIENT MANAGEMENT
+=========================== -->
+
+<section
+id="patients"
+class="table-card mt-3">
+
+<div class="flex-between mb-2">
+
+<h3>
+
+Patient Management
+
+</h3>
+
+<button
+class="primary-btn"
+id="newPatientButton">
+
+Register Patient
+
+</button>
+
+</div>
+
+<table>
+
+<thead>
+
+<tr>
+
+<th>Patient No.</th>
+
+<th>Full Name</th>
+
+<th>Gender</th>
+
+<th>Phone</th>
+
+<th>Clinic Card</th>
+
+<th>Status</th>
+
+<th>Action</th>
+
+</tr>
+
+</thead>
+
+<tbody id="patientTableBody">
+
+</tbody>
+
+</table>
+
+</section>
+
+<!-- ==========================
+STAFF MANAGEMENT
+=========================== -->
+
+<section
+id="staff"
+class="table-card mt-3">
+
+<div class="flex-between mb-2">
+
+<h3>
+
+Staff Management
+
+</h3>
+
+<button
+class="primary-btn"
+id="addStaffButton">
+
+Add Staff
+
+</button>
+
+</div>
+
+<table>
+
+<thead>
+
+<tr>
+
+<th>Name</th>
+
+<th>Department</th>
+
+<th>Role</th>
+
+<th>Email</th>
+
+<th>Status</th>
+
+<th>Action</th>
+
+</tr>
+
+</thead>
+
+<tbody id="staffTableBody">
+
+</tbody>
+
+</table>
+
+</section>
+
+<!-- ==========================
+USER ACCOUNTS
+=========================== -->
+
+<section
+id="users"
+class="table-card mt-3">
+
+<div class="flex-between mb-2">
+
+<h3>
+
+System User Accounts
+
+</h3>
+
+<button
+class="primary-btn"
+id="createUserButton">
+
+Create User
+
+</button>
+
+</div>
+
+<table>
+
+<thead>
+
+<tr>
+
+<th>Name</th>
+
+<th>Email</th>
+
+<th>Role</th>
+
+<th>Last Login</th>
+
+<th>Status</th>
+
+<th>Action</th>
+
+</tr>
+
+</thead>
+
+<tbody id="usersTableBody">
+
+</tbody>
+
+</table>
+
+</section>
+
+<!-- ==========================
+REPORTS
+=========================== -->
+
+<section
+id="reports"
+class="table-card mt-3">
+
+<div class="flex-between mb-2">
+
+<h3>
+
+Generated Reports
+
+</h3>
+
+<button
+class="secondary-btn"
+id="generateReport">
+
+Generate Report
+
+</button>
+
+</div>
+
+<div class="quick-actions">
+
+<div class="action-card" id="dailyReport">
+
+<i class="fa-solid fa-file-lines"></i>
+
+<h4>
+
+Daily Report
+
+</h4>
+
+</div>
+
+<div class="action-card" id="weeklyReport">
+
+<i class="fa-solid fa-chart-line"></i>
+
+<h4>
+
+Weekly Report
+
+</h4>
+
+</div>
+
+<div class="action-card" id="monthlyReport">
+
+<i class="fa-solid fa-calendar"></i>
+
+<h4>
+
+Monthly Report
+
+</h4>
+
+</div>
+
+<div class="action-card" id="exportPDF">
+
+<i class="fa-solid fa-file-pdf"></i>
+
+<h4>
+
+Export PDF
+
+</h4>
+
+</div>
+
+</div>
+
+</section>
+
+<!-- ==========================
+AUDIT LOGS
+=========================== -->
+
+<section
+id="audit"
+class="table-card mt-3">
+
+<h3 class="mb-2">
+
+Audit Logs
+
+</h3>
+
+<table>
+
+<thead>
+
+<tr>
+
+<th>Time</th>
+
+<th>User</th>
+
+<th>Action</th>
+
+<th>Module</th>
+
+<th>Severity</th>
+
+</tr>
+
+</thead>
+
+<tbody id="auditLogTable">
+
+</tbody>
+
+</table>
+
+</section>
+
+<!-- ==========================
+SECURITY EVENTS
+=========================== -->
+
+<section
+class="table-card mt-3">
+
+<h3 class="mb-2">
+
+Security Events
+
+</h3>
+
+<table>
+
+<thead>
+
+<tr>
+
+<th>Date</th>
+
+<th>Event</th>
+
+<th>User</th>
+
+<th>Severity</th>
+
+<th>Status</th>
+
+</tr>
+
+</thead>
+
+<tbody id="securityEventsTable">
+
+</tbody>
+
+</table>
+
+</section>
+
+<!-- ==========================
+AI ASSISTANT
+=========================== -->
+
+<section
+class="table-card mt-3">
+
+<h3 class="mb-2">
+
+AI Health Assistant
+
+</h3>
+
+<div id="adminAIChat">
+
+<div id="aiMessages"></div>
+
+<div class="flex mt-2">
+
+<input
+type="text"
+id="aiPrompt"
+placeholder="Ask the AI assistant...">
+
+<button
+class="primary-btn"
+id="sendAI">
+
+Send
+
+</button>
+
+</div>
+
+</div>
+
+</section>
+
+<!-- ==========================
+SYSTEM SETTINGS
+=========================== -->
+
+<section
+id="settings"
+class="table-card mt-3">
+
+<h3 class="mb-2">
+
+System Settings
+
+</h3>
+
+<div class="grid-2">
+
+<div>
+
+<label>
+
+Hospital Name
+
+</label>
+
+<input
+type="text"
+id="hospitalName">
+
+</div>
+
+<div>
+
+<label>
+
+Administrator Email
+
+</label>
+
+<input
+type="email"
+id="adminEmail">
+
+</div>
+
+<div>
+
+<label>
+
+Appointment Duration (Minutes)
+
+</label>
+
+<input
+type="number"
+id="appointmentDuration">
+
+</div>
+
+<div>
+
+<label>
+
+Low Stock Threshold
+
+</label>
+
+<input
+type="number"
+id="stockThreshold">
+
+</div>
+
+</div>
+
+<button
+class="primary-btn mt-3"
+id="saveSettings">
+
+Save Settings
+
+</button>
+
+</section>
+
+</main>
+
+</div>
+
 </body>
+
 </html>
+
+
+    
