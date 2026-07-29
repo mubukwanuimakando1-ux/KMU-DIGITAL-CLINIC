@@ -1,0 +1,1650 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport"
+content="width=device-width, initial-scale=1.0">
+
+<title>
+Kapasa Makasa University Digital Health Centre
+</title>
+
+<meta
+name="description"
+content="KMU Digital Health Centre Management System">
+
+<link
+rel="icon"
+href="assets/images/logo.png">
+
+<link
+href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap"
+rel="stylesheet">
+
+<link
+rel="stylesheet"
+href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+
+<link
+rel="stylesheet"
+href="assets/css/style.css">
+
+<script
+src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2">
+</script>
+
+<script
+src="assets/js/config.js"
+defer>
+</script>
+
+<script
+src="assets/js/utils.js"
+defer>
+</script>
+
+<script
+src="assets/js/auth.js"
+defer>
+</script>
+
+<script
+src="assets/js/app.js"
+defer>
+</script>
+
+</head>
+
+<body>
+
+<div id="loader">
+
+<div class="spinner"></div>
+
+<h3>
+Loading KMU Digital Health Centre...
+</h3>
+
+</div>
+
+<header>
+
+<div class="logo">
+
+<img
+src="assets/images/logo.png"
+alt="KMU Logo">
+
+<div>
+
+<h2>
+KMU Digital Health Centre
+</h2>
+
+<p>
+Kapasa Makasa University
+</p>
+
+</div>
+
+</div>
+
+<nav>
+
+<ul>
+
+<li>
+<a href="#home">Home</a>
+</li>
+
+<li>
+<a href="#about">About</a>
+</li>
+
+<li>
+<a href="#services">Services</a>
+</li>
+
+<li>
+<a href="#departments">Departments</a>
+</li>
+
+<li>
+<a href="#appointment">Appointment</a>
+</li>
+
+<li>
+<a href="#contact">Contact</a>
+</li>
+
+</ul>
+
+</nav>
+
+<div class="header-buttons">
+
+<button
+id="notificationButton">
+
+<i class="fa-solid fa-bell"></i>
+
+<span
+id="notificationBadge">
+0
+</span>
+
+</button>
+
+<button
+id="loginButton">
+
+Login
+
+</button>
+
+</div>
+
+</header>
+
+<section
+class="hero"
+id="home">
+
+<div class="hero-left">
+
+<h1>
+
+Welcome To
+
+<span>
+
+KMU Digital Health Centre
+
+</span>
+
+</h1>
+
+<p>
+
+A Complete Digital Healthcare Management System
+for Students, Staff,
+Visitors,
+Doctors,
+Nurses,
+Pharmacists,
+Laboratory Technologists,
+Counsellors
+and Administrators.
+
+</p>
+
+<div class="hero-buttons">
+
+<button
+id="bookAppointment">
+
+Book Appointment
+
+</button>
+
+<button
+id="registerVisitor">
+
+Visitor Registration
+
+</button>
+
+</div>
+
+<div class="statistics">
+
+<div>
+
+<h2
+id="todayPatients">
+
+0
+
+</h2>
+
+<p>
+
+Patients Today
+
+</p>
+
+</div>
+
+<div>
+
+<h2
+id="waitingPatients">
+
+0
+
+</h2>
+
+<p>
+
+Waiting
+
+</p>
+
+</div>
+
+<div>
+
+<h2
+id="completedPatients">
+
+0
+
+</h2>
+
+<p>
+
+Completed
+
+</p>
+
+</div>
+
+<div>
+
+<h2
+id="medicineStock">
+
+0
+
+</h2>
+
+<p>
+
+Medicines
+
+</p>
+
+</div>
+
+</div>
+
+</div>
+
+<div class="hero-right">
+
+<img
+src="assets/images/hero.png"
+alt="Healthcare">
+
+</div>
+
+</section>
+
+<section
+id="announcements">
+
+<h2>
+
+Latest Health Announcements
+
+</h2>
+
+<div
+id="announcementContainer">
+
+</div>
+
+</section>
+
+<section
+id="queue">
+
+<h2>
+
+Live Queue Monitor
+
+</h2>
+
+<table>
+
+<thead>
+
+<tr>
+
+<th>
+Queue
+</th>
+
+<th>
+Patient
+</th>
+
+<th>
+Department
+</th>
+
+<th>
+Status
+</th>
+
+<th>
+Waiting Time
+</th>
+
+</tr>
+
+</thead>
+
+<tbody
+id="queueTable">
+
+</tbody>
+
+</table>
+
+</section>
+
+<section
+id="services">
+
+<h2>
+
+Our Services
+
+</h2>
+
+<div
+class="service-grid">
+
+<div class="service-card">
+
+<i class="fa-solid fa-user-nurse"></i>
+
+<h3>
+Nursing
+</h3>
+
+<p>
+Vitals,
+Triage,
+Assessment
+</p>
+
+</div>
+
+<div class="service-card">
+
+<i class="fa-solid fa-user-doctor"></i>
+
+<h3>
+
+Doctor Consultation
+
+</h3>
+
+<p>
+
+Diagnosis &
+Treatment
+
+</p>
+
+</div>
+
+<div class="service-card">
+
+<i class="fa-solid fa-flask"></i>
+
+<h3>
+
+Laboratory
+
+</h3>
+
+<p>
+
+Medical Testing
+
+</p>
+
+</div>
+
+<div class="service-card">
+
+<i class="fa-solid fa-pills"></i>
+
+<h3>
+
+Pharmacy
+
+</h3>
+
+<p>
+
+Medicine Dispensing
+
+</p>
+
+</div>
+
+<div class="service-card">
+
+<i class="fa-solid fa-brain"></i>
+
+<h3>
+
+Counselling
+
+</h3>
+
+<p>
+
+Mental Health Support
+
+</p>
+
+</div>
+
+<div class="service-card">
+
+<i class="fa-solid fa-robot"></i>
+
+<h3>
+
+AI Assistant
+
+</h3>
+
+<p>
+
+24/7 Healthcare Help
+
+</p>
+
+</div>
+
+</div>
+
+</section>
+
+<section id="departments">
+
+<h2>
+
+Medical Departments
+
+</h2>
+
+<div class="department-grid">
+
+<div class="department-card">
+
+<i class="fa-solid fa-stethoscope"></i>
+
+<h3>
+
+Reception
+
+</h3>
+
+<p>
+
+Patient Registration, Student & Staff Verification, Queue Management.
+
+</p>
+
+</div>
+
+<div class="department-card">
+
+<i class="fa-solid fa-heart-pulse"></i>
+
+<h3>
+
+Nursing Department
+
+</h3>
+
+<p>
+
+Vitals, BMI, Blood Pressure, Initial Assessment and Triage.
+
+</p>
+
+</div>
+
+<div class="department-card">
+
+<i class="fa-solid fa-user-doctor"></i>
+
+<h3>
+
+Doctor's Office
+
+</h3>
+
+<p>
+
+Consultation, Diagnosis, Treatment Plans, Prescriptions and Referrals.
+
+</p>
+
+</div>
+
+<div class="department-card">
+
+<i class="fa-solid fa-vials"></i>
+
+<h3>
+
+Laboratory
+
+</h3>
+
+<p>
+
+Laboratory Requests, Sample Collection and Test Results.
+
+</p>
+
+</div>
+
+<div class="department-card">
+
+<i class="fa-solid fa-capsules"></i>
+
+<h3>
+
+Pharmacy
+
+</h3>
+
+<p>
+
+Prescription Verification, Dispensing and Stock Monitoring.
+
+</p>
+
+</div>
+
+<div class="department-card">
+
+<i class="fa-solid fa-comments"></i>
+
+<h3>
+
+Counselling
+
+</h3>
+
+<p>
+
+Private Student Counselling and Mental Health Support.
+
+</p>
+
+</div>
+
+</div>
+
+</section>
+
+<section id="about">
+
+<div class="about-container">
+
+<div class="about-image">
+
+<img
+src="assets/images/about.png"
+alt="KMU Health Centre">
+
+</div>
+
+<div class="about-content">
+
+<h2>
+
+About KMU Digital Health Centre
+
+</h2>
+
+<p>
+
+The KMU Digital Health Centre Management System is a fully integrated
+electronic healthcare platform designed to replace paper-based medical
+records and streamline healthcare delivery for students, staff,
+visitors and healthcare professionals.
+
+</p>
+
+<ul>
+
+<li>
+
+<i class="fa-solid fa-check"></i>
+
+Student & Staff Identification
+
+</li>
+
+<li>
+
+<i class="fa-solid fa-check"></i>
+
+Electronic Medical Records
+
+</li>
+
+<li>
+
+<i class="fa-solid fa-check"></i>
+
+Real-Time Queue Monitoring
+
+</li>
+
+<li>
+
+<i class="fa-solid fa-check"></i>
+
+Laboratory & Pharmacy Integration
+
+</li>
+
+<li>
+
+<i class="fa-solid fa-check"></i>
+
+AI Powered Health Assistant
+
+</li>
+
+<li>
+
+<i class="fa-solid fa-check"></i>
+
+Real-Time Notifications
+
+</li>
+
+<li>
+
+<i class="fa-solid fa-check"></i>
+
+Automatic Reports & Analytics
+
+</li>
+
+</ul>
+
+</div>
+
+</div>
+
+</section>
+
+<section id="appointment">
+
+<h2>
+
+Book Appointment
+
+</h2>
+
+<form
+id="appointmentForm">
+
+<div class="form-grid">
+
+<div>
+
+<label>
+
+Full Name
+
+</label>
+
+<input
+type="text"
+id="appointmentName"
+required>
+
+</div>
+
+<div>
+
+<label>
+
+Student ID / Staff Number
+
+</label>
+
+<input
+type="text"
+id="appointmentIdentifier"
+required>
+
+</div>
+
+<div>
+
+<label>
+
+Clinic Card Number
+
+</label>
+
+<input
+type="text"
+id="appointmentCard">
+
+</div>
+
+<div>
+
+<label>
+
+Phone Number
+
+</label>
+
+<input
+type="tel"
+id="appointmentPhone">
+
+</div>
+
+<div>
+
+<label>
+
+Department
+
+</label>
+
+<select
+id="appointmentDepartment"
+required>
+
+<option value="">
+
+Select Department
+
+</option>
+
+<option>
+
+General Consultation
+
+</option>
+
+<option>
+
+Laboratory
+
+</option>
+
+<option>
+
+Counselling
+
+</option>
+
+<option>
+
+Pharmacy Review
+
+</option>
+
+</select>
+
+</div>
+
+<div>
+
+<label>
+
+Preferred Date
+
+</label>
+
+<input
+type="date"
+id="appointmentDate"
+required>
+
+</div>
+
+</div>
+
+<label>
+
+Reason For Visit
+
+</label>
+
+<textarea
+id="appointmentReason"
+rows="5"
+required>
+
+</textarea>
+
+<button
+type="submit"
+class="primary-btn">
+
+Book Appointment
+
+</button>
+
+</form>
+
+</section>
+
+<section id="visitorRegistration">
+
+<h2>
+
+Visitor Registration
+
+</h2>
+
+<form
+id="visitorForm">
+
+<div class="form-grid">
+
+<input
+type="text"
+id="visitorName"
+placeholder="Full Name"
+required>
+
+<input
+type="text"
+id="visitorNRC"
+placeholder="NRC Number">
+
+<input
+type="text"
+id="visitorPhone"
+placeholder="Phone Number">
+
+<input
+type="email"
+id="visitorEmail"
+placeholder="Email Address">
+
+<input
+type="text"
+id="personToVisit"
+placeholder="Person To Visit"
+required>
+
+<input
+type="text"
+id="visitorOrganisation"
+placeholder="Organisation">
+
+</div>
+
+<label>
+
+Purpose Of Visit
+
+</label>
+
+<textarea
+id="visitorPurpose"
+rows="5"
+required>
+
+</textarea>
+
+<button
+type="submit"
+class="primary-btn">
+
+Register Visitor
+
+</button>
+
+</form>
+
+</section>
+
+    <section id="contact">
+
+<div class="contact-container">
+
+<div class="contact-info">
+
+<h2>
+
+Contact KMU Digital Health Centre
+
+</h2>
+
+<p>
+
+Need assistance? Contact the health centre support team.
+
+</p>
+
+<div>
+
+<i class="fa-solid fa-location-dot"></i>
+
+Kapasa Makasa University Campus
+
+</div>
+
+<div>
+
+<i class="fa-solid fa-phone"></i>
+
++260 XXX XXX XXX
+
+</div>
+
+<div>
+
+<i class="fa-solid fa-envelope"></i>
+
+healthcentre@kmu.ac.zm
+
+</div>
+
+</div>
+
+
+<div class="contact-form">
+
+<h3>
+
+Send Message
+
+</h3>
+
+<form id="contactForm">
+
+<input
+type="text"
+id="contactName"
+placeholder="Your Name"
+required>
+
+
+<input
+type="email"
+id="contactEmail"
+placeholder="Your Email"
+required>
+
+
+<textarea
+id="contactMessage"
+rows="5"
+placeholder="Your Message"
+required></textarea>
+
+
+<button
+type="submit"
+class="primary-btn">
+
+Send Message
+
+</button>
+
+
+</form>
+
+</div>
+
+</div>
+
+</section>
+
+
+
+<!-- LOGIN MODAL -->
+
+<div
+class="modal"
+id="loginModal">
+
+
+<div
+class="modal-content">
+
+
+<span
+class="close"
+id="closeLogin">
+
+&times;
+
+</span>
+
+
+<h2>
+
+KMU Health Centre Login
+
+</h2>
+
+
+<form
+id="loginForm">
+
+
+<label>
+
+Email Address
+
+</label>
+
+
+<input
+type="email"
+id="loginEmail"
+required>
+
+
+
+<label>
+
+Password
+
+</label>
+
+
+<div class="password-field">
+
+<input
+type="password"
+id="loginPassword"
+required>
+
+
+<i
+class="fa-solid fa-eye"
+id="showPassword">
+
+</i>
+
+</div>
+
+
+
+<button
+type="submit"
+class="primary-btn">
+
+Login
+
+</button>
+
+
+<p
+class="forgot-password"
+id="forgotPassword">
+
+Forgot Password?
+
+</p>
+
+
+<p>
+
+Don't have an account?
+
+<a
+href="#"
+id="openSignup">
+
+Create Account
+
+</a>
+
+</p>
+
+
+</form>
+
+
+</div>
+
+</div>
+
+
+
+
+
+<!-- SIGNUP MODAL -->
+
+
+<div
+class="modal"
+id="signupModal">
+
+
+<div
+class="modal-content">
+
+
+<span
+class="close"
+id="closeSignup">
+
+&times;
+
+</span>
+
+
+<h2>
+
+Create KMU Account
+
+</h2>
+
+
+<form
+id="signupForm">
+
+
+<label>
+
+Full Name
+
+</label>
+
+
+<input
+type="text"
+id="signupName"
+required>
+
+
+
+<label>
+
+Email Address
+
+</label>
+
+
+<input
+type="email"
+id="signupEmail"
+required>
+
+
+
+<label>
+
+Phone Number
+
+</label>
+
+
+<input
+type="tel"
+id="signupPhone">
+
+
+
+<label>
+
+Account Type
+
+</label>
+
+
+<select
+id="signupRole">
+
+
+<option value="student">
+
+Student
+
+</option>
+
+
+<option value="staff">
+
+Staff
+
+</option>
+
+
+<option value="visitor">
+
+Visitor
+
+</option>
+
+
+</select>
+
+
+
+<label>
+
+Password
+
+</label>
+
+
+<input
+type="password"
+id="signupPassword"
+required>
+
+
+
+<button
+type="submit"
+class="primary-btn">
+
+Register
+
+</button>
+
+
+
+</form>
+
+
+</div>
+
+</div>
+
+
+
+
+
+<!-- FORGOT PASSWORD MODAL -->
+
+
+<div
+class="modal"
+id="forgotModal">
+
+
+<div
+class="modal-content">
+
+
+<span
+class="close"
+id="closeForgot">
+
+&times;
+
+</span>
+
+
+<h2>
+
+Reset Password
+
+</h2>
+
+
+<p>
+
+Enter your registered email address.
+
+</p>
+
+
+<form
+id="forgotForm">
+
+
+<input
+type="email"
+id="forgotEmail"
+placeholder="Email Address"
+required>
+
+
+<button
+type="submit"
+class="primary-btn">
+
+Send Reset Link
+
+</button>
+
+
+</form>
+
+
+</div>
+
+</div>
+
+
+
+
+
+<!-- NOTIFICATION PANEL -->
+
+
+<div
+class="notification-panel"
+id="notificationPanel">
+
+
+<div
+class="notification-header">
+
+
+<h3>
+
+Notifications
+
+</h3>
+
+
+<button
+id="closeNotifications">
+
+&times;
+
+</button>
+
+
+</div>
+
+
+<div
+id="notificationList">
+
+
+<p>
+
+No new notifications
+
+</p>
+
+
+</div>
+
+
+</div>
+
+
+
+
+
+<!-- AI HEALTH ASSISTANT -->
+
+
+<div
+class="ai-chat-button"
+id="aiChatButton">
+
+
+<i
+class="fa-solid fa-robot">
+
+</i>
+
+
+</div>
+
+
+
+<div
+class="ai-chat-window"
+id="aiChatWindow">
+
+
+<div
+class="ai-header">
+
+
+<h3>
+
+KMU AI Health Assistant
+
+</h3>
+
+
+<span
+id="closeAI">
+
+&times;
+
+</span>
+
+
+</div>
+
+
+<div
+class="ai-messages"
+id="aiMessages">
+
+
+<div class="bot-message">
+
+Hello. I am KMU Health Assistant.
+How can I help you?
+
+</div>
+
+
+</div>
+
+
+
+<div class="ai-input">
+
+
+<input
+type="text"
+id="aiQuestion"
+placeholder="Ask a health question...">
+
+
+<button
+id="sendAI">
+
+<i
+class="fa-solid fa-paper-plane">
+
+</i>
+
+</button>
+
+
+</div>
+
+
+</div>
+
+
+
+
+
+<!-- FOOTER -->
+
+
+<footer>
+
+
+<div class="footer-container">
+
+
+<div>
+
+
+<h3>
+
+KMU Digital Health Centre
+
+</h3>
+
+
+<p>
+
+Providing smart, secure and efficient healthcare services through digital technology.
+
+</p>
+
+
+</div>
+
+
+
+<div>
+
+
+<h3>
+
+Quick Links
+
+</h3>
+
+
+<a href="#home">
+
+Home
+
+</a>
+
+
+<a href="#services">
+
+Services
+
+</a>
+
+
+<a href="#appointment">
+
+Appointments
+
+</a>
+
+
+<a href="#contact">
+
+Contact
+
+</a>
+
+
+</div>
+
+
+
+<div>
+
+
+<h3>
+
+Follow Us
+
+</h3>
+
+
+<div class="social-icons">
+
+
+<i class="fa-brands fa-facebook"></i>
+
+
+<i class="fa-brands fa-x-twitter"></i>
+
+
+<i class="fa-brands fa-linkedin"></i>
+
+
+<i class="fa-brands fa-whatsapp"></i>
+
+
+</div>
+
+
+</div>
+
+
+
+</div>
+
+
+
+<div class="copyright">
+
+
+<p>
+
+© 2026 Kapasa Makasa University Digital Health Centre.
+All Rights Reserved.
+
+</p>
+
+
+</div>
+
+
+</footer>
+
+
+
+
+
+<!-- JAVASCRIPT CONNECTIONS -->
+
+
+<script
+src="assets/js/appointments.js">
+
+</script>
+
+
+<script
+src="assets/js/visitors.js">
+
+</script>
+
+
+<script
+src="assets/js/notifications.js">
+
+</script>
+
+
+<script
+src="assets/js/ai-assistant.js">
+
+</script>
+
+
+<script
+src="assets/js/dashboard.js">
+
+</script>
+
+
+</body>
+
+</html>
+
+
+
+
+
+    
