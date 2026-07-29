@@ -1,0 +1,1947 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>
+KMU Digital Health Centre | Laboratory Dashboard
+</title>
+
+
+<link rel="stylesheet" href="../assets/css/dashboard.css">
+
+<link rel="stylesheet" href="../assets/css/responsive.css">
+
+
+<link rel="stylesheet"
+href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script src="../assets/js/config.js"></script>
+
+<script src="../assets/js/utils.js"></script>
+
+<script src="../assets/js/laboratory.js" defer></script>
+
+
+</head>
+
+
+<body class="dashboard-body">
+
+
+
+<!-- ==========================
+SIDEBAR
+=========================== -->
+
+
+<aside class="sidebar">
+
+
+<div class="sidebar-header">
+
+
+<img
+src="../assets/images/logo.png"
+alt="KMU Logo">
+
+
+<h2>
+
+Laboratory
+
+</h2>
+
+
+</div>
+
+
+
+
+<nav class="sidebar-menu">
+
+
+<ul>
+
+
+
+<li>
+
+<a class="active" href="#dashboard">
+
+<i class="fa-solid fa-gauge"></i>
+
+<span>
+Dashboard
+</span>
+
+</a>
+
+</li>
+
+
+
+
+<li>
+
+<a href="#requests">
+
+<i class="fa-solid fa-flask"></i>
+
+<span>
+Test Requests
+</span>
+
+</a>
+
+</li>
+
+
+
+
+<li>
+
+<a href="#samples">
+
+<i class="fa-solid fa-vial"></i>
+
+<span>
+Samples
+</span>
+
+</a>
+
+</li>
+
+
+
+
+<li>
+
+<a href="#processing">
+
+<i class="fa-solid fa-microscope"></i>
+
+<span>
+Processing
+</span>
+
+</a>
+
+</li>
+
+
+
+
+<li>
+
+<a href="#results">
+
+<i class="fa-solid fa-file-medical"></i>
+
+<span>
+Results
+</span>
+
+</a>
+
+</li>
+
+
+
+
+<li>
+
+<a href="#inventory">
+
+<i class="fa-solid fa-boxes-stacked"></i>
+
+<span>
+Lab Inventory
+</span>
+
+</a>
+
+</li>
+
+
+
+
+<li>
+
+<a href="#reports">
+
+<i class="fa-solid fa-chart-column"></i>
+
+<span>
+Reports
+</span>
+
+</a>
+
+</li>
+
+
+
+
+<li>
+
+<a href="#" id="logoutButton">
+
+<i class="fa-solid fa-right-from-bracket"></i>
+
+<span>
+Logout
+</span>
+
+</a>
+
+</li>
+
+
+
+</ul>
+
+
+</nav>
+
+
+</aside>
+
+
+
+
+
+<!-- ==========================
+MAIN CONTENT
+=========================== -->
+
+
+<div class="main-content">
+
+
+
+<header class="topbar">
+
+
+
+<div class="topbar-left">
+
+
+<h2>
+
+Laboratory Dashboard
+
+</h2>
+
+
+</div>
+
+
+
+
+<div class="topbar-right">
+
+
+<div class="profile-box">
+
+
+<img
+src="../assets/images/avatar.png"
+alt="Lab Technician">
+
+
+<div>
+
+
+<strong id="labStaffName">
+
+Laboratory Officer
+
+</strong>
+
+
+<br>
+
+
+<small>
+
+Laboratory Department
+
+</small>
+
+
+</div>
+
+
+</div>
+
+
+</div>
+
+
+</header>
+
+
+
+
+
+
+<main class="dashboard-content">
+
+
+
+
+
+<!-- ==========================
+SUMMARY CARDS
+=========================== -->
+
+
+<section class="dashboard-cards">
+
+
+
+<div class="dashboard-card">
+
+
+<div class="dashboard-card-header">
+
+
+<h3>
+
+Pending Tests
+
+</h3>
+
+
+<i class="fa-solid fa-flask"></i>
+
+
+</div>
+
+
+<h2 id="pendingTests">
+
+0
+
+</h2>
+
+
+</div>
+
+
+
+
+
+
+<div class="dashboard-card">
+
+
+<div class="dashboard-card-header">
+
+
+<h3>
+
+Samples Collected
+
+</h3>
+
+
+<i class="fa-solid fa-vial"></i>
+
+
+</div>
+
+
+<h2 id="samplesCollected">
+
+0
+
+</h2>
+
+
+</div>
+
+
+
+
+
+
+<div class="dashboard-card">
+
+
+<div class="dashboard-card-header">
+
+
+<h3>
+
+Completed Tests
+
+</h3>
+
+
+<i class="fa-solid fa-circle-check"></i>
+
+
+</div>
+
+
+<h2 id="completedTests">
+
+0
+
+</h2>
+
+
+</div>
+
+
+
+
+
+
+
+<div class="dashboard-card">
+
+
+<div class="dashboard-card-header">
+
+
+<h3>
+
+Critical Results
+
+</h3>
+
+
+<i class="fa-solid fa-triangle-exclamation"></i>
+
+
+</div>
+
+
+<h2 id="criticalResults">
+
+0
+
+</h2>
+
+
+</div>
+
+
+
+</section>
+
+
+
+
+
+
+<!-- ==========================
+QUICK ACTIONS
+=========================== -->
+
+
+<section class="quick-actions">
+
+
+
+<div class="action-card" id="collectSample">
+
+
+<i class="fa-solid fa-vial-circle-check"></i>
+
+
+<h4>
+
+Collect Sample
+
+</h4>
+
+
+</div>
+
+
+
+
+
+<div class="action-card" id="processTest">
+
+
+<i class="fa-solid fa-microscope"></i>
+
+
+<h4>
+
+Process Test
+
+</h4>
+
+
+</div>
+
+
+
+
+
+<div class="action-card" id="enterResults">
+
+
+<i class="fa-solid fa-file-circle-check"></i>
+
+
+<h4>
+
+Enter Results
+
+</h4>
+
+
+</div>
+
+
+
+
+
+<div class="action-card" id="labReport">
+
+
+<i class="fa-solid fa-file-pdf"></i>
+
+
+<h4>
+
+Reports
+
+</h4>
+
+
+</div>
+
+
+
+
+</section>
+<!-- ==========================
+TEST REQUESTS
+=========================== -->
+
+
+<section
+
+id="requests"
+
+class="table-card mt-3">
+
+
+<div class="flex-between mb-2">
+
+
+<h3>
+
+Pending Laboratory Requests
+
+</h3>
+
+
+
+<button
+
+class="secondary-btn"
+
+id="refreshLabRequests">
+
+
+Refresh
+
+
+</button>
+
+
+</div>
+
+
+
+
+<table>
+
+
+<thead>
+
+
+<tr>
+
+
+<th>
+
+Request No.
+
+</th>
+
+
+<th>
+
+Patient
+
+</th>
+
+
+<th>
+
+Requested By
+
+</th>
+
+
+<th>
+
+Test Type
+
+</th>
+
+
+<th>
+
+Priority
+
+</th>
+
+
+<th>
+
+Action
+
+</th>
+
+
+</tr>
+
+
+</thead>
+
+
+
+
+<tbody id="labRequestsTable">
+
+
+</tbody>
+
+
+
+</table>
+
+
+
+</section>
+
+
+
+
+
+
+
+<!-- ==========================
+SAMPLE COLLECTION
+=========================== -->
+
+
+<section
+
+id="samples"
+
+class="table-card mt-3">
+
+
+
+<h3 class="mb-2">
+
+Sample Collection
+
+</h3>
+
+
+
+
+<form id="sampleCollectionForm">
+
+
+
+<div class="form-grid">
+
+
+
+<div>
+
+
+<label>
+
+Patient
+
+</label>
+
+
+<select id="samplePatient">
+
+
+<option>
+
+Select Patient
+
+</option>
+
+
+</select>
+
+
+</div>
+
+
+
+
+
+<div>
+
+
+<label>
+
+Sample Type
+
+</label>
+
+
+<select id="sampleType">
+
+
+<option>
+
+Blood
+
+</option>
+
+
+<option>
+
+Urine
+
+</option>
+
+
+<option>
+
+Stool
+
+</option>
+
+
+<option>
+
+Other
+
+</option>
+
+
+</select>
+
+
+</div>
+
+
+
+
+
+<div>
+
+
+<label>
+
+Collection Date
+
+</label>
+
+
+<input
+
+type="date"
+
+id="sampleDate">
+
+
+</div>
+
+
+
+
+
+<div>
+
+
+<label>
+
+Sample Number
+
+</label>
+
+
+<input
+
+type="text"
+
+id="sampleNumber">
+
+</div>
+
+
+
+</div>
+
+
+
+
+<label>
+
+Collection Notes
+
+</label>
+
+
+<textarea
+
+id="sampleNotes"
+
+rows="4">
+
+</textarea>
+
+
+
+
+<button
+
+class="primary-btn"
+
+type="submit">
+
+
+<i class="fa-solid fa-vial"></i>
+
+
+Save Sample
+
+
+</button>
+
+
+
+</form>
+
+
+</section>
+
+
+
+
+
+
+
+<!-- ==========================
+PROCESSING TESTS
+=========================== -->
+
+
+<section
+
+id="processing"
+
+class="table-card mt-3">
+
+
+
+<h3 class="mb-2">
+
+Test Processing
+
+</h3>
+
+
+
+
+<table>
+
+
+<thead>
+
+
+<tr>
+
+
+<th>
+
+Sample No.
+
+</th>
+
+
+<th>
+
+Patient
+
+</th>
+
+
+<th>
+
+Test
+
+</th>
+
+
+<th>
+
+Technician
+
+</th>
+
+
+<th>
+
+Status
+
+</th>
+
+
+<th>
+
+Action
+
+</th>
+
+
+</tr>
+
+
+</thead>
+
+
+
+
+<tbody id="processingTable">
+
+
+</tbody>
+
+
+
+</table>
+
+
+
+</section>
+
+
+
+
+
+
+
+<!-- ==========================
+RESULT ENTRY
+=========================== -->
+
+
+<section
+
+id="results"
+
+class="table-card mt-3">
+
+
+
+<h3 class="mb-2">
+
+Enter Laboratory Results
+
+</h3>
+
+
+
+<form id="labResultsForm">
+
+
+
+<div class="grid-2">
+
+
+
+<div>
+
+
+<label>
+
+Patient
+
+</label>
+
+
+<select id="resultPatient">
+
+
+<option>
+
+Select Patient
+
+</option>
+
+
+</select>
+
+
+</div>
+
+
+
+
+
+<div>
+
+
+<label>
+
+Test Type
+
+</label>
+
+
+<input
+
+type="text"
+
+id="resultTest">
+
+
+</div>
+
+
+
+</div>
+
+
+
+
+
+<label>
+
+Result Details
+
+</label>
+
+
+<textarea
+
+id="resultDetails"
+
+rows="5"
+
+placeholder="Enter laboratory findings...">
+
+</textarea>
+
+
+
+
+<div class="form-grid">
+
+
+
+<div>
+
+
+<label>
+
+Result Status
+
+</label>
+
+
+<select id="resultStatus">
+
+
+<option>
+
+Normal
+
+</option>
+
+
+<option>
+
+Abnormal
+
+</option>
+
+
+<option>
+
+Critical
+
+</option>
+
+
+</select>
+
+
+</div>
+
+
+
+
+<div>
+
+
+<label>
+
+Verified By
+
+</label>
+
+
+<input
+
+type="text"
+
+id="verifiedBy">
+
+
+</div>
+
+
+
+</div>
+
+
+
+
+<button
+
+class="primary-btn">
+
+
+<i class="fa-solid fa-file-circle-check"></i>
+
+
+Submit Results
+
+
+</button>
+
+
+
+</form>
+
+
+
+</section>
+
+
+
+
+
+
+
+<!-- ==========================
+PATIENT LAB HISTORY
+=========================== -->
+
+
+<section
+
+class="table-card mt-3">
+
+
+
+<h3 class="mb-2">
+
+Patient Laboratory History
+
+</h3>
+
+
+
+
+<table>
+
+
+<thead>
+
+
+<tr>
+
+
+<th>
+
+Date
+
+</th>
+
+
+<th>
+
+Patient
+
+</th>
+
+
+<th>
+
+Test
+
+</th>
+
+
+<th>
+
+Result
+
+</th>
+
+
+<th>
+
+Status
+
+</th>
+
+
+<th>
+
+View
+
+</th>
+
+
+</tr>
+
+
+</thead>
+
+
+
+
+<tbody id="labHistoryTable">
+
+
+</tbody>
+
+
+
+</table>
+
+
+
+</section>
+<!-- ==========================
+LAB INVENTORY
+=========================== -->
+
+
+<section
+
+id="inventory"
+
+class="table-card mt-3">
+
+
+
+<div class="flex-between mb-2">
+
+
+<h3>
+
+Laboratory Inventory
+
+</h3>
+
+
+
+<button
+
+class="primary-btn"
+
+id="addLabItem">
+
+
+Add Item
+
+
+</button>
+
+
+</div>
+
+
+
+
+
+<table>
+
+
+<thead>
+
+
+<tr>
+
+
+<th>
+
+Item Name
+
+</th>
+
+
+<th>
+
+Category
+
+</th>
+
+
+<th>
+
+Quantity
+
+</th>
+
+
+<th>
+
+Minimum Level
+
+</th>
+
+
+<th>
+
+Expiry Date
+
+</th>
+
+
+<th>
+
+Status
+
+</th>
+
+
+</tr>
+
+
+</thead>
+
+
+
+
+<tbody id="labInventoryTable">
+
+
+</tbody>
+
+
+
+</table>
+
+
+
+</section>
+
+
+
+
+
+
+
+<!-- ==========================
+CRITICAL RESULT ALERTS
+=========================== -->
+
+
+<section
+
+class="table-card mt-3">
+
+
+
+<div class="flex-between mb-2">
+
+
+<h3>
+
+Critical Result Alerts
+
+</h3>
+
+
+
+<button
+
+class="danger-btn"
+
+id="refreshCriticalAlerts">
+
+
+Refresh
+
+
+</button>
+
+
+
+</div>
+
+
+
+
+
+<table>
+
+
+<thead>
+
+
+<tr>
+
+
+<th>
+
+Time
+
+</th>
+
+
+<th>
+
+Patient
+
+</th>
+
+
+<th>
+
+Test
+
+</th>
+
+
+<th>
+
+Result
+
+</th>
+
+
+<th>
+
+Notification Status
+
+</th>
+
+
+</tr>
+
+
+</thead>
+
+
+
+
+<tbody id="criticalAlertsTable">
+
+
+</tbody>
+
+
+
+</table>
+
+
+
+</section>
+
+
+
+
+
+
+
+<!-- ==========================
+LAB REPORTS
+=========================== -->
+
+
+<section
+
+id="reports"
+
+class="table-card mt-3">
+
+
+
+<h3 class="mb-2">
+
+Laboratory Reports
+
+</h3>
+
+
+
+
+<div class="quick-actions">
+
+
+
+<div class="action-card" id="dailyLabReport">
+
+
+<i class="fa-solid fa-file-lines"></i>
+
+
+<h4>
+
+Daily Tests
+
+</h4>
+
+
+</div>
+
+
+
+
+
+<div class="action-card" id="monthlyLabReport">
+
+
+<i class="fa-solid fa-chart-line"></i>
+
+
+<h4>
+
+Monthly Statistics
+
+</h4>
+
+
+</div>
+
+
+
+
+
+<div class="action-card" id="exportLabPDF">
+
+
+<i class="fa-solid fa-file-pdf"></i>
+
+
+<h4>
+
+Export PDF
+
+</h4>
+
+
+</div>
+
+
+
+</div>
+
+
+
+</section>
+
+
+
+
+
+
+
+
+<!-- ==========================
+NOTIFICATIONS
+=========================== -->
+
+
+<section
+
+class="dashboard-notifications mt-3">
+
+
+
+<h3 class="mb-2">
+
+Laboratory Notifications
+
+</h3>
+
+
+
+
+<div id="labNotifications">
+
+
+
+<div class="dashboard-notification">
+
+
+<h5>
+
+System Ready
+
+</h5>
+
+
+<p>
+
+Laboratory updates will appear here.
+
+</p>
+
+
+</div>
+
+
+
+</div>
+
+
+
+</section>
+
+
+
+
+
+
+
+<!-- ==========================
+ACTIVITY TIMELINE
+=========================== -->
+
+
+<section
+
+class="timeline mt-3">
+
+
+
+<h3 class="mb-2">
+
+Laboratory Activity
+
+</h3>
+
+
+
+
+<div id="labActivity">
+
+
+
+<div class="timeline-item">
+
+
+
+<div class="timeline-icon">
+
+
+<i class="fa-solid fa-flask"></i>
+
+
+</div>
+
+
+
+<div class="timeline-content">
+
+
+<h4>
+
+Laboratory Portal Started
+
+</h4>
+
+
+<small>
+
+Waiting for activities...
+
+</small>
+
+
+</div>
+
+
+
+</div>
+
+
+
+</div>
+
+
+
+</section>
+
+
+
+
+
+
+
+<!-- ==========================
+LAB SETTINGS
+=========================== -->
+
+
+<section
+
+class="table-card mt-3">
+
+
+
+<h3 class="mb-2">
+
+Laboratory Settings
+
+</h3>
+
+
+
+
+<div class="grid-2">
+
+
+
+<div>
+
+
+<label>
+
+Auto Result Verification
+
+</label>
+
+
+<select id="autoVerification">
+
+
+<option>
+
+Enabled
+
+</option>
+
+
+<option>
+
+Disabled
+
+</option>
+
+
+</select>
+
+
+</div>
+
+
+
+
+
+<div>
+
+
+<label>
+
+Critical Alert System
+
+</label>
+
+
+<select id="criticalAlertSetting">
+
+
+<option>
+
+Enabled
+
+</option>
+
+
+<option>
+
+Disabled
+
+</option>
+
+
+</select>
+
+
+</div>
+
+
+
+
+
+<div>
+
+
+<label>
+
+Inventory Warning
+
+</label>
+
+
+<select id="inventoryWarning">
+
+
+<option>
+
+Enabled
+
+</option>
+
+
+<option>
+
+Disabled
+
+</option>
+
+
+</select>
+
+
+</div>
+
+
+
+
+
+<div>
+
+
+<label>
+
+Dashboard Refresh Rate
+
+</label>
+
+
+<select id="labRefreshRate">
+
+
+<option>
+
+30 Seconds
+
+</option>
+
+
+<option>
+
+1 Minute
+
+</option>
+
+
+<option>
+
+5 Minutes
+
+</option>
+
+
+</select>
+
+
+</div>
+
+
+
+</div>
+
+
+
+
+<button
+
+class="primary-btn mt-3"
+
+id="saveLabSettings">
+
+
+Save Settings
+
+
+</button>
+
+
+
+</section>
+
+
+
+
+
+
+</main>
+
+
+
+</div>
+
+
+
+
+
+
+<footer>
+
+
+<div class="footer-bottom">
+
+
+<p>
+
+© 2026 Kapasa Makasa University Digital Health Centre.
+All Rights Reserved.
+
+</p>
+
+
+</div>
+
+
+</footer>
+
+
+
+
+
+</body>
+
+
+</html>

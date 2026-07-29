@@ -1,0 +1,2290 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+
+<title>
+KMU Digital Health Centre | Counsellor Dashboard
+</title>
+
+
+<link rel="stylesheet" href="../assets/css/dashboard.css">
+
+<link rel="stylesheet" href="../assets/css/responsive.css">
+
+
+<link rel="stylesheet"
+href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script src="../assets/js/config.js"></script>
+
+<script src="../assets/js/utils.js"></script>
+
+<script src="../assets/js/counsellor.js" defer></script>
+
+
+</head>
+
+
+<body class="dashboard-body">
+
+
+
+
+
+<!-- ==========================
+SIDEBAR
+=========================== -->
+
+
+<aside class="sidebar">
+
+
+
+<div class="sidebar-header">
+
+
+<img
+
+src="../assets/images/logo.png"
+
+alt="KMU Logo">
+
+
+
+<h2>
+
+Counsellor
+
+</h2>
+
+
+</div>
+
+
+
+
+
+<nav class="sidebar-menu">
+
+
+<ul>
+
+
+
+<li>
+
+<a class="active" href="#dashboard">
+
+
+<i class="fa-solid fa-gauge"></i>
+
+
+<span>
+
+Dashboard
+
+</span>
+
+
+</a>
+
+
+</li>
+
+
+
+
+
+
+
+<li>
+
+<a href="#appointments">
+
+
+<i class="fa-solid fa-calendar-check"></i>
+
+
+<span>
+
+Appointments
+
+</span>
+
+
+</a>
+
+
+</li>
+
+
+
+
+
+
+
+<li>
+
+<a href="#sessions">
+
+
+<i class="fa-solid fa-comments"></i>
+
+
+<span>
+
+Counselling Sessions
+
+</span>
+
+
+</a>
+
+
+</li>
+
+
+
+
+
+
+
+<li>
+
+<a href="#cases">
+
+
+<i class="fa-solid fa-folder-open"></i>
+
+
+<span>
+
+Case Management
+
+</span>
+
+
+</a>
+
+
+</li>
+
+
+
+
+
+
+
+<li>
+
+<a href="#notes">
+
+
+<i class="fa-solid fa-file-lines"></i>
+
+
+<span>
+
+Confidential Notes
+
+</span>
+
+
+</a>
+
+
+</li>
+
+
+
+
+
+
+
+<li>
+
+<a href="#followups">
+
+
+<i class="fa-solid fa-user-clock"></i>
+
+
+<span>
+
+Follow Ups
+
+</span>
+
+
+</a>
+
+
+</li>
+
+
+
+
+
+
+
+<li>
+
+<a href="#reports">
+
+
+<i class="fa-solid fa-chart-column"></i>
+
+
+<span>
+
+Reports
+
+</span>
+
+
+</a>
+
+
+</li>
+
+
+
+
+
+
+
+<li>
+
+<a href="#" id="logoutButton">
+
+
+<i class="fa-solid fa-right-from-bracket"></i>
+
+
+<span>
+
+Logout
+
+</span>
+
+
+</a>
+
+
+</li>
+
+
+
+</ul>
+
+
+</nav>
+
+
+</aside>
+
+
+
+
+
+
+
+<!-- ==========================
+MAIN CONTENT
+=========================== -->
+
+
+<div class="main-content">
+
+
+
+<header class="topbar">
+
+
+
+<div class="topbar-left">
+
+
+<h2>
+
+Counsellor Dashboard
+
+</h2>
+
+
+</div>
+
+
+
+
+
+
+<div class="topbar-right">
+
+
+<div class="profile-box">
+
+
+
+<img
+
+src="../assets/images/avatar.png"
+
+alt="Counsellor">
+
+
+
+<div>
+
+
+<strong id="counsellorName">
+
+Counsellor Name
+
+</strong>
+
+
+
+<br>
+
+
+<small>
+
+Student Wellness Department
+
+</small>
+
+
+</div>
+
+
+</div>
+
+
+</div>
+
+
+
+</header>
+
+
+
+
+
+
+
+
+<main class="dashboard-content">
+
+
+
+
+
+
+<!-- ==========================
+SUMMARY CARDS
+=========================== -->
+
+
+<section class="dashboard-cards">
+
+
+
+<div class="dashboard-card">
+
+
+<div class="dashboard-card-header">
+
+
+<h3>
+
+Today's Appointments
+
+</h3>
+
+
+<i class="fa-solid fa-calendar-check"></i>
+
+
+</div>
+
+
+<h2 id="todayAppointments">
+
+0
+
+</h2>
+
+
+</div>
+
+
+
+
+
+
+
+<div class="dashboard-card">
+
+
+<div class="dashboard-card-header">
+
+
+<h3>
+
+Active Cases
+
+</h3>
+
+
+<i class="fa-solid fa-folder-open"></i>
+
+
+</div>
+
+
+<h2 id="activeCases">
+
+0
+
+</h2>
+
+
+</div>
+
+
+
+
+
+
+
+<div class="dashboard-card">
+
+
+<div class="dashboard-card-header">
+
+
+<h3>
+
+Pending Follow Ups
+
+</h3>
+
+
+<i class="fa-solid fa-user-clock"></i>
+
+
+</div>
+
+
+<h2 id="pendingFollowups">
+
+0
+
+</h2>
+
+
+</div>
+
+
+
+
+
+
+
+<div class="dashboard-card">
+
+
+<div class="dashboard-card-header">
+
+
+<h3>
+
+Referrals
+
+</h3>
+
+
+<i class="fa-solid fa-share-nodes"></i>
+
+
+</div>
+
+
+<h2 id="counsellingReferrals">
+
+0
+
+</h2>
+
+
+</div>
+
+
+
+</section>
+
+
+
+
+
+
+
+
+<!-- ==========================
+QUICK ACTIONS
+=========================== -->
+
+
+<section class="quick-actions">
+
+
+
+<div class="action-card" id="newSession">
+
+
+<i class="fa-solid fa-comments"></i>
+
+
+<h4>
+
+New Session
+
+</h4>
+
+
+</div>
+
+
+
+
+
+<div class="action-card" id="createCase">
+
+
+<i class="fa-solid fa-folder-plus"></i>
+
+
+<h4>
+
+Create Case
+
+</h4>
+
+
+</div>
+
+
+
+
+
+<div class="action-card" id="scheduleFollowup">
+
+
+<i class="fa-solid fa-calendar-plus"></i>
+
+
+<h4>
+
+Schedule Follow Up
+
+</h4>
+
+
+</div>
+
+
+
+
+
+<div class="action-card" id="counsellorReports">
+
+
+<i class="fa-solid fa-file-pdf"></i>
+
+
+<h4>
+
+Reports
+
+</h4>
+
+
+</div>
+
+
+
+</section>
+<!-- ==========================
+APPOINTMENT MANAGEMENT
+=========================== -->
+
+
+<section
+
+id="appointments"
+
+class="table-card mt-3">
+
+
+
+<div class="flex-between mb-2">
+
+
+<h3>
+
+Counselling Appointments
+
+</h3>
+
+
+
+<button
+
+class="secondary-btn"
+
+id="refreshCounsellingAppointments">
+
+
+Refresh
+
+
+</button>
+
+
+
+</div>
+
+
+
+
+<table>
+
+
+<thead>
+
+
+<tr>
+
+
+<th>
+
+Appointment No.
+
+</th>
+
+
+<th>
+
+Student
+
+</th>
+
+
+<th>
+
+Date
+
+</th>
+
+
+<th>
+
+Time
+
+</th>
+
+
+<th>
+
+Reason
+
+</th>
+
+
+<th>
+
+Status
+
+</th>
+
+
+<th>
+
+Action
+
+</th>
+
+
+</tr>
+
+
+</thead>
+
+
+
+
+<tbody id="counsellingAppointmentsTable">
+
+
+</tbody>
+
+
+
+</table>
+
+
+
+</section>
+
+
+
+
+
+
+
+
+<!-- ==========================
+CREATE COUNSELLING SESSION
+=========================== -->
+
+
+<section
+
+id="sessions"
+
+class="table-card mt-3">
+
+
+
+<h3 class="mb-2">
+
+Counselling Session Record
+
+</h3>
+
+
+
+
+<form id="counsellingSessionForm">
+
+
+
+<div class="form-grid">
+
+
+
+<div>
+
+
+<label>
+
+Student
+
+</label>
+
+
+<select id="sessionStudent">
+
+
+<option>
+
+Select Student
+
+</option>
+
+
+</select>
+
+
+</div>
+
+
+
+
+
+<div>
+
+
+<label>
+
+Session Type
+
+</label>
+
+
+<select id="sessionType">
+
+
+<option>
+
+Individual Counselling
+
+</option>
+
+
+<option>
+
+Academic Support
+
+</option>
+
+
+<option>
+
+Career Guidance
+
+</option>
+
+
+<option>
+
+Stress Management
+
+</option>
+
+
+<option>
+
+Emergency Support
+
+</option>
+
+
+</select>
+
+
+</div>
+
+
+
+
+
+<div>
+
+
+<label>
+
+Session Date
+
+</label>
+
+
+<input
+
+type="date"
+
+id="sessionDate">
+
+
+</div>
+
+
+
+
+
+<div>
+
+
+<label>
+
+Duration
+
+</label>
+
+
+<select id="sessionDuration">
+
+
+<option>
+
+30 Minutes
+
+</option>
+
+
+<option>
+
+45 Minutes
+
+</option>
+
+
+<option>
+
+1 Hour
+
+</option>
+
+
+</select>
+
+
+</div>
+
+
+
+</div>
+
+
+
+
+<label>
+
+Session Summary
+
+</label>
+
+
+<textarea
+
+id="sessionSummary"
+
+rows="5"
+
+placeholder="Enter confidential session summary...">
+
+</textarea>
+
+
+
+
+<button
+
+class="primary-btn">
+
+
+<i class="fa-solid fa-comments"></i>
+
+
+Save Session
+
+
+</button>
+
+
+
+</form>
+
+
+
+</section>
+
+
+
+
+
+
+
+<!-- ==========================
+CASE MANAGEMENT
+=========================== -->
+
+
+<section
+
+id="cases"
+
+class="table-card mt-3">
+
+
+
+<div class="flex-between mb-2">
+
+
+<h3>
+
+Student Cases
+
+</h3>
+
+
+
+<button
+
+class="primary-btn"
+
+id="createNewCase">
+
+
+New Case
+
+
+</button>
+
+
+
+</div>
+
+
+
+
+<table>
+
+
+<thead>
+
+
+<tr>
+
+
+<th>
+
+Case No.
+
+</th>
+
+
+<th>
+
+Student
+
+</th>
+
+
+<th>
+
+Category
+
+</th>
+
+
+<th>
+
+Priority
+
+</th>
+
+
+<th>
+
+Status
+
+</th>
+
+
+<th>
+
+Action
+
+</th>
+
+
+</tr>
+
+
+</thead>
+
+
+
+
+<tbody id="studentCasesTable">
+
+
+</tbody>
+
+
+
+</table>
+
+
+
+</section>
+
+
+
+
+
+
+
+<!-- ==========================
+CONFIDENTIAL NOTES
+=========================== -->
+
+
+<section
+
+id="notes"
+
+class="table-card mt-3">
+
+
+
+<h3 class="mb-2">
+
+Confidential Counselling Notes
+
+</h3>
+
+
+
+
+<form id="confidentialNotesForm">
+
+
+
+<div class="form-grid">
+
+
+
+<div>
+
+
+<label>
+
+Student
+
+</label>
+
+
+<select id="notesStudent">
+
+
+<option>
+
+Select Student
+
+</option>
+
+
+</select>
+
+
+</div>
+
+
+
+
+
+<div>
+
+
+<label>
+
+Case Category
+
+</label>
+
+
+<select id="caseCategory">
+
+
+<option>
+
+Stress
+
+</option>
+
+
+<option>
+
+Academic Challenges
+
+</option>
+
+
+<option>
+
+Family Issues
+
+</option>
+
+
+<option>
+
+Financial Challenges
+
+</option>
+
+
+<option>
+
+Other
+
+</option>
+
+
+</select>
+
+
+</div>
+
+
+
+</div>
+
+
+
+
+
+<label>
+
+Private Notes
+
+</label>
+
+
+<textarea
+
+id="privateNotes"
+
+rows="6"
+
+placeholder="Confidential counsellor notes...">
+
+</textarea>
+
+
+
+
+<button
+
+class="primary-btn">
+
+
+<i class="fa-solid fa-lock"></i>
+
+
+Save Confidential Note
+
+
+</button>
+
+
+
+</form>
+
+
+
+</section>
+
+
+
+
+
+
+
+<!-- ==========================
+STUDENT WELLNESS TRACKING
+=========================== -->
+
+
+<section
+
+class="table-card mt-3">
+
+
+
+<h3 class="mb-2">
+
+Student Wellness Monitoring
+
+</h3>
+
+
+
+
+<table>
+
+
+<thead>
+
+
+<tr>
+
+
+<th>
+
+Student
+
+</th>
+
+
+<th>
+
+Wellness Level
+
+</th>
+
+
+<th>
+
+Last Session
+
+</th>
+
+
+<th>
+
+Risk Level
+
+</th>
+
+
+<th>
+
+Action
+
+</th>
+
+
+</tr>
+
+
+</thead>
+
+
+
+
+<tbody id="wellnessTrackingTable">
+
+
+</tbody>
+
+
+
+</table>
+
+
+
+</section>
+<!-- ==========================
+FOLLOW UP MANAGEMENT
+=========================== -->
+
+
+<section
+
+id="followups"
+
+class="table-card mt-3">
+
+
+
+<div class="flex-between mb-2">
+
+
+<h3>
+
+Student Follow Ups
+
+</h3>
+
+
+
+<button
+
+class="secondary-btn"
+
+id="refreshFollowups">
+
+
+Refresh
+
+
+</button>
+
+
+
+</div>
+
+
+
+
+<table>
+
+
+<thead>
+
+
+<tr>
+
+
+<th>
+
+Student
+
+</th>
+
+
+<th>
+
+Previous Session
+
+</th>
+
+
+<th>
+
+Follow Up Date
+
+</th>
+
+
+<th>
+
+Purpose
+
+</th>
+
+
+<th>
+
+Status
+
+</th>
+
+
+<th>
+
+Action
+
+</th>
+
+
+</tr>
+
+
+</thead>
+
+
+
+
+<tbody id="followupsTable">
+
+
+</tbody>
+
+
+
+</table>
+
+
+
+</section>
+
+
+
+
+
+
+
+
+<!-- ==========================
+CREATE FOLLOW UP
+=========================== -->
+
+
+<section
+
+class="table-card mt-3">
+
+
+
+<h3 class="mb-2">
+
+Schedule Follow Up Session
+
+</h3>
+
+
+
+
+<form id="followupForm">
+
+
+
+<div class="form-grid">
+
+
+
+<div>
+
+
+<label>
+
+Student
+
+</label>
+
+
+<select id="followupStudent">
+
+
+<option>
+
+Select Student
+
+</option>
+
+
+</select>
+
+
+</div>
+
+
+
+
+
+<div>
+
+
+<label>
+
+Follow Up Date
+
+</label>
+
+
+<input
+
+type="date"
+
+id="followupDate">
+
+
+</div>
+
+
+
+
+
+<div>
+
+
+<label>
+
+Follow Up Type
+
+</label>
+
+
+<select id="followupType">
+
+
+<option>
+
+Progress Review
+
+</option>
+
+
+<option>
+
+Support Session
+
+</option>
+
+
+<option>
+
+Emergency Review
+
+</option>
+
+
+</select>
+
+
+</div>
+
+
+
+</div>
+
+
+
+
+<label>
+
+Counsellor Reminder
+
+</label>
+
+
+<textarea
+
+id="followupNotes"
+
+rows="4">
+
+</textarea>
+
+
+
+
+<button
+
+class="primary-btn">
+
+
+<i class="fa-solid fa-calendar-plus"></i>
+
+
+Schedule Follow Up
+
+
+</button>
+
+
+
+</form>
+
+
+
+</section>
+
+
+
+
+
+
+
+<!-- ==========================
+REFERRALS
+=========================== -->
+
+
+<section
+
+class="table-card mt-3">
+
+
+
+<h3 class="mb-2">
+
+Student Referrals
+
+</h3>
+
+
+
+
+<form id="counsellorReferralForm">
+
+
+
+<div class="form-grid">
+
+
+
+<div>
+
+
+<label>
+
+Student
+
+</label>
+
+
+<select id="referralStudent">
+
+
+<option>
+
+Select Student
+
+</option>
+
+
+</select>
+
+
+</div>
+
+
+
+
+
+<div>
+
+
+<label>
+
+Referral Department
+
+</label>
+
+
+<select id="referralDepartment">
+
+
+<option>
+
+Medical Centre
+
+</option>
+
+
+<option>
+
+Academic Office
+
+</option>
+
+
+<option>
+
+Financial Office
+
+</option>
+
+
+<option>
+
+External Support
+
+</option>
+
+
+</select>
+
+
+</div>
+
+
+
+</div>
+
+
+
+
+
+<label>
+
+Referral Reason
+
+</label>
+
+
+<textarea
+
+id="referralReason"
+
+rows="4">
+
+</textarea>
+
+
+
+
+<button
+
+class="primary-btn">
+
+
+<i class="fa-solid fa-share-nodes"></i>
+
+
+Submit Referral
+
+
+</button>
+
+
+
+</form>
+
+
+
+</section>
+
+
+
+
+
+
+
+<!-- ==========================
+COUNSELLING REPORTS
+=========================== -->
+
+
+<section
+
+id="reports"
+
+class="table-card mt-3">
+
+
+
+<h3 class="mb-2">
+
+Counselling Reports
+
+</h3>
+
+
+
+
+<div class="quick-actions">
+
+
+
+<div class="action-card" id="dailyCounsellingReport">
+
+
+<i class="fa-solid fa-file-lines"></i>
+
+
+<h4>
+
+Daily Sessions
+
+</h4>
+
+
+</div>
+
+
+
+
+
+<div class="action-card" id="caseStatisticsReport">
+
+
+<i class="fa-solid fa-chart-column"></i>
+
+
+<h4>
+
+Case Statistics
+
+</h4>
+
+
+</div>
+
+
+
+
+
+<div class="action-card" id="wellnessReport">
+
+
+<i class="fa-solid fa-heart"></i>
+
+
+<h4>
+
+Wellness Report
+
+</h4>
+
+
+</div>
+
+
+
+
+
+<div class="action-card" id="exportCounsellingPDF">
+
+
+<i class="fa-solid fa-file-pdf"></i>
+
+
+<h4>
+
+Export PDF
+
+</h4>
+
+
+</div>
+
+
+
+</div>
+
+
+
+</section>
+
+
+
+
+
+
+
+<!-- ==========================
+NOTIFICATIONS
+=========================== -->
+
+
+<section
+
+class="dashboard-notifications mt-3">
+
+
+
+<h3 class="mb-2">
+
+Counsellor Notifications
+
+</h3>
+
+
+
+
+<div id="counsellorNotifications">
+
+
+
+<div class="dashboard-notification">
+
+
+<h5>
+
+System Ready
+
+</h5>
+
+
+<p>
+
+New appointments and follow-ups will appear here.
+
+</p>
+
+
+</div>
+
+
+
+</div>
+
+
+
+</section>
+
+
+
+
+
+
+
+<!-- ==========================
+ACTIVITY TIMELINE
+=========================== -->
+
+
+<section
+
+class="timeline mt-3">
+
+
+
+<h3 class="mb-2">
+
+Recent Counselling Activity
+
+</h3>
+
+
+
+
+<div id="counsellorActivity">
+
+
+
+<div class="timeline-item">
+
+
+
+<div class="timeline-icon">
+
+
+<i class="fa-solid fa-user-shield"></i>
+
+
+</div>
+
+
+
+<div class="timeline-content">
+
+
+<h4>
+
+Counsellor Portal Started
+
+</h4>
+
+
+<small>
+
+Waiting for activities...
+
+</small>
+
+
+</div>
+
+
+
+</div>
+
+
+
+</div>
+
+
+
+</section>
+
+
+
+
+
+
+
+<!-- ==========================
+COUNSELLOR SETTINGS
+=========================== -->
+
+
+<section
+
+class="table-card mt-3">
+
+
+
+<h3 class="mb-2">
+
+Counsellor Settings
+
+</h3>
+
+
+
+
+<div class="grid-2">
+
+
+
+<div>
+
+
+<label>
+
+Session Reminder
+
+</label>
+
+
+<select id="sessionReminder">
+
+
+<option>
+
+Enabled
+
+</option>
+
+
+<option>
+
+Disabled
+
+</option>
+
+
+</select>
+
+
+</div>
+
+
+
+
+
+<div>
+
+
+<label>
+
+Confidential Mode
+
+</label>
+
+
+<select id="confidentialMode">
+
+
+<option>
+
+Enabled
+
+</option>
+
+
+<option>
+
+Disabled
+
+</option>
+
+
+</select>
+
+
+</div>
+
+
+
+
+
+<div>
+
+
+<label>
+
+Notification Alerts
+
+</label>
+
+
+<select id="counsellorAlerts">
+
+
+<option>
+
+All Alerts
+
+</option>
+
+
+<option>
+
+Important Only
+
+</option>
+
+
+</select>
+
+
+</div>
+
+
+
+
+
+<div>
+
+
+<label>
+
+Dashboard Refresh
+
+</label>
+
+
+<select id="counsellorRefresh">
+
+
+<option>
+
+30 Seconds
+
+</option>
+
+
+<option>
+
+1 Minute
+
+</option>
+
+
+<option>
+
+5 Minutes
+
+</option>
+
+
+</select>
+
+
+</div>
+
+
+
+</div>
+
+
+
+
+<button
+
+class="primary-btn mt-3"
+
+id="saveCounsellorSettings">
+
+
+Save Settings
+
+
+</button>
+
+
+
+</section>
+
+
+
+
+
+
+</main>
+
+
+
+</div>
+
+
+
+
+
+
+
+<footer>
+
+
+<div class="footer-bottom">
+
+
+<p>
+
+© 2026 Kapasa Makasa University Digital Health Centre.
+All Rights Reserved.
+
+</p>
+
+
+</div>
+
+
+</footer>
+
+
+
+
+
+</body>
+
+
+</html>

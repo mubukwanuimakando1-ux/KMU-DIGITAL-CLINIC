@@ -1,0 +1,1445 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>KMU Digital Health Centre | Reception Dashboard</title>
+
+<link rel="stylesheet" href="../assets/css/dashboard.css">
+<link rel="stylesheet" href="../assets/css/responsive.css">
+
+<link rel="stylesheet"
+href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script src="../assets/js/config.js"></script>
+<script src="../assets/js/utils.js"></script>
+<script src="../assets/js/reception.js" defer></script>
+
+</head>
+
+<body class="dashboard-body">
+
+<!-- ==========================
+SIDEBAR
+=========================== -->
+
+<aside class="sidebar">
+
+<div class="sidebar-header">
+
+<img src="../assets/images/logo.png" alt="KMU">
+
+<h2>Reception</h2>
+
+</div>
+
+<nav class="sidebar-menu">
+
+<ul>
+
+<li>
+
+<a class="active" href="#dashboard">
+
+<i class="fa-solid fa-gauge"></i>
+
+<span>Dashboard</span>
+
+</a>
+
+</li>
+
+<li>
+
+<a href="#registerPatient">
+
+<i class="fa-solid fa-user-plus"></i>
+
+<span>Register Patient</span>
+
+</a>
+
+</li>
+
+<li>
+
+<a href="#appointments">
+
+<i class="fa-solid fa-calendar-check"></i>
+
+<span>Appointments</span>
+
+</a>
+
+</li>
+
+<li>
+
+<a href="#queue">
+
+<i class="fa-solid fa-users"></i>
+
+<span>Queue</span>
+
+</a>
+
+</li>
+
+<li>
+
+<a href="#visitors">
+
+<i class="fa-solid fa-id-card"></i>
+
+<span>Visitors</span>
+
+</a>
+
+</li>
+
+<li>
+
+<a href="#search">
+
+<i class="fa-solid fa-magnifying-glass"></i>
+
+<span>Search Patient</span>
+
+</a>
+
+</li>
+
+<li>
+
+<a href="#" id="logoutButton">
+
+<i class="fa-solid fa-right-from-bracket"></i>
+
+<span>Logout</span>
+
+</a>
+
+</li>
+
+</ul>
+
+</nav>
+
+</aside>
+
+<!-- ==========================
+MAIN CONTENT
+=========================== -->
+
+<div class="main-content">
+
+<header class="topbar">
+
+<div class="topbar-left">
+
+<h2>
+
+Reception Dashboard
+
+</h2>
+
+</div>
+
+<div class="topbar-right">
+
+<div class="profile-box">
+
+<img
+src="../assets/images/avatar.png"
+alt="Receptionist">
+
+<div>
+
+<strong id="receptionistName">
+
+Reception Officer
+
+</strong>
+
+<br>
+
+<small>
+
+Reception Department
+
+</small>
+
+</div>
+
+</div>
+
+</div>
+
+</header>
+
+<main class="dashboard-content">
+
+<!-- ==========================
+SUMMARY CARDS
+=========================== -->
+
+<section class="dashboard-cards">
+
+<div class="dashboard-card">
+
+<div class="dashboard-card-header">
+
+<h3>
+
+Patients Today
+
+</h3>
+
+<i class="fa-solid fa-hospital-user"></i>
+
+</div>
+
+<h2 id="todayPatients">
+
+0
+
+</h2>
+
+</div>
+
+<div class="dashboard-card">
+
+<div class="dashboard-card-header">
+
+<h3>
+
+Appointments
+
+</h3>
+
+<i class="fa-solid fa-calendar-check"></i>
+
+</div>
+
+<h2 id="todayAppointments">
+
+0
+
+</h2>
+
+</div>
+
+<div class="dashboard-card">
+
+<div class="dashboard-card-header">
+
+<h3>
+
+Queue Waiting
+
+</h3>
+
+<i class="fa-solid fa-users"></i>
+
+</div>
+
+<h2 id="waitingQueue">
+
+0
+
+</h2>
+
+</div>
+
+<div class="dashboard-card">
+
+<div class="dashboard-card-header">
+
+<h3>
+
+Visitors
+
+</h3>
+
+<i class="fa-solid fa-id-card"></i>
+
+</div>
+
+<h2 id="todayVisitors">
+
+0
+
+</h2>
+
+</div>
+
+</section>
+
+<!-- ==========================
+QUICK ACTIONS
+=========================== -->
+
+<section class="quick-actions">
+
+<div class="action-card" id="quickRegisterPatient">
+
+<i class="fa-solid fa-user-plus"></i>
+
+<h4>
+
+New Patient
+
+</h4>
+
+</div>
+
+<div class="action-card" id="quickAppointment">
+
+<i class="fa-solid fa-calendar-plus"></i>
+
+<h4>
+
+Book Appointment
+
+</h4>
+
+</div>
+
+<div class="action-card" id="quickQueue">
+
+<i class="fa-solid fa-users"></i>
+
+<h4>
+
+Queue Ticket
+
+</h4>
+
+</div>
+
+<div class="action-card" id="quickVisitor">
+
+<i class="fa-solid fa-id-card"></i>
+
+<h4>
+
+Register Visitor
+
+</h4>
+
+</div>
+
+</section>
+
+<!-- ==========================
+PATIENT REGISTRATION
+=========================== -->
+
+<section
+id="registerPatient"
+class="table-card">
+
+<h3 class="mb-2">
+
+Patient Registration
+
+</h3>
+
+<form id="patientRegistrationForm">
+
+<div class="form-grid">
+
+<div>
+
+<label>Full Name</label>
+
+<input
+type="text"
+id="patientName"
+required>
+
+</div>
+
+<div>
+
+<label>Student ID / Staff No.</label>
+
+<input
+type="text"
+id="patientIdentifier">
+
+</div>
+
+<div>
+
+<label>Gender</label>
+
+<select id="patientGender">
+
+<option>Male</option>
+
+<option>Female</option>
+
+</select>
+
+</div>
+
+<div>
+
+<label>Phone Number</label>
+
+<input
+type="tel"
+id="patientPhone">
+
+</div>
+
+<div>
+
+<label>Date of Birth</label>
+
+<input
+type="date"
+id="patientDOB">
+
+</div>
+
+<div>
+
+<label>Clinic Card Number</label>
+
+<input
+type="text"
+id="clinicCardNumber">
+
+</div>
+
+</div>
+
+<label>Address</label>
+
+<textarea
+id="patientAddress"
+rows="4"></textarea>
+
+<button
+type="submit"
+class="primary-btn">
+
+Register Patient
+
+</button>
+
+</form>
+
+</section>
+<!-- ==========================
+APPOINTMENT BOOKING
+=========================== -->
+
+<section
+id="appointments"
+class="table-card mt-3">
+
+<h3 class="mb-2">
+
+Book Appointment
+
+</h3>
+
+<form id="receptionAppointmentForm">
+
+<div class="form-grid">
+
+<div>
+
+<label>Patient</label>
+
+<select id="appointmentPatient" required>
+
+<option value="">Select Patient</option>
+
+</select>
+
+</div>
+
+<div>
+
+<label>Department</label>
+
+<select id="appointmentDepartment" required>
+
+<option value="">Select Department</option>
+
+<option>General Consultation</option>
+
+<option>Nursing</option>
+
+<option>Laboratory</option>
+
+<option>Pharmacy</option>
+
+<option>Counselling</option>
+
+</select>
+
+</div>
+
+<div>
+
+<label>Doctor</label>
+
+<select id="appointmentDoctor">
+
+<option value="">Select Doctor</option>
+
+</select>
+
+</div>
+
+<div>
+
+<label>Appointment Date</label>
+
+<input
+type="date"
+id="appointmentDate"
+required>
+
+</div>
+
+<div>
+
+<label>Appointment Time</label>
+
+<input
+type="time"
+id="appointmentTime"
+required>
+
+</div>
+
+<div>
+
+<label>Priority</label>
+
+<select id="appointmentPriority">
+
+<option>Normal</option>
+
+<option>Urgent</option>
+
+<option>Emergency</option>
+
+</select>
+
+</div>
+
+</div>
+
+<label>Reason for Visit</label>
+
+<textarea
+id="appointmentReason"
+rows="4"></textarea>
+
+<button
+type="submit"
+class="primary-btn">
+
+Save Appointment
+
+</button>
+
+</form>
+
+</section>
+
+<!-- ==========================
+QUEUE MANAGEMENT
+=========================== -->
+
+<section
+id="queue"
+class="table-card mt-3">
+
+<div class="flex-between mb-2">
+
+<h3>
+
+Queue Management
+
+</h3>
+
+<button
+class="secondary-btn"
+id="issueQueueTicket">
+
+Issue Queue Ticket
+
+</button>
+
+</div>
+
+<table>
+
+<thead>
+
+<tr>
+
+<th>Queue No.</th>
+
+<th>Patient</th>
+
+<th>Department</th>
+
+<th>Status</th>
+
+<th>Action</th>
+
+</tr>
+
+</thead>
+
+<tbody id="queueManagementTable">
+
+</tbody>
+
+</table>
+
+</section>
+
+<!-- ==========================
+VISITOR REGISTRATION
+=========================== -->
+
+<section
+id="visitors"
+class="table-card mt-3">
+
+<h3 class="mb-2">
+
+Visitor Registration
+
+</h3>
+
+<form id="visitorRegistrationForm">
+
+<div class="form-grid">
+
+<div>
+
+<label>Visitor Name</label>
+
+<input
+type="text"
+id="visitorName"
+required>
+
+</div>
+
+<div>
+
+<label>Phone Number</label>
+
+<input
+type="tel"
+id="visitorPhone">
+
+</div>
+
+<div>
+
+<label>NRC / Passport</label>
+
+<input
+type="text"
+id="visitorIdentity">
+
+</div>
+
+<div>
+
+<label>Person to Visit</label>
+
+<input
+type="text"
+id="personToVisit"
+required>
+
+</div>
+
+<div>
+
+<label>Organisation</label>
+
+<input
+type="text"
+id="visitorOrganisation">
+
+</div>
+
+<div>
+
+<label>Time In</label>
+
+<input
+type="time"
+id="visitorTimeIn">
+
+</div>
+
+</div>
+
+<label>Purpose of Visit</label>
+
+<textarea
+id="visitorPurpose"
+rows="4"></textarea>
+
+<button
+type="submit"
+class="primary-btn">
+
+Register Visitor
+
+</button>
+
+</form>
+
+</section>
+
+<!-- ==========================
+PATIENT SEARCH
+=========================== -->
+
+<section
+id="search"
+class="table-card mt-3">
+
+<div class="flex-between mb-2">
+
+<h3>
+
+Patient Search
+
+</h3>
+
+<div class="dashboard-search">
+
+<input
+type="text"
+id="patientSearchInput"
+placeholder="Search by name, ID or clinic card">
+
+<i class="fa-solid fa-magnifying-glass"></i>
+
+</div>
+
+</div>
+
+<table>
+
+<thead>
+
+<tr>
+
+<th>Patient No.</th>
+
+<th>Name</th>
+
+<th>Phone</th>
+
+<th>Clinic Card</th>
+
+<th>Action</th>
+
+</tr>
+
+</thead>
+
+<tbody id="patientSearchResults">
+
+</tbody>
+
+</table>
+
+</section>
+
+<!-- ==========================
+TODAY'S APPOINTMENTS
+=========================== -->
+
+<section
+class="table-card mt-3">
+
+<h3 class="mb-2">
+
+Today's Appointments
+
+</h3>
+
+<table>
+
+<thead>
+
+<tr>
+
+<th>Time</th>
+
+<th>Patient</th>
+
+<th>Department</th>
+
+<th>Doctor</th>
+
+<th>Status</th>
+
+</tr>
+
+</thead>
+
+<tbody id="todayAppointmentsTable">
+
+</tbody>
+
+</table>
+
+</section>
+
+<!-- ==========================
+LIVE QUEUE
+=========================== -->
+
+<section
+class="table-card mt-3">
+
+<div class="flex-between mb-2">
+
+<h3>
+
+Live Queue
+
+</h3>
+
+<button
+class="primary-btn"
+id="refreshQueueButton">
+
+Refresh
+
+</button>
+
+</div>
+
+<table>
+
+<thead>
+
+<tr>
+
+<th>Queue</th>
+
+<th>Patient</th>
+
+<th>Department</th>
+
+<th>Waiting Time</th>
+
+<th>Status</th>
+
+</tr>
+
+</thead>
+
+<tbody id="liveQueueTable">
+
+</tbody>
+
+</table>
+
+</section>
+<!-- ==========================
+PATIENT CHECK-IN / CHECK-OUT
+=========================== -->
+
+<section class="table-card mt-3">
+
+<div class="flex-between mb-2">
+
+<h3>
+
+Patient Check-In Management
+
+</h3>
+
+</div>
+
+<table>
+
+<thead>
+
+<tr>
+
+<th>
+
+Patient
+
+</th>
+
+<th>
+
+Appointment
+
+</th>
+
+<th>
+
+Arrival Time
+
+</th>
+
+<th>
+
+Status
+
+</th>
+
+<th>
+
+Action
+
+</th>
+
+</tr>
+
+</thead>
+
+<tbody id="checkInTable">
+
+</tbody>
+
+</table>
+
+</section>
+
+
+<!-- ==========================
+QUEUE TICKET PRINTING
+=========================== -->
+
+<section class="card mt-3">
+
+<h3 class="mb-2">
+
+Print Queue Ticket
+
+</h3>
+
+
+<div class="grid-2">
+
+
+<div>
+
+<label>
+
+Queue Number
+
+</label>
+
+<input
+
+type="text"
+
+id="printQueueNumber"
+
+readonly>
+
+
+</div>
+
+
+<div>
+
+<label>
+
+Department
+
+</label>
+
+<input
+
+type="text"
+
+id="printQueueDepartment"
+
+readonly>
+
+
+</div>
+
+
+</div>
+
+
+<button
+
+class="primary-btn mt-3"
+
+id="printQueueTicket">
+
+<i class="fa-solid fa-print"></i>
+
+Print Ticket
+
+</button>
+
+
+</section>
+
+
+
+<!-- ==========================
+NOTIFICATIONS
+=========================== -->
+
+<section class="dashboard-notifications mt-3">
+
+
+<h3 class="mb-2">
+
+Reception Notifications
+
+</h3>
+
+
+<div id="receptionNotifications">
+
+
+<div class="dashboard-notification">
+
+
+<h5>
+
+No new notifications
+
+</h5>
+
+
+<p>
+
+System notifications will appear here.
+
+</p>
+
+
+</div>
+
+
+</div>
+
+
+</section>
+
+
+
+<!-- ==========================
+RECENT ACTIVITY
+=========================== -->
+
+
+<section class="timeline mt-3">
+
+
+<h3 class="mb-2">
+
+Recent Reception Activity
+
+</h3>
+
+
+<div id="receptionActivity">
+
+
+<div class="timeline-item">
+
+
+<div class="timeline-icon">
+
+<i class="fa-solid fa-user-plus"></i>
+
+</div>
+
+
+<div class="timeline-content">
+
+
+<h4>
+
+System Ready
+
+</h4>
+
+
+<small>
+
+Waiting for activities...
+
+</small>
+
+
+</div>
+
+
+</div>
+
+
+</div>
+
+
+</section>
+
+
+
+<!-- ==========================
+RECEPTION SETTINGS
+=========================== -->
+
+<section class="table-card mt-3">
+
+
+<h3 class="mb-2">
+
+Reception Settings
+
+</h3>
+
+
+<div class="grid-2">
+
+
+<div>
+
+
+<label>
+
+Default Department
+
+</label>
+
+
+<select id="defaultDepartment">
+
+
+<option>
+
+General Consultation
+
+</option>
+
+
+<option>
+
+Nursing
+
+</option>
+
+
+<option>
+
+Laboratory
+
+</option>
+
+
+</select>
+
+
+</div>
+
+
+
+<div>
+
+
+<label>
+
+Queue Auto Generation
+
+</label>
+
+
+<select id="queueAutoGeneration">
+
+
+<option value="enabled">
+
+Enabled
+
+</option>
+
+
+<option value="disabled">
+
+Disabled
+
+</option>
+
+
+</select>
+
+
+</div>
+
+
+<div>
+
+
+<label>
+
+SMS Notifications
+
+</label>
+
+
+<select id="smsNotifications">
+
+
+<option value="enabled">
+
+Enabled
+
+</option>
+
+
+<option value="disabled">
+
+Disabled
+
+</option>
+
+
+</select>
+
+
+</div>
+
+
+<div>
+
+
+<label>
+
+Email Notifications
+
+</label>
+
+
+<select id="emailNotifications">
+
+
+<option value="enabled">
+
+Enabled
+
+</option>
+
+
+<option value="disabled">
+
+Disabled
+
+</option>
+
+
+</select>
+
+
+</div>
+
+
+</div>
+
+
+
+<button
+
+class="primary-btn mt-3"
+
+id="saveReceptionSettings">
+
+Save Settings
+
+</button>
+
+
+</section>
+
+
+
+</main>
+
+
+</div>
+
+
+
+<!-- ==========================
+MODALS
+=========================== -->
+
+
+<div class="modal" id="patientDetailsModal">
+
+
+<div class="modal-content">
+
+
+<div class="modal-header">
+
+
+<h3>
+
+Patient Details
+
+</h3>
+
+
+<button class="close-modal">
+
+×
+
+</button>
+
+
+</div>
+
+
+<div class="modal-body">
+
+
+<div id="patientDetailsContent">
+
+
+</div>
+
+
+</div>
+
+
+</div>
+
+
+</div>
+
+
+
+<div class="modal" id="queueTicketModal">
+
+
+<div class="modal-content">
+
+
+<div class="modal-header">
+
+
+<h3>
+
+Queue Ticket
+
+</h3>
+
+
+<button class="close-modal">
+
+×
+
+</button>
+
+
+</div>
+
+
+<div class="modal-body">
+
+
+<div id="queueTicketContent">
+
+
+</div>
+
+
+</div>
+
+
+</div>
+
+
+</div>
+
+
+
+<!-- ==========================
+FOOTER
+=========================== -->
+
+
+<footer>
+
+
+<div class="footer-bottom">
+
+
+<p>
+
+© 2026 Kapasa Makasa University Digital Health Centre.
+All Rights Reserved.
+
+</p>
+
+
+</div>
+
+
+</footer>
+
+
+
+<script>
+
+
+window.addEventListener(
+
+"load",
+
+()=>{
+
+
+const loader=document.getElementById("loader");
+
+
+if(loader){
+
+loader.style.display="none";
+
+}
+
+
+}
+
+);
+
+
+</script>
+
+
+</body>
+
+</html>

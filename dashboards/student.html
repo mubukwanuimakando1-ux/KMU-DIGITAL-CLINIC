@@ -1,0 +1,2391 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+
+<title>
+KMU Digital Health Centre | Student Health Portal
+</title>
+
+
+<link rel="stylesheet" href="../assets/css/dashboard.css">
+
+<link rel="stylesheet" href="../assets/css/responsive.css">
+
+
+<link rel="stylesheet"
+href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+
+<script src="../assets/js/config.js"></script>
+
+<script src="../assets/js/utils.js"></script>
+
+<script src="../assets/js/student.js" defer></script>
+
+
+</head>
+
+
+
+<body class="dashboard-body">
+
+
+
+
+
+
+<!-- ==========================
+SIDEBAR
+=========================== -->
+
+
+<aside class="sidebar">
+
+
+<div class="sidebar-header">
+
+
+<img
+
+src="../assets/images/logo.png"
+
+alt="KMU Logo">
+
+
+
+<h2>
+
+Student Portal
+
+</h2>
+
+
+</div>
+
+
+
+
+
+<nav class="sidebar-menu">
+
+
+<ul>
+
+
+
+
+<li>
+
+<a class="active" href="#dashboard">
+
+
+<i class="fa-solid fa-gauge"></i>
+
+
+<span>
+
+Dashboard
+
+</span>
+
+
+</a>
+
+
+</li>
+
+
+
+
+
+
+
+<li>
+
+<a href="#appointments">
+
+
+<i class="fa-solid fa-calendar-check"></i>
+
+
+<span>
+
+Appointments
+
+</span>
+
+
+</a>
+
+
+</li>
+
+
+
+
+
+
+
+<li>
+
+<a href="#medicalHistory">
+
+
+<i class="fa-solid fa-file-medical"></i>
+
+
+<span>
+
+Medical History
+
+</span>
+
+
+</a>
+
+
+</li>
+
+
+
+
+
+
+
+<li>
+
+<a href="#prescriptions">
+
+
+<i class="fa-solid fa-pills"></i>
+
+
+<span>
+
+Prescriptions
+
+</span>
+
+
+</a>
+
+
+</li>
+
+
+
+
+
+
+
+<li>
+
+<a href="#laboratory">
+
+
+<i class="fa-solid fa-flask"></i>
+
+
+<span>
+
+Laboratory Results
+
+</span>
+
+
+</a>
+
+
+</li>
+
+
+
+
+
+
+
+<li>
+
+<a href="#counselling">
+
+
+<i class="fa-solid fa-comments"></i>
+
+
+<span>
+
+Counselling
+
+</span>
+
+
+</a>
+
+
+</li>
+
+
+
+
+
+
+
+<li>
+
+<a href="#documents">
+
+
+<i class="fa-solid fa-folder-open"></i>
+
+
+<span>
+
+Health Documents
+
+</span>
+
+
+</a>
+
+
+</li>
+
+
+
+
+
+
+
+<li>
+
+<a href="#profile">
+
+
+<i class="fa-solid fa-user"></i>
+
+
+<span>
+
+My Profile
+
+</span>
+
+
+</a>
+
+
+</li>
+
+
+
+
+
+
+
+<li>
+
+<a href="#" id="logoutButton">
+
+
+<i class="fa-solid fa-right-from-bracket"></i>
+
+
+<span>
+
+Logout
+
+</span>
+
+
+</a>
+
+
+</li>
+
+
+
+</ul>
+
+
+</nav>
+
+
+</aside>
+
+
+
+
+
+
+
+
+
+<!-- ==========================
+MAIN CONTENT
+=========================== -->
+
+
+<div class="main-content">
+
+
+
+<header class="topbar">
+
+
+
+<div class="topbar-left">
+
+
+<h2>
+
+Student Health Dashboard
+
+</h2>
+
+
+</div>
+
+
+
+
+
+<div class="topbar-right">
+
+
+<div class="profile-box">
+
+
+
+<img
+
+src="../assets/images/avatar.png"
+
+alt="Student">
+
+
+
+<div>
+
+
+<strong id="studentName">
+
+Student Name
+
+</strong>
+
+
+
+<br>
+
+
+<small>
+
+KMU Student
+
+</small>
+
+
+</div>
+
+
+</div>
+
+
+</div>
+
+
+
+</header>
+
+
+
+
+
+
+
+
+<main class="dashboard-content">
+
+
+
+
+
+
+
+<!-- ==========================
+SUMMARY CARDS
+=========================== -->
+
+
+<section class="dashboard-cards">
+
+
+
+<div class="dashboard-card">
+
+
+<div class="dashboard-card-header">
+
+
+<h3>
+
+Upcoming Appointments
+
+</h3>
+
+
+<i class="fa-solid fa-calendar"></i>
+
+
+</div>
+
+
+<h2 id="upcomingAppointments">
+
+0
+
+</h2>
+
+
+</div>
+
+
+
+
+
+
+
+<div class="dashboard-card">
+
+
+<div class="dashboard-card-header">
+
+
+<h3>
+
+Medical Visits
+
+</h3>
+
+
+<i class="fa-solid fa-hospital-user"></i>
+
+
+</div>
+
+
+<h2 id="medicalVisits">
+
+0
+
+</h2>
+
+
+</div>
+
+
+
+
+
+
+
+<div class="dashboard-card">
+
+
+<div class="dashboard-card-header">
+
+
+<h3>
+
+Prescriptions
+
+</h3>
+
+
+<i class="fa-solid fa-pills"></i>
+
+
+</div>
+
+
+<h2 id="studentPrescriptions">
+
+0
+
+</h2>
+
+
+</div>
+
+
+
+
+
+
+
+<div class="dashboard-card">
+
+
+<div class="dashboard-card-header">
+
+
+<h3>
+
+Lab Results
+
+</h3>
+
+
+<i class="fa-solid fa-flask"></i>
+
+
+</div>
+
+
+<h2 id="labResults">
+
+0
+
+</h2>
+
+
+</div>
+
+
+
+
+</section>
+
+
+
+
+
+
+
+
+<!-- ==========================
+QUICK ACTIONS
+=========================== -->
+
+
+<section class="quick-actions">
+
+
+
+<div class="action-card" id="bookHealthAppointment">
+
+
+<i class="fa-solid fa-calendar-plus"></i>
+
+
+<h4>
+
+Book Appointment
+
+</h4>
+
+
+</div>
+
+
+
+
+
+<div class="action-card" id="viewMedicalRecord">
+
+
+<i class="fa-solid fa-file-medical"></i>
+
+
+<h4>
+
+Medical Records
+
+</h4>
+
+
+</div>
+
+
+
+
+
+<div class="action-card" id="requestCounselling">
+
+
+<i class="fa-solid fa-comments"></i>
+
+
+<h4>
+
+Counselling
+
+</h4>
+
+
+</div>
+
+
+
+
+
+<div class="action-card" id="downloadDocuments">
+
+
+<i class="fa-solid fa-download"></i>
+
+
+<h4>
+
+Documents
+
+</h4>
+
+
+</div>
+
+
+
+</section>
+<!-- ==========================
+APPOINTMENT BOOKING
+=========================== -->
+
+
+<section
+
+id="appointments"
+
+class="table-card mt-3">
+
+
+
+<h3 class="mb-2">
+
+Book Health Appointment
+
+</h3>
+
+
+
+
+<form id="studentAppointmentForm">
+
+
+
+<div class="form-grid">
+
+
+
+<div>
+
+
+<label>
+
+Department
+
+</label>
+
+
+<select id="studentDepartment">
+
+
+<option>
+
+General Clinic
+
+</option>
+
+
+<option>
+
+Laboratory
+
+</option>
+
+
+<option>
+
+Pharmacy
+
+</option>
+
+
+<option>
+
+Counselling
+
+</option>
+
+
+</select>
+
+
+</div>
+
+
+
+
+
+<div>
+
+
+<label>
+
+Preferred Doctor
+
+</label>
+
+
+<select id="studentDoctor">
+
+
+<option>
+
+Select Doctor
+
+</option>
+
+
+</select>
+
+
+</div>
+
+
+
+
+
+<div>
+
+
+<label>
+
+Appointment Date
+
+</label>
+
+
+<input
+
+type="date"
+
+id="studentAppointmentDate">
+
+
+</div>
+
+
+
+
+
+<div>
+
+
+<label>
+
+Appointment Time
+
+</label>
+
+
+<input
+
+type="time"
+
+id="studentAppointmentTime">
+
+
+</div>
+
+
+
+</div>
+
+
+
+
+<label>
+
+Reason For Visit
+
+</label>
+
+
+<textarea
+
+id="studentVisitReason"
+
+rows="4"
+
+placeholder="Describe your health concern...">
+
+</textarea>
+
+
+
+
+<button
+
+class="primary-btn">
+
+
+<i class="fa-solid fa-calendar-plus"></i>
+
+
+Request Appointment
+
+
+</button>
+
+
+
+</form>
+
+
+
+</section>
+
+
+
+
+
+
+
+
+<!-- ==========================
+MY APPOINTMENTS
+=========================== -->
+
+
+<section
+
+class="table-card mt-3">
+
+
+
+<h3 class="mb-2">
+
+My Appointments
+
+</h3>
+
+
+
+
+<table>
+
+
+<thead>
+
+
+<tr>
+
+
+<th>
+
+Date
+
+</th>
+
+
+<th>
+
+Doctor
+
+</th>
+
+
+<th>
+
+Department
+
+</th>
+
+
+<th>
+
+Reason
+
+</th>
+
+
+<th>
+
+Status
+
+</th>
+
+
+<th>
+
+Action
+
+</th>
+
+
+</tr>
+
+
+</thead>
+
+
+
+
+<tbody id="studentAppointmentsTable">
+
+
+</tbody>
+
+
+
+</table>
+
+
+
+</section>
+
+
+
+
+
+
+
+<!-- ==========================
+MEDICAL HISTORY
+=========================== -->
+
+
+<section
+
+id="medicalHistory"
+
+class="table-card mt-3">
+
+
+
+<h3 class="mb-2">
+
+Medical History
+
+</h3>
+
+
+
+
+<table>
+
+
+<thead>
+
+
+<tr>
+
+
+<th>
+
+Visit Date
+
+</th>
+
+
+<th>
+
+Doctor
+
+</th>
+
+
+<th>
+
+Diagnosis
+
+</th>
+
+
+<th>
+
+Treatment
+
+</th>
+
+
+<th>
+
+Notes
+
+</th>
+
+
+</tr>
+
+
+</thead>
+
+
+
+
+<tbody id="studentMedicalHistoryTable">
+
+
+</tbody>
+
+
+
+</table>
+
+
+
+</section>
+
+
+
+
+
+
+
+<!-- ==========================
+PRESCRIPTIONS
+=========================== -->
+
+
+<section
+
+id="prescriptions"
+
+class="table-card mt-3">
+
+
+
+<h3 class="mb-2">
+
+My Prescriptions
+
+</h3>
+
+
+
+
+<table>
+
+
+<thead>
+
+
+<tr>
+
+
+<th>
+
+Medicine
+
+</th>
+
+
+<th>
+
+Dosage
+
+</th>
+
+
+<th>
+
+Duration
+
+</th>
+
+
+<th>
+
+Issued Date
+
+</th>
+
+
+<th>
+
+Doctor
+
+</th>
+
+
+</tr>
+
+
+</thead>
+
+
+
+
+<tbody id="studentPrescriptionTable">
+
+
+</tbody>
+
+
+
+</table>
+
+
+
+</section>
+
+
+
+
+
+
+
+<!-- ==========================
+LAB RESULTS
+=========================== -->
+
+
+<section
+
+id="laboratory"
+
+class="table-card mt-3">
+
+
+
+<h3 class="mb-2">
+
+Laboratory Results
+
+</h3>
+
+
+
+
+<table>
+
+
+<thead>
+
+
+<tr>
+
+
+<th>
+
+Test Name
+
+</th>
+
+
+<th>
+
+Date
+
+</th>
+
+
+<th>
+
+Result
+
+</th>
+
+
+<th>
+
+Doctor
+
+</th>
+
+
+<th>
+
+Report
+
+</th>
+
+
+</tr>
+
+
+</thead>
+
+
+
+
+<tbody id="studentLabResultsTable">
+
+
+</tbody>
+
+
+
+</table>
+
+
+
+</section>
+
+
+
+
+
+
+
+<!-- ==========================
+COUNSELLING REQUEST
+=========================== -->
+
+
+<section
+
+id="counselling"
+
+class="table-card mt-3">
+
+
+
+<h3 class="mb-2">
+
+Counselling Support Request
+
+</h3>
+
+
+
+
+<form id="studentCounsellingForm">
+
+
+
+<div class="form-grid">
+
+
+
+<div>
+
+
+<label>
+
+Counselling Type
+
+</label>
+
+
+<select id="studentCounsellingType">
+
+
+<option>
+
+Stress Management
+
+</option>
+
+
+<option>
+
+Academic Pressure
+
+</option>
+
+
+<option>
+
+Personal Support
+
+</option>
+
+
+<option>
+
+Career Guidance
+
+</option>
+
+
+<option>
+
+Emergency Support
+
+</option>
+
+
+</select>
+
+
+</div>
+
+
+
+
+
+<div>
+
+
+<label>
+
+Preferred Date
+
+</label>
+
+
+<input
+
+type="date"
+
+id="counsellingDate">
+
+
+</div>
+
+
+
+</div>
+
+
+
+
+<label>
+
+Message
+
+</label>
+
+
+<textarea
+
+id="counsellingMessage"
+
+rows="5"
+
+placeholder="Explain how we can assist you...">
+
+</textarea>
+
+
+
+
+<button
+
+class="primary-btn">
+
+
+<i class="fa-solid fa-comments"></i>
+
+
+Submit Request
+
+
+</button>
+
+
+
+</form>
+
+
+
+</section>
+
+
+
+
+
+
+
+<!-- ==========================
+COUNSELLING HISTORY
+=========================== -->
+
+
+<section
+
+class="table-card mt-3">
+
+
+
+<h3 class="mb-2">
+
+Counselling History
+
+</h3>
+
+
+
+
+<table>
+
+
+<thead>
+
+
+<tr>
+
+
+<th>
+
+Date
+
+</th>
+
+
+<th>
+
+Counsellor
+
+</th>
+
+
+<th>
+
+Session Type
+
+</th>
+
+
+<th>
+
+Status
+
+</th>
+
+
+</tr>
+
+
+</thead>
+
+
+
+
+<tbody id="studentCounsellingHistory">
+
+
+</tbody>
+
+
+
+</table>
+
+
+
+</section>
+<!-- ==========================
+HEALTH DOCUMENTS
+=========================== -->
+
+
+<section
+
+id="documents"
+
+class="table-card mt-3">
+
+
+
+<h3 class="mb-2">
+
+My Health Documents
+
+</h3>
+
+
+
+
+<table>
+
+
+<thead>
+
+
+<tr>
+
+
+<th>
+
+Document Name
+
+</th>
+
+
+<th>
+
+Category
+
+</th>
+
+
+<th>
+
+Uploaded Date
+
+</th>
+
+
+<th>
+
+Uploaded By
+
+</th>
+
+
+<th>
+
+Action
+
+</th>
+
+
+</tr>
+
+
+</thead>
+
+
+
+
+<tbody id="studentDocumentsTable">
+
+
+</tbody>
+
+
+
+</table>
+
+
+
+</section>
+
+
+
+
+
+
+
+
+<!-- ==========================
+UPLOAD DOCUMENT REQUEST
+=========================== -->
+
+
+<section
+
+class="table-card mt-3">
+
+
+
+<h3 class="mb-2">
+
+Request Health Document
+
+</h3>
+
+
+
+
+<form id="documentRequestForm">
+
+
+
+<div class="form-grid">
+
+
+
+<div>
+
+
+<label>
+
+Document Type
+
+</label>
+
+
+<select id="documentType">
+
+
+<option>
+
+Medical Report
+
+</option>
+
+
+<option>
+
+Medical Certificate
+
+</option>
+
+
+<option>
+
+Prescription Copy
+
+</option>
+
+
+<option>
+
+Laboratory Report
+
+</option>
+
+
+</select>
+
+
+</div>
+
+
+
+
+
+<div>
+
+
+<label>
+
+Purpose
+
+</label>
+
+
+<input
+
+type="text"
+
+id="documentPurpose">
+
+</div>
+
+
+
+</div>
+
+
+
+
+<button
+
+class="primary-btn">
+
+
+<i class="fa-solid fa-file-circle-plus"></i>
+
+
+Submit Request
+
+
+</button>
+
+
+
+</form>
+
+
+
+</section>
+
+
+
+
+
+
+
+<!-- ==========================
+EMERGENCY CONTACT
+=========================== -->
+
+
+<section
+
+class="table-card mt-3">
+
+
+
+<h3 class="mb-2">
+
+Emergency Contact Information
+
+</h3>
+
+
+
+
+<form id="emergencyContactForm">
+
+
+
+<div class="form-grid">
+
+
+
+<div>
+
+
+<label>
+
+Contact Name
+
+</label>
+
+
+<input
+
+type="text"
+
+id="emergencyName">
+
+</div>
+
+
+
+
+
+<div>
+
+
+<label>
+
+Relationship
+
+</label>
+
+
+<input
+
+type="text"
+
+id="emergencyRelationship">
+
+</div>
+
+
+
+
+
+<div>
+
+
+<label>
+
+Phone Number
+
+</label>
+
+
+<input
+
+type="tel"
+
+id="emergencyPhone">
+
+</div>
+
+
+
+
+
+<div>
+
+
+<label>
+
+Alternative Contact
+
+</label>
+
+
+<input
+
+type="tel"
+
+id="alternativePhone">
+
+</div>
+
+
+
+</div>
+
+
+
+
+<button
+
+class="primary-btn">
+
+
+<i class="fa-solid fa-phone"></i>
+
+
+Save Emergency Contact
+
+
+</button>
+
+
+
+</form>
+
+
+
+</section>
+
+
+
+
+
+
+
+<!-- ==========================
+STUDENT PROFILE
+=========================== -->
+
+
+<section
+
+id="profile"
+
+class="table-card mt-3">
+
+
+
+<h3 class="mb-2">
+
+My Profile
+
+</h3>
+
+
+
+
+<form id="studentProfileForm">
+
+
+
+<div class="form-grid">
+
+
+
+<div>
+
+
+<label>
+
+Full Name
+
+</label>
+
+
+<input
+
+type="text"
+
+id="profileName">
+
+
+</div>
+
+
+
+
+
+<div>
+
+
+<label>
+
+Student Number
+
+</label>
+
+
+<input
+
+type="text"
+
+id="studentNumber">
+
+</div>
+
+
+
+
+
+<div>
+
+
+<label>
+
+Programme
+
+</label>
+
+
+<input
+
+type="text"
+
+id="studentProgramme">
+
+</div>
+
+
+
+
+
+<div>
+
+
+<label>
+
+Email
+
+</label>
+
+
+<input
+
+type="email"
+
+id="studentEmail">
+
+</div>
+
+
+
+
+
+<div>
+
+
+<label>
+
+Phone
+
+</label>
+
+
+<input
+
+type="tel"
+
+id="studentPhone">
+
+</div>
+
+
+
+</div>
+
+
+
+
+<button
+
+class="primary-btn">
+
+
+<i class="fa-solid fa-user-pen"></i>
+
+
+Update Profile
+
+
+</button>
+
+
+
+</form>
+
+
+
+</section>
+
+
+
+
+
+
+
+
+<!-- ==========================
+HEALTH NOTIFICATIONS
+=========================== -->
+
+
+<section
+
+class="dashboard-notifications mt-3">
+
+
+
+<h3 class="mb-2">
+
+Health Notifications
+
+</h3>
+
+
+
+
+<div id="studentNotifications">
+
+
+
+<div class="dashboard-notification">
+
+
+<h5>
+
+Welcome To KMU Health Portal
+
+</h5>
+
+
+<p>
+
+Appointment reminders and health updates will appear here.
+
+</p>
+
+
+</div>
+
+
+
+</div>
+
+
+
+</section>
+
+
+
+
+
+
+
+<!-- ==========================
+ACTIVITY TIMELINE
+=========================== -->
+
+
+<section
+
+class="timeline mt-3">
+
+
+
+<h3 class="mb-2">
+
+Recent Health Activity
+
+</h3>
+
+
+
+
+<div id="studentActivity">
+
+
+
+<div class="timeline-item">
+
+
+
+<div class="timeline-icon">
+
+
+<i class="fa-solid fa-heart-pulse"></i>
+
+
+</div>
+
+
+
+<div class="timeline-content">
+
+
+<h4>
+
+Health Portal Activated
+
+</h4>
+
+
+<small>
+
+Waiting for activities...
+
+</small>
+
+
+</div>
+
+
+
+</div>
+
+
+
+</div>
+
+
+
+</section>
+
+
+
+
+
+
+
+<!-- ==========================
+STUDENT SETTINGS
+=========================== -->
+
+
+<section
+
+class="table-card mt-3">
+
+
+
+<h3 class="mb-2">
+
+Portal Settings
+
+</h3>
+
+
+
+
+<div class="grid-2">
+
+
+
+<div>
+
+
+<label>
+
+Appointment Reminders
+
+</label>
+
+
+<select id="studentAppointmentReminder">
+
+
+<option>
+
+Enabled
+
+</option>
+
+
+<option>
+
+Disabled
+
+</option>
+
+
+</select>
+
+
+</div>
+
+
+
+
+
+<div>
+
+
+<label>
+
+Health Notifications
+
+</label>
+
+
+<select id="studentHealthNotifications">
+
+
+<option>
+
+Enabled
+
+</option>
+
+
+<option>
+
+Disabled
+
+</option>
+
+
+</select>
+
+
+</div>
+
+
+
+
+
+<div>
+
+
+<label>
+
+Privacy Settings
+
+</label>
+
+
+<select id="studentPrivacy">
+
+
+<option>
+
+Private
+
+</option>
+
+
+<option>
+
+Shared With Healthcare Staff
+
+</option>
+
+
+</select>
+
+
+</div>
+
+
+
+
+
+<div>
+
+
+<label>
+
+Dashboard Refresh
+
+</label>
+
+
+<select id="studentRefreshRate">
+
+
+<option>
+
+30 Seconds
+
+</option>
+
+
+<option>
+
+1 Minute
+
+</option>
+
+
+<option>
+
+5 Minutes
+
+</option>
+
+
+</select>
+
+
+</div>
+
+
+
+</div>
+
+
+
+
+<button
+
+class="primary-btn mt-3"
+
+id="saveStudentSettings">
+
+
+Save Settings
+
+
+</button>
+
+
+
+</section>
+
+
+
+
+
+
+
+</main>
+
+
+
+</div>
+
+
+
+
+
+
+
+<footer>
+
+
+<div class="footer-bottom">
+
+
+<p>
+
+© 2026 Kapasa Makasa University Digital Health Centre.
+All Rights Reserved.
+
+</p>
+
+
+</div>
+
+
+</footer>
+
+
+
+
+
+</body>
+
+
+</html>

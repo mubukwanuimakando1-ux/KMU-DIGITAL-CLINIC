@@ -1,0 +1,2273 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+
+<title>
+KMU Digital Health Centre | Accountant Dashboard
+</title>
+
+
+<link rel="stylesheet" href="../assets/css/dashboard.css">
+
+<link rel="stylesheet" href="../assets/css/responsive.css">
+
+
+<link rel="stylesheet"
+href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+
+<script src="../assets/js/config.js"></script>
+
+<script src="../assets/js/utils.js"></script>
+
+<script src="../assets/js/accountant.js" defer></script>
+
+
+</head>
+
+
+<body class="dashboard-body">
+
+
+
+
+
+<!-- ==========================
+SIDEBAR
+=========================== -->
+
+
+<aside class="sidebar">
+
+
+<div class="sidebar-header">
+
+
+<img
+src="../assets/images/logo.png"
+alt="KMU Logo">
+
+
+<h2>
+
+Finance
+
+</h2>
+
+
+</div>
+
+
+
+
+
+<nav class="sidebar-menu">
+
+
+<ul>
+
+
+
+<li>
+
+<a class="active" href="#dashboard">
+
+
+<i class="fa-solid fa-gauge"></i>
+
+
+<span>
+
+Dashboard
+
+</span>
+
+
+</a>
+
+</li>
+
+
+
+
+
+<li>
+
+<a href="#billing">
+
+
+<i class="fa-solid fa-file-invoice-dollar"></i>
+
+
+<span>
+
+Billing
+
+</span>
+
+
+</a>
+
+</li>
+
+
+
+
+
+<li>
+
+<a href="#payments">
+
+
+<i class="fa-solid fa-money-bill-wave"></i>
+
+
+<span>
+
+Payments
+
+</span>
+
+
+</a>
+
+</li>
+
+
+
+
+
+<li>
+
+<a href="#invoices">
+
+
+<i class="fa-solid fa-receipt"></i>
+
+
+<span>
+
+Invoices
+
+</span>
+
+
+</a>
+
+</li>
+
+
+
+
+
+<li>
+
+<a href="#expenses">
+
+
+<i class="fa-solid fa-wallet"></i>
+
+
+<span>
+
+Expenses
+
+</span>
+
+
+</a>
+
+</li>
+
+
+
+
+
+<li>
+
+<a href="#insurance">
+
+
+<i class="fa-solid fa-shield-heart"></i>
+
+
+<span>
+
+Insurance
+
+</span>
+
+
+</a>
+
+</li>
+
+
+
+
+
+<li>
+
+<a href="#reports">
+
+
+<i class="fa-solid fa-chart-line"></i>
+
+
+<span>
+
+Financial Reports
+
+</span>
+
+
+</a>
+
+</li>
+
+
+
+
+
+<li>
+
+<a href="#" id="logoutButton">
+
+
+<i class="fa-solid fa-right-from-bracket"></i>
+
+
+<span>
+
+Logout
+
+</span>
+
+
+</a>
+
+</li>
+
+
+
+</ul>
+
+
+</nav>
+
+
+</aside>
+
+
+
+
+
+
+
+
+<!-- ==========================
+MAIN CONTENT
+=========================== -->
+
+
+<div class="main-content">
+
+
+
+<header class="topbar">
+
+
+
+<div class="topbar-left">
+
+
+<h2>
+
+Accountant Dashboard
+
+</h2>
+
+
+</div>
+
+
+
+
+
+<div class="topbar-right">
+
+
+<div class="profile-box">
+
+
+<img
+
+src="../assets/images/avatar.png"
+
+alt="Accountant">
+
+
+
+<div>
+
+
+<strong id="accountantName">
+
+Accountant Name
+
+</strong>
+
+
+
+<br>
+
+
+<small>
+
+Finance Department
+
+</small>
+
+
+</div>
+
+
+</div>
+
+
+</div>
+
+
+
+</header>
+
+
+
+
+
+
+<main class="dashboard-content">
+
+
+
+
+
+
+<!-- ==========================
+SUMMARY CARDS
+=========================== -->
+
+
+<section class="dashboard-cards">
+
+
+
+<div class="dashboard-card">
+
+
+<div class="dashboard-card-header">
+
+
+<h3>
+
+Today's Revenue
+
+</h3>
+
+
+
+<i class="fa-solid fa-money-bill"></i>
+
+
+</div>
+
+
+<h2 id="todayRevenue">
+
+ZMW 0
+
+</h2>
+
+
+</div>
+
+
+
+
+
+
+
+<div class="dashboard-card">
+
+
+<div class="dashboard-card-header">
+
+
+<h3>
+
+Pending Payments
+
+</h3>
+
+
+
+<i class="fa-solid fa-clock"></i>
+
+
+</div>
+
+
+<h2 id="pendingPayments">
+
+0
+
+</h2>
+
+
+</div>
+
+
+
+
+
+
+
+<div class="dashboard-card">
+
+
+<div class="dashboard-card-header">
+
+
+<h3>
+
+Outstanding Bills
+
+</h3>
+
+
+
+<i class="fa-solid fa-file-invoice"></i>
+
+
+</div>
+
+
+<h2 id="outstandingBills">
+
+0
+
+</h2>
+
+
+</div>
+
+
+
+
+
+
+
+<div class="dashboard-card">
+
+
+<div class="dashboard-card-header">
+
+
+<h3>
+
+Monthly Income
+
+</h3>
+
+
+
+<i class="fa-solid fa-chart-line"></i>
+
+
+</div>
+
+
+<h2 id="monthlyIncome">
+
+ZMW 0
+
+</h2>
+
+
+</div>
+
+
+
+
+</section>
+
+
+
+
+
+
+
+
+<!-- ==========================
+QUICK ACTIONS
+=========================== -->
+
+
+<section class="quick-actions">
+
+
+
+<div class="action-card" id="createInvoice">
+
+
+<i class="fa-solid fa-file-circle-plus"></i>
+
+
+<h4>
+
+Create Invoice
+
+</h4>
+
+
+</div>
+
+
+
+
+
+<div class="action-card" id="recordPayment">
+
+
+<i class="fa-solid fa-cash-register"></i>
+
+
+<h4>
+
+Record Payment
+
+</h4>
+
+
+</div>
+
+
+
+
+
+<div class="action-card" id="manageExpenses">
+
+
+<i class="fa-solid fa-wallet"></i>
+
+
+<h4>
+
+Expenses
+
+</h4>
+
+
+</div>
+
+
+
+
+
+<div class="action-card" id="financialReport">
+
+
+<i class="fa-solid fa-chart-column"></i>
+
+
+<h4>
+
+Reports
+
+</h4>
+
+
+</div>
+
+
+
+
+</section>
+<!-- ==========================
+BILLING MANAGEMENT
+=========================== -->
+
+
+<section
+
+id="billing"
+
+class="table-card mt-3">
+
+
+
+<div class="flex-between mb-2">
+
+
+<h3>
+
+Patient Billing Management
+
+</h3>
+
+
+
+<button
+
+class="primary-btn"
+
+id="createBill">
+
+
+Create Bill
+
+
+</button>
+
+
+
+</div>
+
+
+
+
+<table>
+
+
+<thead>
+
+
+<tr>
+
+
+<th>
+
+Bill No.
+
+</th>
+
+
+<th>
+
+Patient
+
+</th>
+
+
+<th>
+
+Service
+
+</th>
+
+
+<th>
+
+Amount
+
+</th>
+
+
+<th>
+
+Date
+
+</th>
+
+
+<th>
+
+Status
+
+</th>
+
+
+<th>
+
+Action
+
+</th>
+
+
+</tr>
+
+
+</thead>
+
+
+
+
+<tbody id="billingTable">
+
+
+</tbody>
+
+
+
+</table>
+
+
+
+</section>
+
+
+
+
+
+
+
+<!-- ==========================
+CREATE INVOICE
+=========================== -->
+
+
+<section
+
+id="invoices"
+
+class="table-card mt-3">
+
+
+
+<h3 class="mb-2">
+
+Invoice Management
+
+</h3>
+
+
+
+
+<form id="invoiceForm">
+
+
+
+<div class="form-grid">
+
+
+
+<div>
+
+
+<label>
+
+Patient Name
+
+</label>
+
+
+<input
+
+type="text"
+
+id="invoicePatient">
+
+
+</div>
+
+
+
+
+
+<div>
+
+
+<label>
+
+Patient Number
+
+</label>
+
+
+<input
+
+type="text"
+
+id="invoicePatientNumber">
+
+
+</div>
+
+
+
+
+
+<div>
+
+
+<label>
+
+Service Type
+
+</label>
+
+
+<select id="invoiceService">
+
+
+<option>
+
+Consultation
+
+</option>
+
+
+<option>
+
+Laboratory Test
+
+</option>
+
+
+<option>
+
+Medicine
+
+</option>
+
+
+<option>
+
+Other
+
+</option>
+
+
+</select>
+
+
+</div>
+
+
+
+
+
+<div>
+
+
+<label>
+
+Amount
+
+</label>
+
+
+<input
+
+type="number"
+
+id="invoiceAmount">
+
+
+</div>
+
+
+
+</div>
+
+
+
+
+<label>
+
+Invoice Description
+
+</label>
+
+
+<textarea
+
+id="invoiceDescription"
+
+rows="4">
+
+</textarea>
+
+
+
+
+<button
+
+class="primary-btn">
+
+
+<i class="fa-solid fa-file-invoice-dollar"></i>
+
+
+Generate Invoice
+
+
+</button>
+
+
+
+</form>
+
+
+
+</section>
+
+
+
+
+
+
+
+<!-- ==========================
+PAYMENTS
+=========================== -->
+
+
+<section
+
+id="payments"
+
+class="table-card mt-3">
+
+
+
+<h3 class="mb-2">
+
+Payment Records
+
+</h3>
+
+
+
+
+<table>
+
+
+<thead>
+
+
+<tr>
+
+
+<th>
+
+Receipt No.
+
+</th>
+
+
+<th>
+
+Patient
+
+</th>
+
+
+<th>
+
+Amount
+
+</th>
+
+
+<th>
+
+Payment Method
+
+</th>
+
+
+<th>
+
+Date
+
+</th>
+
+
+<th>
+
+Status
+
+</th>
+
+
+</tr>
+
+
+</thead>
+
+
+
+
+<tbody id="paymentTable">
+
+
+</tbody>
+
+
+
+</table>
+
+
+
+</section>
+
+
+
+
+
+
+
+<!-- ==========================
+RECORD PAYMENT
+=========================== -->
+
+
+<section
+
+class="table-card mt-3">
+
+
+
+<h3 class="mb-2">
+
+Record Payment
+
+</h3>
+
+
+
+
+<form id="paymentForm">
+
+
+
+<div class="form-grid">
+
+
+
+<div>
+
+
+<label>
+
+Invoice Number
+
+</label>
+
+
+<input
+
+type="text"
+
+id="paymentInvoice">
+
+
+</div>
+
+
+
+
+
+<div>
+
+
+<label>
+
+Amount Paid
+
+</label>
+
+
+<input
+
+type="number"
+
+id="paymentAmount">
+
+
+</div>
+
+
+
+
+
+<div>
+
+
+<label>
+
+Payment Method
+
+</label>
+
+
+<select id="paymentMethod">
+
+
+<option>
+
+Cash
+
+</option>
+
+
+<option>
+
+Card
+
+</option>
+
+
+<option>
+
+Mobile Money
+
+</option>
+
+
+<option>
+
+Bank Transfer
+
+</option>
+
+
+</select>
+
+
+</div>
+
+
+
+
+
+<div>
+
+
+<label>
+
+Payment Date
+
+</label>
+
+
+<input
+
+type="date"
+
+id="paymentDate">
+
+
+</div>
+
+
+
+</div>
+
+
+
+
+<button
+
+class="primary-btn">
+
+
+<i class="fa-solid fa-money-bill-wave"></i>
+
+
+Save Payment
+
+
+</button>
+
+
+
+</form>
+
+
+
+</section>
+
+
+
+
+
+
+
+<!-- ==========================
+RECEIPTS
+=========================== -->
+
+
+<section
+
+class="table-card mt-3">
+
+
+
+<h3 class="mb-2">
+
+Receipt Management
+
+</h3>
+
+
+
+
+<table>
+
+
+<thead>
+
+
+<tr>
+
+
+<th>
+
+Receipt No.
+
+</th>
+
+
+<th>
+
+Patient
+
+</th>
+
+
+<th>
+
+Amount
+
+</th>
+
+
+<th>
+
+Issued By
+
+</th>
+
+
+<th>
+
+Date
+
+</th>
+
+
+<th>
+
+Print
+
+</th>
+
+
+</tr>
+
+
+</thead>
+
+
+
+
+<tbody id="receiptTable">
+
+
+</tbody>
+
+
+
+</table>
+
+
+
+</section>
+
+
+
+
+
+
+
+<!-- ==========================
+INSURANCE CLAIMS
+=========================== -->
+
+
+<section
+
+id="insurance"
+
+class="table-card mt-3">
+
+
+
+<h3 class="mb-2">
+
+Insurance Claims
+
+</h3>
+
+
+
+
+<table>
+
+
+<thead>
+
+
+<tr>
+
+
+<th>
+
+Claim No.
+
+</th>
+
+
+<th>
+
+Patient
+
+</th>
+
+
+<th>
+
+Insurance Provider
+
+</th>
+
+
+<th>
+
+Amount
+
+</th>
+
+
+<th>
+
+Status
+
+</th>
+
+
+<th>
+
+Action
+
+</th>
+
+
+</tr>
+
+
+</thead>
+
+
+
+
+<tbody id="insuranceClaimsTable">
+
+
+</tbody>
+
+
+
+</table>
+
+
+
+</section>
+
+
+
+
+
+
+
+<!-- ==========================
+EXPENSE MANAGEMENT
+=========================== -->
+
+
+<section
+
+id="expenses"
+
+class="table-card mt-3">
+
+
+
+<div class="flex-between mb-2">
+
+
+<h3>
+
+Expense Tracking
+
+</h3>
+
+
+
+<button
+
+class="primary-btn"
+
+id="addExpense">
+
+
+Add Expense
+
+
+</button>
+
+
+
+</div>
+
+
+
+
+<table>
+
+
+<thead>
+
+
+<tr>
+
+
+<th>
+
+Expense Type
+
+</th>
+
+
+<th>
+
+Description
+
+</th>
+
+
+<th>
+
+Amount
+
+</th>
+
+
+<th>
+
+Date
+
+</th>
+
+
+<th>
+
+Approved By
+
+</th>
+
+
+</tr>
+
+
+</thead>
+
+
+
+
+<tbody id="expenseTable">
+
+
+</tbody>
+
+
+
+</table>
+
+
+
+</section>
+<!-- ==========================
+FINANCIAL REPORTS
+=========================== -->
+
+
+<section
+
+id="reports"
+
+class="table-card mt-3">
+
+
+
+<h3 class="mb-2">
+
+Financial Reports
+
+</h3>
+
+
+
+
+<div class="quick-actions">
+
+
+
+<div class="action-card" id="dailyFinanceReport">
+
+
+<i class="fa-solid fa-file-lines"></i>
+
+
+<h4>
+
+Daily Revenue
+
+</h4>
+
+
+</div>
+
+
+
+
+
+<div class="action-card" id="monthlyFinanceReport">
+
+
+<i class="fa-solid fa-chart-line"></i>
+
+
+<h4>
+
+Monthly Report
+
+</h4>
+
+
+</div>
+
+
+
+
+
+<div class="action-card" id="incomeExpenseReport">
+
+
+<i class="fa-solid fa-money-check-dollar"></i>
+
+
+<h4>
+
+Income vs Expense
+
+</h4>
+
+
+</div>
+
+
+
+
+
+<div class="action-card" id="exportFinancePDF">
+
+
+<i class="fa-solid fa-file-pdf"></i>
+
+
+<h4>
+
+Export PDF
+
+</h4>
+
+
+</div>
+
+
+
+</div>
+
+
+
+</section>
+
+
+
+
+
+
+
+
+<!-- ==========================
+REVENUE ANALYTICS
+=========================== -->
+
+
+<section
+
+class="chart-grid mt-3">
+
+
+
+<div class="chart-card">
+
+
+<h3>
+
+Revenue Overview
+
+</h3>
+
+
+
+<canvas id="revenueChart"></canvas>
+
+
+
+</div>
+
+
+
+
+
+<div class="chart-card">
+
+
+<h3>
+
+Payment Methods
+
+</h3>
+
+
+
+<canvas id="paymentChart"></canvas>
+
+
+
+</div>
+
+
+
+</section>
+
+
+
+
+
+
+
+<!-- ==========================
+TRANSACTION AUDIT
+=========================== -->
+
+
+<section
+
+class="table-card mt-3">
+
+
+
+<h3 class="mb-2">
+
+Financial Audit Records
+
+</h3>
+
+
+
+
+<table>
+
+
+<thead>
+
+
+<tr>
+
+
+<th>
+
+Date
+
+</th>
+
+
+<th>
+
+User
+
+</th>
+
+
+<th>
+
+Transaction
+
+</th>
+
+
+<th>
+
+Amount
+
+</th>
+
+
+<th>
+
+Action
+
+</th>
+
+
+</tr>
+
+
+</thead>
+
+
+
+
+<tbody id="financialAuditTable">
+
+
+</tbody>
+
+
+
+</table>
+
+
+
+</section>
+
+
+
+
+
+
+
+<!-- ==========================
+CASH FLOW SUMMARY
+=========================== -->
+
+
+<section
+
+class="dashboard-cards mt-3">
+
+
+
+<div class="dashboard-card">
+
+
+<div class="dashboard-card-header">
+
+
+<h3>
+
+Total Income
+
+</h3>
+
+
+<i class="fa-solid fa-arrow-trend-up"></i>
+
+
+</div>
+
+
+
+<h2 id="totalIncome">
+
+ZMW 0
+
+</h2>
+
+
+</div>
+
+
+
+
+
+
+<div class="dashboard-card">
+
+
+<div class="dashboard-card-header">
+
+
+<h3>
+
+Total Expenses
+
+</h3>
+
+
+<i class="fa-solid fa-arrow-trend-down"></i>
+
+
+</div>
+
+
+
+<h2 id="totalExpenses">
+
+ZMW 0
+
+</h2>
+
+
+</div>
+
+
+
+
+
+
+<div class="dashboard-card">
+
+
+<div class="dashboard-card-header">
+
+
+<h3>
+
+Outstanding Balance
+
+</h3>
+
+
+<i class="fa-solid fa-scale-balanced"></i>
+
+
+</div>
+
+
+
+<h2 id="outstandingBalance">
+
+ZMW 0
+
+</h2>
+
+
+</div>
+
+
+
+
+
+
+<div class="dashboard-card">
+
+
+<div class="dashboard-card-header">
+
+
+<h3>
+
+Profit Summary
+
+</h3>
+
+
+<i class="fa-solid fa-chart-pie"></i>
+
+
+</div>
+
+
+
+<h2 id="profitSummary">
+
+ZMW 0
+
+</h2>
+
+
+</div>
+
+
+
+</section>
+
+
+
+
+
+
+
+<!-- ==========================
+NOTIFICATIONS
+=========================== -->
+
+
+<section
+
+class="dashboard-notifications mt-3">
+
+
+
+<h3 class="mb-2">
+
+Finance Notifications
+
+</h3>
+
+
+
+
+<div id="financeNotifications">
+
+
+
+<div class="dashboard-notification">
+
+
+<h5>
+
+System Ready
+
+</h5>
+
+
+<p>
+
+Financial updates will appear here.
+
+</p>
+
+
+</div>
+
+
+
+</div>
+
+
+
+</section>
+
+
+
+
+
+
+
+<!-- ==========================
+ACTIVITY TIMELINE
+=========================== -->
+
+
+<section
+
+class="timeline mt-3">
+
+
+
+<h3 class="mb-2">
+
+Recent Finance Activity
+
+</h3>
+
+
+
+
+<div id="financeActivity">
+
+
+
+<div class="timeline-item">
+
+
+
+<div class="timeline-icon">
+
+
+<i class="fa-solid fa-calculator"></i>
+
+
+</div>
+
+
+
+<div class="timeline-content">
+
+
+<h4>
+
+Finance Portal Started
+
+</h4>
+
+
+<small>
+
+Waiting for activities...
+
+</small>
+
+
+</div>
+
+
+
+</div>
+
+
+
+</div>
+
+
+
+</section>
+
+
+
+
+
+
+
+<!-- ==========================
+ACCOUNTANT SETTINGS
+=========================== -->
+
+
+<section
+
+class="table-card mt-3">
+
+
+
+<h3 class="mb-2">
+
+Finance Settings
+
+</h3>
+
+
+
+
+<div class="grid-2">
+
+
+
+<div>
+
+
+<label>
+
+Currency
+
+</label>
+
+
+<select id="currencySetting">
+
+
+<option>
+
+ZMW
+
+</option>
+
+
+</select>
+
+
+</div>
+
+
+
+
+
+<div>
+
+
+<label>
+
+Invoice Prefix
+
+</label>
+
+
+<input
+
+type="text"
+
+id="invoicePrefix"
+
+value="KMU">
+
+
+</div>
+
+
+
+
+
+<div>
+
+
+<label>
+
+Receipt Auto Generation
+
+</label>
+
+
+<select id="receiptGeneration">
+
+
+<option>
+
+Enabled
+
+</option>
+
+
+<option>
+
+Disabled
+
+</option>
+
+
+</select>
+
+
+</div>
+
+
+
+
+
+<div>
+
+
+<label>
+
+Payment Notifications
+
+</label>
+
+
+<select id="paymentNotifications">
+
+
+<option>
+
+Enabled
+
+</option>
+
+
+<option>
+
+Disabled
+
+</option>
+
+
+</select>
+
+
+</div>
+
+
+
+</div>
+
+
+
+
+<button
+
+class="primary-btn mt-3"
+
+id="saveFinanceSettings">
+
+
+Save Settings
+
+
+</button>
+
+
+
+</section>
+
+
+
+
+
+
+
+</main>
+
+
+
+</div>
+
+
+
+
+
+
+
+<footer>
+
+
+<div class="footer-bottom">
+
+
+<p>
+
+© 2026 Kapasa Makasa University Digital Health Centre.
+All Rights Reserved.
+
+</p>
+
+
+</div>
+
+
+</footer>
+
+
+
+
+
+
+</body>
+
+
+</html>

@@ -1,0 +1,2238 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+
+<title>
+KMU Digital Health Centre | Pharmacy Dashboard
+</title>
+
+
+<link rel="stylesheet" href="../assets/css/dashboard.css">
+
+<link rel="stylesheet" href="../assets/css/responsive.css">
+
+
+<link rel="stylesheet"
+href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+
+<script src="../assets/js/config.js"></script>
+
+<script src="../assets/js/utils.js"></script>
+
+<script src="../assets/js/pharmacy.js" defer></script>
+
+
+</head>
+
+
+
+<body class="dashboard-body">
+
+
+
+
+
+<!-- ==========================
+SIDEBAR
+=========================== -->
+
+
+<aside class="sidebar">
+
+
+
+<div class="sidebar-header">
+
+
+<img
+
+src="../assets/images/logo.png"
+
+alt="KMU Logo">
+
+
+
+<h2>
+
+Pharmacy
+
+</h2>
+
+
+</div>
+
+
+
+
+
+<nav class="sidebar-menu">
+
+
+<ul>
+
+
+
+<li>
+
+<a class="active" href="#dashboard">
+
+
+<i class="fa-solid fa-gauge"></i>
+
+
+<span>
+
+Dashboard
+
+</span>
+
+
+</a>
+
+</li>
+
+
+
+
+
+<li>
+
+<a href="#prescriptions">
+
+
+<i class="fa-solid fa-prescription-bottle-medical"></i>
+
+
+<span>
+
+Prescriptions
+
+</span>
+
+
+</a>
+
+
+</li>
+
+
+
+
+
+<li>
+
+<a href="#dispensing">
+
+
+<i class="fa-solid fa-pills"></i>
+
+
+<span>
+
+Dispensing
+
+</span>
+
+
+</a>
+
+
+</li>
+
+
+
+
+
+<li>
+
+<a href="#inventory">
+
+
+<i class="fa-solid fa-boxes-stacked"></i>
+
+
+<span>
+
+Medicine Inventory
+
+</span>
+
+
+</a>
+
+
+</li>
+
+
+
+
+
+<li>
+
+<a href="#stockAlerts">
+
+
+<i class="fa-solid fa-triangle-exclamation"></i>
+
+
+<span>
+
+Stock Alerts
+
+</span>
+
+
+</a>
+
+
+</li>
+
+
+
+
+
+<li>
+
+<a href="#suppliers">
+
+
+<i class="fa-solid fa-truck"></i>
+
+
+<span>
+
+Suppliers
+
+</span>
+
+
+</a>
+
+
+</li>
+
+
+
+
+
+<li>
+
+<a href="#reports">
+
+
+<i class="fa-solid fa-chart-column"></i>
+
+
+<span>
+
+Reports
+
+</span>
+
+
+</a>
+
+
+</li>
+
+
+
+
+
+<li>
+
+<a href="#" id="logoutButton">
+
+
+<i class="fa-solid fa-right-from-bracket"></i>
+
+
+<span>
+
+Logout
+
+</span>
+
+
+</a>
+
+
+</li>
+
+
+
+</ul>
+
+
+</nav>
+
+
+</aside>
+
+
+
+
+
+
+<!-- ==========================
+MAIN CONTENT
+=========================== -->
+
+
+<div class="main-content">
+
+
+
+<header class="topbar">
+
+
+
+<div class="topbar-left">
+
+
+<h2>
+
+Pharmacy Dashboard
+
+</h2>
+
+
+</div>
+
+
+
+
+
+<div class="topbar-right">
+
+
+<div class="profile-box">
+
+
+
+<img
+
+src="../assets/images/avatar.png"
+
+alt="Pharmacist">
+
+
+
+<div>
+
+
+<strong id="pharmacistName">
+
+Pharmacist Name
+
+</strong>
+
+
+
+<br>
+
+
+<small>
+
+Pharmacy Department
+
+</small>
+
+
+</div>
+
+
+</div>
+
+
+</div>
+
+
+
+</header>
+
+
+
+
+
+
+<main class="dashboard-content">
+
+
+
+
+
+
+<!-- ==========================
+SUMMARY CARDS
+=========================== -->
+
+
+<section class="dashboard-cards">
+
+
+
+<div class="dashboard-card">
+
+
+<div class="dashboard-card-header">
+
+
+<h3>
+
+Pending Prescriptions
+
+</h3>
+
+
+
+<i class="fa-solid fa-prescription"></i>
+
+
+</div>
+
+
+<h2 id="pendingPrescriptions">
+
+0
+
+</h2>
+
+
+</div>
+
+
+
+
+
+
+
+<div class="dashboard-card">
+
+
+<div class="dashboard-card-header">
+
+
+<h3>
+
+Dispensed Today
+
+</h3>
+
+
+
+<i class="fa-solid fa-pills"></i>
+
+
+</div>
+
+
+<h2 id="dispensedToday">
+
+0
+
+</h2>
+
+
+</div>
+
+
+
+
+
+
+
+<div class="dashboard-card">
+
+
+<div class="dashboard-card-header">
+
+
+<h3>
+
+Low Stock Items
+
+</h3>
+
+
+
+<i class="fa-solid fa-box-open"></i>
+
+
+</div>
+
+
+<h2 id="lowStockItems">
+
+0
+
+</h2>
+
+
+</div>
+
+
+
+
+
+
+
+<div class="dashboard-card">
+
+
+<div class="dashboard-card-header">
+
+
+<h3>
+
+Expiring Medicines
+
+</h3>
+
+
+
+<i class="fa-solid fa-calendar-xmark"></i>
+
+
+</div>
+
+
+<h2 id="expiringMedicines">
+
+0
+
+</h2>
+
+
+</div>
+
+
+
+
+</section>
+
+
+
+
+
+
+
+<!-- ==========================
+QUICK ACTIONS
+=========================== -->
+
+
+<section class="quick-actions">
+
+
+
+<div class="action-card" id="dispenseMedicine">
+
+
+<i class="fa-solid fa-hand-holding-medical"></i>
+
+
+<h4>
+
+Dispense Medicine
+
+</h4>
+
+
+</div>
+
+
+
+
+
+<div class="action-card" id="manageStock">
+
+
+<i class="fa-solid fa-boxes-stacked"></i>
+
+
+<h4>
+
+Manage Stock
+
+</h4>
+
+
+</div>
+
+
+
+
+
+<div class="action-card" id="checkExpiry">
+
+
+<i class="fa-solid fa-calendar-check"></i>
+
+
+<h4>
+
+Check Expiry
+
+</h4>
+
+
+</div>
+
+
+
+
+
+<div class="action-card" id="pharmacyReports">
+
+
+<i class="fa-solid fa-file-pdf"></i>
+
+
+<h4>
+
+Reports
+
+</h4>
+
+
+</div>
+
+
+
+
+</section>
+<!-- ==========================
+PRESCRIPTION QUEUE
+=========================== -->
+
+
+<section
+
+id="prescriptions"
+
+class="table-card mt-3">
+
+
+
+<div class="flex-between mb-2">
+
+
+<h3>
+
+Prescription Queue
+
+</h3>
+
+
+
+<button
+
+class="secondary-btn"
+
+id="refreshPrescriptions">
+
+
+Refresh
+
+
+</button>
+
+
+
+</div>
+
+
+
+
+<table>
+
+
+<thead>
+
+
+<tr>
+
+
+<th>
+
+Prescription No.
+
+</th>
+
+
+<th>
+
+Patient
+
+</th>
+
+
+<th>
+
+Doctor
+
+</th>
+
+
+<th>
+
+Medicine
+
+</th>
+
+
+<th>
+
+Date
+
+</th>
+
+
+<th>
+
+Status
+
+</th>
+
+
+<th>
+
+Action
+
+</th>
+
+
+</tr>
+
+
+</thead>
+
+
+
+
+<tbody id="prescriptionQueueTable">
+
+
+</tbody>
+
+
+
+</table>
+
+
+
+</section>
+
+
+
+
+
+
+
+<!-- ==========================
+MEDICINE DISPENSING
+=========================== -->
+
+
+<section
+
+id="dispensing"
+
+class="table-card mt-3">
+
+
+
+<h3 class="mb-2">
+
+Medicine Dispensing
+
+</h3>
+
+
+
+
+<form id="dispenseMedicineForm">
+
+
+
+<div class="form-grid">
+
+
+
+<div>
+
+
+<label>
+
+Patient
+
+</label>
+
+
+<select id="dispensePatient">
+
+
+<option>
+
+Select Patient
+
+</option>
+
+
+</select>
+
+
+</div>
+
+
+
+
+
+<div>
+
+
+<label>
+
+Prescription
+
+</label>
+
+
+<select id="dispensePrescription">
+
+
+<option>
+
+Select Prescription
+
+</option>
+
+
+</select>
+
+
+</div>
+
+
+
+
+
+<div>
+
+
+<label>
+
+Medicine Name
+
+</label>
+
+
+<input
+
+type="text"
+
+id="dispenseMedicineName">
+
+</div>
+
+
+
+
+
+<div>
+
+
+<label>
+
+Quantity
+
+</label>
+
+
+<input
+
+type="number"
+
+id="dispenseQuantity">
+
+</div>
+
+
+
+
+
+<div>
+
+
+<label>
+
+Dosage Instructions
+
+</label>
+
+
+<input
+
+type="text"
+
+id="dispenseDosage">
+
+</div>
+
+
+
+
+
+<div>
+
+
+<label>
+
+Dispensing Date
+
+</label>
+
+
+<input
+
+type="date"
+
+id="dispenseDate">
+
+</div>
+
+
+
+</div>
+
+
+
+
+<label>
+
+Pharmacist Notes
+
+</label>
+
+
+<textarea
+
+id="pharmacistNotes"
+
+rows="4">
+
+</textarea>
+
+
+
+
+<button
+
+class="primary-btn"
+
+type="submit">
+
+
+<i class="fa-solid fa-pills"></i>
+
+
+Dispense Medicine
+
+
+</button>
+
+
+
+</form>
+
+
+
+</section>
+
+
+
+
+
+
+
+<!-- ==========================
+PATIENT MEDICATION HISTORY
+=========================== -->
+
+
+<section
+
+class="table-card mt-3">
+
+
+
+<h3 class="mb-2">
+
+Patient Medication History
+
+</h3>
+
+
+
+
+<table>
+
+
+<thead>
+
+
+<tr>
+
+
+<th>
+
+Date
+
+</th>
+
+
+<th>
+
+Patient
+
+</th>
+
+
+<th>
+
+Medicine
+
+</th>
+
+
+<th>
+
+Dosage
+
+</th>
+
+
+<th>
+
+Issued By
+
+</th>
+
+
+<th>
+
+Details
+
+</th>
+
+
+</tr>
+
+
+</thead>
+
+
+
+
+<tbody id="medicationHistoryTable">
+
+
+</tbody>
+
+
+
+</table>
+
+
+
+</section>
+
+
+
+
+
+
+
+<!-- ==========================
+MEDICINE INVENTORY
+=========================== -->
+
+
+<section
+
+id="inventory"
+
+class="table-card mt-3">
+
+
+
+<div class="flex-between mb-2">
+
+
+<h3>
+
+Medicine Inventory
+
+</h3>
+
+
+
+<button
+
+class="primary-btn"
+
+id="addMedicine">
+
+
+Add Medicine
+
+
+</button>
+
+
+
+</div>
+
+
+
+
+<table>
+
+
+<thead>
+
+
+<tr>
+
+
+<th>
+
+Medicine Name
+
+</th>
+
+
+<th>
+
+Category
+
+</th>
+
+
+<th>
+
+Quantity
+
+</th>
+
+
+<th>
+
+Unit Price
+
+</th>
+
+
+<th>
+
+Expiry Date
+
+</th>
+
+
+<th>
+
+Status
+
+</th>
+
+
+</tr>
+
+
+</thead>
+
+
+
+
+<tbody id="medicineInventoryTable">
+
+
+</tbody>
+
+
+
+</table>
+
+
+
+</section>
+
+
+
+
+
+
+
+<!-- ==========================
+STOCK UPDATE
+=========================== -->
+
+
+<section
+
+class="table-card mt-3">
+
+
+
+<h3 class="mb-2">
+
+Update Medicine Stock
+
+</h3>
+
+
+
+
+<form id="stockUpdateForm">
+
+
+
+<div class="form-grid">
+
+
+
+<div>
+
+
+<label>
+
+Medicine
+
+</label>
+
+
+<select id="stockMedicine">
+
+
+<option>
+
+Select Medicine
+
+</option>
+
+
+</select>
+
+
+</div>
+
+
+
+
+
+<div>
+
+
+<label>
+
+Transaction Type
+
+</label>
+
+
+<select id="stockTransactionType">
+
+
+<option>
+
+Add Stock
+
+</option>
+
+
+<option>
+
+Remove Stock
+
+</option>
+
+
+</select>
+
+
+</div>
+
+
+
+
+
+<div>
+
+
+<label>
+
+Quantity
+
+</label>
+
+
+<input
+
+type="number"
+
+id="stockQuantity">
+
+</div>
+
+
+
+
+
+<div>
+
+
+<label>
+
+Supplier
+
+</label>
+
+
+<input
+
+type="text"
+
+id="stockSupplier">
+
+</div>
+
+
+
+</div>
+
+
+
+
+<button
+
+class="primary-btn">
+
+
+<i class="fa-solid fa-box"></i>
+
+
+Update Stock
+
+
+</button>
+
+
+
+</form>
+
+
+
+</section>
+
+
+
+
+
+
+
+<!-- ==========================
+EXPIRY TRACKING
+=========================== -->
+
+
+<section
+
+class="table-card mt-3">
+
+
+
+<h3 class="mb-2">
+
+Medicine Expiry Tracking
+
+</h3>
+
+
+
+
+<table>
+
+
+<thead>
+
+
+<tr>
+
+
+<th>
+
+Medicine
+
+</th>
+
+
+<th>
+
+Batch Number
+
+</th>
+
+
+<th>
+
+Expiry Date
+
+</th>
+
+
+<th>
+
+Quantity
+
+</th>
+
+
+<th>
+
+Status
+
+</th>
+
+
+</tr>
+
+
+</thead>
+
+
+
+
+<tbody id="expiryTrackingTable">
+
+
+</tbody>
+
+
+
+</table>
+
+
+
+</section>
+<!-- ==========================
+STOCK ALERTS
+=========================== -->
+
+
+<section
+
+id="stockAlerts"
+
+class="table-card mt-3">
+
+
+
+<div class="flex-between mb-2">
+
+
+<h3>
+
+Medicine Stock Alerts
+
+</h3>
+
+
+
+<button
+
+class="danger-btn"
+
+id="refreshStockAlerts">
+
+
+Refresh
+
+
+</button>
+
+
+
+</div>
+
+
+
+
+<table>
+
+
+<thead>
+
+
+<tr>
+
+
+<th>
+
+Medicine
+
+</th>
+
+
+<th>
+
+Current Stock
+
+</th>
+
+
+<th>
+
+Minimum Level
+
+</th>
+
+
+<th>
+
+Alert Type
+
+</th>
+
+
+<th>
+
+Status
+
+</th>
+
+
+</tr>
+
+
+</thead>
+
+
+
+
+<tbody id="stockAlertsTable">
+
+
+</tbody>
+
+
+
+</table>
+
+
+
+</section>
+
+
+
+
+
+
+
+<!-- ==========================
+SUPPLIER MANAGEMENT
+=========================== -->
+
+
+<section
+
+id="suppliers"
+
+class="table-card mt-3">
+
+
+
+<div class="flex-between mb-2">
+
+
+<h3>
+
+Medicine Suppliers
+
+</h3>
+
+
+
+<button
+
+class="primary-btn"
+
+id="addSupplier">
+
+
+Add Supplier
+
+
+</button>
+
+
+
+</div>
+
+
+
+
+<table>
+
+
+<thead>
+
+
+<tr>
+
+
+<th>
+
+Supplier Name
+
+</th>
+
+
+<th>
+
+Contact
+
+</th>
+
+
+<th>
+
+Email
+
+</th>
+
+
+<th>
+
+Products Supplied
+
+</th>
+
+
+<th>
+
+Status
+
+</th>
+
+
+</tr>
+
+
+</thead>
+
+
+
+
+<tbody id="supplierTable">
+
+
+</tbody>
+
+
+
+</table>
+
+
+
+</section>
+
+
+
+
+
+
+
+<!-- ==========================
+PURCHASE ORDERS
+=========================== -->
+
+
+<section
+
+class="table-card mt-3">
+
+
+
+<h3 class="mb-2">
+
+Purchase Orders
+
+</h3>
+
+
+
+
+<table>
+
+
+<thead>
+
+
+<tr>
+
+
+<th>
+
+Order No.
+
+</th>
+
+
+<th>
+
+Supplier
+
+</th>
+
+
+<th>
+
+Items
+
+</th>
+
+
+<th>
+
+Date
+
+</th>
+
+
+<th>
+
+Status
+
+</th>
+
+
+</tr>
+
+
+</thead>
+
+
+
+
+<tbody id="purchaseOrdersTable">
+
+
+</tbody>
+
+
+
+</table>
+
+
+
+</section>
+
+
+
+
+
+
+
+<!-- ==========================
+PHARMACY REPORTS
+=========================== -->
+
+
+<section
+
+id="reports"
+
+class="table-card mt-3">
+
+
+
+<h3 class="mb-2">
+
+Pharmacy Reports
+
+</h3>
+
+
+
+
+<div class="quick-actions">
+
+
+
+<div class="action-card" id="dailyPharmacyReport">
+
+
+<i class="fa-solid fa-file-lines"></i>
+
+
+<h4>
+
+Daily Dispensing
+
+</h4>
+
+
+</div>
+
+
+
+
+
+<div class="action-card" id="stockReport">
+
+
+<i class="fa-solid fa-chart-column"></i>
+
+
+<h4>
+
+Stock Report
+
+</h4>
+
+
+</div>
+
+
+
+
+
+<div class="action-card" id="expiryReport">
+
+
+<i class="fa-solid fa-calendar-xmark"></i>
+
+
+<h4>
+
+Expiry Report
+
+</h4>
+
+
+</div>
+
+
+
+
+
+<div class="action-card" id="exportPharmacyPDF">
+
+
+<i class="fa-solid fa-file-pdf"></i>
+
+
+<h4>
+
+Export PDF
+
+</h4>
+
+
+</div>
+
+
+
+</div>
+
+
+
+</section>
+
+
+
+
+
+
+
+<!-- ==========================
+NOTIFICATIONS
+=========================== -->
+
+
+<section
+
+class="dashboard-notifications mt-3">
+
+
+
+<h3 class="mb-2">
+
+Pharmacy Notifications
+
+</h3>
+
+
+
+
+<div id="pharmacyNotifications">
+
+
+
+<div class="dashboard-notification">
+
+
+<h5>
+
+System Ready
+
+</h5>
+
+
+<p>
+
+Prescription and stock updates will appear here.
+
+</p>
+
+
+</div>
+
+
+
+</div>
+
+
+
+</section>
+
+
+
+
+
+
+
+<!-- ==========================
+ACTIVITY TIMELINE
+=========================== -->
+
+
+<section
+
+class="timeline mt-3">
+
+
+
+<h3 class="mb-2">
+
+Recent Pharmacy Activity
+
+</h3>
+
+
+
+
+<div id="pharmacyActivity">
+
+
+
+<div class="timeline-item">
+
+
+
+<div class="timeline-icon">
+
+
+<i class="fa-solid fa-pills"></i>
+
+
+</div>
+
+
+
+<div class="timeline-content">
+
+
+<h4>
+
+Pharmacy Portal Started
+
+</h4>
+
+
+<small>
+
+Waiting for activities...
+
+</small>
+
+
+</div>
+
+
+
+</div>
+
+
+
+</div>
+
+
+
+</section>
+
+
+
+
+
+
+
+<!-- ==========================
+PHARMACY SETTINGS
+=========================== -->
+
+
+<section
+
+class="table-card mt-3">
+
+
+
+<h3 class="mb-2">
+
+Pharmacy Settings
+
+</h3>
+
+
+
+
+<div class="grid-2">
+
+
+
+<div>
+
+
+<label>
+
+Low Stock Warning
+
+</label>
+
+
+<select id="lowStockWarning">
+
+
+<option>
+
+Enabled
+
+</option>
+
+
+<option>
+
+Disabled
+
+</option>
+
+
+</select>
+
+
+</div>
+
+
+
+
+
+<div>
+
+
+<label>
+
+Expiry Notifications
+
+</label>
+
+
+<select id="expiryNotifications">
+
+
+<option>
+
+Enabled
+
+</option>
+
+
+<option>
+
+Disabled
+
+</option>
+
+
+</select>
+
+
+</div>
+
+
+
+
+
+<div>
+
+
+<label>
+
+Auto Stock Updates
+
+</label>
+
+
+<select id="autoStockUpdate">
+
+
+<option>
+
+Enabled
+
+</option>
+
+
+<option>
+
+Disabled
+
+</option>
+
+
+</select>
+
+
+</div>
+
+
+
+
+
+<div>
+
+
+<label>
+
+Dashboard Refresh Rate
+
+</label>
+
+
+<select id="pharmacyRefreshRate">
+
+
+<option>
+
+30 Seconds
+
+</option>
+
+
+<option>
+
+1 Minute
+
+</option>
+
+
+<option>
+
+5 Minutes
+
+</option>
+
+
+</select>
+
+
+</div>
+
+
+
+</div>
+
+
+
+
+<button
+
+class="primary-btn mt-3"
+
+id="savePharmacySettings">
+
+
+Save Settings
+
+
+</button>
+
+
+
+</section>
+
+
+
+
+
+
+</main>
+
+
+
+</div>
+
+
+
+
+
+
+<footer>
+
+
+<div class="footer-bottom">
+
+
+<p>
+
+© 2026 Kapasa Makasa University Digital Health Centre.
+All Rights Reserved.
+
+</p>
+
+
+</div>
+
+
+</footer>
+
+
+
+
+
+</body>
+
+
+</html>

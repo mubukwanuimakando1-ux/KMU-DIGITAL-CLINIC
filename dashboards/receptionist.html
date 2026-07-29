@@ -1,0 +1,2181 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+
+<title>
+KMU Digital Health Centre | Receptionist Dashboard
+</title>
+
+
+<link rel="stylesheet" href="../assets/css/dashboard.css">
+
+<link rel="stylesheet" href="../assets/css/responsive.css">
+
+
+<link rel="stylesheet"
+href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+
+<script src="../assets/js/config.js"></script>
+
+<script src="../assets/js/utils.js"></script>
+
+<script src="../assets/js/receptionist.js" defer></script>
+
+
+</head>
+
+
+
+<body class="dashboard-body">
+
+
+
+
+
+<!-- ==========================
+SIDEBAR
+=========================== -->
+
+
+<aside class="sidebar">
+
+
+<div class="sidebar-header">
+
+
+<img
+
+src="../assets/images/logo.png"
+
+alt="KMU Logo">
+
+
+
+<h2>
+
+Reception
+
+</h2>
+
+
+</div>
+
+
+
+
+
+<nav class="sidebar-menu">
+
+
+<ul>
+
+
+
+<li>
+
+<a class="active" href="#dashboard">
+
+
+<i class="fa-solid fa-gauge"></i>
+
+
+<span>
+
+Dashboard
+
+</span>
+
+
+</a>
+
+
+</li>
+
+
+
+
+
+
+
+<li>
+
+<a href="#registration">
+
+
+<i class="fa-solid fa-user-plus"></i>
+
+
+<span>
+
+Patient Registration
+
+</span>
+
+
+</a>
+
+
+</li>
+
+
+
+
+
+
+
+<li>
+
+<a href="#appointments">
+
+
+<i class="fa-solid fa-calendar-check"></i>
+
+
+<span>
+
+Appointments
+
+</span>
+
+
+</a>
+
+
+</li>
+
+
+
+
+
+
+
+<li>
+
+<a href="#queue">
+
+
+<i class="fa-solid fa-users-line"></i>
+
+
+<span>
+
+Patient Queue
+
+</span>
+
+
+</a>
+
+
+</li>
+
+
+
+
+
+
+
+<li>
+
+<a href="#visitors">
+
+
+<i class="fa-solid fa-id-card"></i>
+
+
+<span>
+
+Visitors
+
+</span>
+
+
+</a>
+
+
+</li>
+
+
+
+
+
+
+
+<li>
+
+<a href="#checkin">
+
+
+<i class="fa-solid fa-right-to-bracket"></i>
+
+
+<span>
+
+Check In/Out
+
+</span>
+
+
+</a>
+
+
+</li>
+
+
+
+
+
+
+
+<li>
+
+<a href="#reports">
+
+
+<i class="fa-solid fa-chart-column"></i>
+
+
+<span>
+
+Reports
+
+</span>
+
+
+</a>
+
+
+</li>
+
+
+
+
+
+
+
+<li>
+
+<a href="#" id="logoutButton">
+
+
+<i class="fa-solid fa-right-from-bracket"></i>
+
+
+<span>
+
+Logout
+
+</span>
+
+
+</a>
+
+
+</li>
+
+
+
+</ul>
+
+
+</nav>
+
+
+</aside>
+
+
+
+
+
+
+
+
+<!-- ==========================
+MAIN CONTENT
+=========================== -->
+
+
+<div class="main-content">
+
+
+
+<header class="topbar">
+
+
+
+<div class="topbar-left">
+
+
+<h2>
+
+Receptionist Dashboard
+
+</h2>
+
+
+</div>
+
+
+
+
+
+<div class="topbar-right">
+
+
+<div class="profile-box">
+
+
+
+<img
+
+src="../assets/images/avatar.png"
+
+alt="Receptionist">
+
+
+
+<div>
+
+
+<strong id="receptionistName">
+
+Receptionist Name
+
+</strong>
+
+
+
+<br>
+
+
+<small>
+
+Front Desk Department
+
+</small>
+
+
+</div>
+
+
+</div>
+
+
+</div>
+
+
+
+</header>
+
+
+
+
+
+
+
+<main class="dashboard-content">
+
+
+
+
+
+
+<!-- ==========================
+SUMMARY CARDS
+=========================== -->
+
+
+<section class="dashboard-cards">
+
+
+
+<div class="dashboard-card">
+
+
+<div class="dashboard-card-header">
+
+
+<h3>
+
+Today's Patients
+
+</h3>
+
+
+<i class="fa-solid fa-users"></i>
+
+
+</div>
+
+
+<h2 id="todayPatients">
+
+0
+
+</h2>
+
+
+</div>
+
+
+
+
+
+
+
+<div class="dashboard-card">
+
+
+<div class="dashboard-card-header">
+
+
+<h3>
+
+Appointments Today
+
+</h3>
+
+
+<i class="fa-solid fa-calendar-days"></i>
+
+
+</div>
+
+
+<h2 id="todayAppointments">
+
+0
+
+</h2>
+
+
+</div>
+
+
+
+
+
+
+
+<div class="dashboard-card">
+
+
+<div class="dashboard-card-header">
+
+
+<h3>
+
+Waiting Queue
+
+</h3>
+
+
+<i class="fa-solid fa-clock"></i>
+
+
+</div>
+
+
+<h2 id="waitingQueue">
+
+0
+
+</h2>
+
+
+</div>
+
+
+
+
+
+
+
+<div class="dashboard-card">
+
+
+<div class="dashboard-card-header">
+
+
+<h3>
+
+New Registrations
+
+</h3>
+
+
+<i class="fa-solid fa-user-plus"></i>
+
+
+</div>
+
+
+<h2 id="newRegistrations">
+
+0
+
+</h2>
+
+
+</div>
+
+
+
+</section>
+
+
+
+
+
+
+
+
+<!-- ==========================
+QUICK ACTIONS
+=========================== -->
+
+
+<section class="quick-actions">
+
+
+
+<div class="action-card" id="registerPatient">
+
+
+<i class="fa-solid fa-user-plus"></i>
+
+
+<h4>
+
+Register Patient
+
+</h4>
+
+
+</div>
+
+
+
+
+
+<div class="action-card" id="bookAppointment">
+
+
+<i class="fa-solid fa-calendar-plus"></i>
+
+
+<h4>
+
+Book Appointment
+
+</h4>
+
+
+</div>
+
+
+
+
+
+<div class="action-card" id="manageQueue">
+
+
+<i class="fa-solid fa-users-line"></i>
+
+
+<h4>
+
+Manage Queue
+
+</h4>
+
+
+</div>
+
+
+
+
+
+<div class="action-card" id="frontDeskReports">
+
+
+<i class="fa-solid fa-file-pdf"></i>
+
+
+<h4>
+
+Reports
+
+</h4>
+
+
+</div>
+
+
+
+
+</section>
+<!-- ==========================
+PATIENT REGISTRATION
+=========================== -->
+
+
+<section
+
+id="registration"
+
+class="table-card mt-3">
+
+
+
+<h3 class="mb-2">
+
+Patient Registration
+
+</h3>
+
+
+
+
+<form id="patientRegistrationForm">
+
+
+
+<div class="form-grid">
+
+
+
+<div>
+
+
+<label>
+
+First Name
+
+</label>
+
+
+<input
+
+type="text"
+
+id="patientFirstName">
+
+</div>
+
+
+
+
+
+<div>
+
+
+<label>
+
+Last Name
+
+</label>
+
+
+<input
+
+type="text"
+
+id="patientLastName">
+
+</div>
+
+
+
+
+
+<div>
+
+
+<label>
+
+National ID / Student ID
+
+</label>
+
+
+<input
+
+type="text"
+
+id="patientID">
+
+</div>
+
+
+
+
+
+<div>
+
+
+<label>
+
+Gender
+
+</label>
+
+
+<select id="patientGender">
+
+
+<option>
+
+Male
+
+</option>
+
+
+<option>
+
+Female
+
+</option>
+
+
+<option>
+
+Other
+
+</option>
+
+
+</select>
+
+
+</div>
+
+
+
+
+
+<div>
+
+
+<label>
+
+Date of Birth
+
+</label>
+
+
+<input
+
+type="date"
+
+id="patientDOB">
+
+</div>
+
+
+
+
+
+<div>
+
+
+<label>
+
+Phone Number
+
+</label>
+
+
+<input
+
+type="tel"
+
+id="patientPhone">
+
+</div>
+
+
+
+</div>
+
+
+
+
+<label>
+
+Address
+
+</label>
+
+
+<textarea
+
+id="patientAddress"
+
+rows="3">
+
+</textarea>
+
+
+
+
+<button
+
+class="primary-btn">
+
+
+<i class="fa-solid fa-user-plus"></i>
+
+
+Register Patient
+
+
+</button>
+
+
+
+</form>
+
+
+
+</section>
+
+
+
+
+
+
+
+
+<!-- ==========================
+APPOINTMENT SCHEDULING
+=========================== -->
+
+
+<section
+
+id="appointments"
+
+class="table-card mt-3">
+
+
+
+<h3 class="mb-2">
+
+Appointment Scheduling
+
+</h3>
+
+
+
+
+<form id="appointmentBookingForm">
+
+
+
+<div class="form-grid">
+
+
+
+<div>
+
+
+<label>
+
+Patient
+
+</label>
+
+
+<select id="appointmentPatient">
+
+
+<option>
+
+Select Patient
+
+</option>
+
+
+</select>
+
+
+</div>
+
+
+
+
+
+<div>
+
+
+<label>
+
+Doctor
+
+</label>
+
+
+<select id="appointmentDoctor">
+
+
+<option>
+
+Select Doctor
+
+</option>
+
+
+</select>
+
+
+</div>
+
+
+
+
+
+<div>
+
+
+<label>
+
+Appointment Date
+
+</label>
+
+
+<input
+
+type="date"
+
+id="appointmentDate">
+
+</div>
+
+
+
+
+
+<div>
+
+
+<label>
+
+Appointment Time
+
+</label>
+
+
+<input
+
+type="time"
+
+id="appointmentTime">
+
+</div>
+
+
+
+
+
+<div>
+
+
+<label>
+
+Department
+
+</label>
+
+
+<select id="appointmentDepartment">
+
+
+<option>
+
+General Clinic
+
+</option>
+
+
+<option>
+
+Laboratory
+
+</option>
+
+
+<option>
+
+Pharmacy
+
+</option>
+
+
+<option>
+
+Counselling
+
+</option>
+
+
+</select>
+
+
+</div>
+
+
+
+
+<div>
+
+
+<label>
+
+Priority
+
+</label>
+
+
+<select id="appointmentPriority">
+
+
+<option>
+
+Normal
+
+</option>
+
+
+<option>
+
+Urgent
+
+</option>
+
+
+<option>
+
+Emergency
+
+</option>
+
+
+</select>
+
+
+</div>
+
+
+
+</div>
+
+
+
+
+<label>
+
+Reason For Visit
+
+</label>
+
+
+<textarea
+
+id="visitReason"
+
+rows="4">
+
+</textarea>
+
+
+
+
+<button
+
+class="primary-btn">
+
+
+<i class="fa-solid fa-calendar-plus"></i>
+
+
+Book Appointment
+
+
+</button>
+
+
+
+</form>
+
+
+
+</section>
+
+
+
+
+
+
+
+<!-- ==========================
+DOCTOR AVAILABILITY
+=========================== -->
+
+
+<section
+
+class="table-card mt-3">
+
+
+
+<h3 class="mb-2">
+
+Doctor Availability
+
+</h3>
+
+
+
+
+<table>
+
+
+<thead>
+
+
+<tr>
+
+
+<th>
+
+Doctor
+
+</th>
+
+
+<th>
+
+Department
+
+</th>
+
+
+<th>
+
+Available Time
+
+</th>
+
+
+<th>
+
+Status
+
+</th>
+
+
+</tr>
+
+
+</thead>
+
+
+
+
+<tbody id="doctorAvailabilityTable">
+
+
+</tbody>
+
+
+
+</table>
+
+
+
+</section>
+
+
+
+
+
+
+
+<!-- ==========================
+PATIENT QUEUE
+=========================== -->
+
+
+<section
+
+id="queue"
+
+class="table-card mt-3">
+
+
+
+<div class="flex-between mb-2">
+
+
+<h3>
+
+Patient Queue Management
+
+</h3>
+
+
+
+<button
+
+class="secondary-btn"
+
+id="refreshQueue">
+
+
+Refresh
+
+
+</button>
+
+
+
+</div>
+
+
+
+
+<table>
+
+
+<thead>
+
+
+<tr>
+
+
+<th>
+
+Queue No.
+
+</th>
+
+
+<th>
+
+Patient
+
+</th>
+
+
+<th>
+
+Department
+
+</th>
+
+
+<th>
+
+Arrival Time
+
+</th>
+
+
+<th>
+
+Status
+
+</th>
+
+
+<th>
+
+Action
+
+</th>
+
+
+</tr>
+
+
+</thead>
+
+
+
+
+<tbody id="patientQueueTable">
+
+
+</tbody>
+
+
+
+</table>
+
+
+
+</section>
+
+
+
+
+
+
+
+<!-- ==========================
+CHECK IN / CHECK OUT
+=========================== -->
+
+
+<section
+
+id="checkin"
+
+class="table-card mt-3">
+
+
+
+<h3 class="mb-2">
+
+Patient Check In / Check Out
+
+</h3>
+
+
+
+
+<form id="patientCheckForm">
+
+
+
+<div class="form-grid">
+
+
+
+<div>
+
+
+<label>
+
+Patient
+
+</label>
+
+
+<select id="checkPatient">
+
+
+<option>
+
+Select Patient
+
+</option>
+
+
+</select>
+
+
+</div>
+
+
+
+
+
+<div>
+
+
+<label>
+
+Action
+
+</label>
+
+
+<select id="checkAction">
+
+
+<option>
+
+Check In
+
+</option>
+
+
+<option>
+
+Check Out
+
+</option>
+
+
+</select>
+
+
+</div>
+
+
+
+
+
+<div>
+
+
+<label>
+
+Time
+
+</label>
+
+
+<input
+
+type="time"
+
+id="checkTime">
+
+</div>
+
+
+
+</div>
+
+
+
+
+<button
+
+class="primary-btn">
+
+
+<i class="fa-solid fa-right-to-bracket"></i>
+
+
+Save Check Record
+
+
+</button>
+
+
+
+</form>
+
+
+
+</section>
+
+
+
+
+
+
+
+<!-- ==========================
+VISITOR RECORDS
+=========================== -->
+
+
+<section
+
+id="visitors"
+
+class="table-card mt-3">
+
+
+
+<h3 class="mb-2">
+
+Visitor Records
+
+</h3>
+
+
+
+
+<table>
+
+
+<thead>
+
+
+<tr>
+
+
+<th>
+
+Visitor Name
+
+</th>
+
+
+<th>
+
+Purpose
+
+</th>
+
+
+<th>
+
+Person Visited
+
+</th>
+
+
+<th>
+
+Entry Time
+
+</th>
+
+
+<th>
+
+Exit Time
+
+</th>
+
+
+</tr>
+
+
+</thead>
+
+
+
+
+<tbody id="visitorTable">
+
+
+</tbody>
+
+
+
+</table>
+
+
+
+</section>
+<!-- ==========================
+RECEPTION REPORTS
+=========================== -->
+
+
+<section
+
+id="reports"
+
+class="table-card mt-3">
+
+
+
+<h3 class="mb-2">
+
+Reception Reports
+
+</h3>
+
+
+
+
+<div class="quick-actions">
+
+
+
+<div class="action-card" id="dailyReceptionReport">
+
+
+<i class="fa-solid fa-file-lines"></i>
+
+
+<h4>
+
+Daily Patient Report
+
+</h4>
+
+
+</div>
+
+
+
+
+
+<div class="action-card" id="appointmentReport">
+
+
+<i class="fa-solid fa-calendar-check"></i>
+
+
+<h4>
+
+Appointment Report
+
+</h4>
+
+
+</div>
+
+
+
+
+
+<div class="action-card" id="queueReport">
+
+
+<i class="fa-solid fa-users-line"></i>
+
+
+<h4>
+
+Queue Report
+
+</h4>
+
+
+</div>
+
+
+
+
+
+<div class="action-card" id="exportReceptionPDF">
+
+
+<i class="fa-solid fa-file-pdf"></i>
+
+
+<h4>
+
+Export PDF
+
+</h4>
+
+
+</div>
+
+
+
+</div>
+
+
+
+</section>
+
+
+
+
+
+
+
+
+<!-- ==========================
+PATIENT SEARCH
+=========================== -->
+
+
+<section
+
+class="table-card mt-3">
+
+
+
+<h3 class="mb-2">
+
+Patient Search
+
+</h3>
+
+
+
+
+<div class="search-box">
+
+
+
+<input
+
+type="text"
+
+id="patientSearch"
+
+placeholder="Search patient by name or ID">
+
+
+
+<button
+
+class="primary-btn"
+
+id="searchPatientButton">
+
+
+<i class="fa-solid fa-search"></i>
+
+
+Search
+
+
+</button>
+
+
+
+</div>
+
+
+
+
+
+
+<table class="mt-3">
+
+
+<thead>
+
+
+<tr>
+
+
+<th>
+
+Patient Name
+
+</th>
+
+
+<th>
+
+Patient ID
+
+</th>
+
+
+<th>
+
+Phone
+
+</th>
+
+
+<th>
+
+Last Visit
+
+</th>
+
+
+<th>
+
+Action
+
+</th>
+
+
+</tr>
+
+
+</thead>
+
+
+
+
+<tbody id="patientSearchResults">
+
+
+</tbody>
+
+
+
+</table>
+
+
+
+</section>
+
+
+
+
+
+
+
+<!-- ==========================
+NOTIFICATIONS
+=========================== -->
+
+
+<section
+
+class="dashboard-notifications mt-3">
+
+
+
+<h3 class="mb-2">
+
+Reception Notifications
+
+</h3>
+
+
+
+
+<div id="receptionNotifications">
+
+
+
+<div class="dashboard-notification">
+
+
+<h5>
+
+System Ready
+
+</h5>
+
+
+<p>
+
+New appointments, registrations and queue updates will appear here.
+
+</p>
+
+
+</div>
+
+
+
+</div>
+
+
+
+</section>
+
+
+
+
+
+
+
+<!-- ==========================
+ACTIVITY TIMELINE
+=========================== -->
+
+
+<section
+
+class="timeline mt-3">
+
+
+
+<h3 class="mb-2">
+
+Recent Reception Activity
+
+</h3>
+
+
+
+
+<div id="receptionActivity">
+
+
+
+<div class="timeline-item">
+
+
+
+<div class="timeline-icon">
+
+
+<i class="fa-solid fa-desktop"></i>
+
+
+</div>
+
+
+
+<div class="timeline-content">
+
+
+<h4>
+
+Reception Portal Started
+
+</h4>
+
+
+<small>
+
+Waiting for activities...
+
+</small>
+
+
+</div>
+
+
+
+</div>
+
+
+
+</div>
+
+
+
+</section>
+
+
+
+
+
+
+
+<!-- ==========================
+RECEPTION SETTINGS
+=========================== -->
+
+
+<section
+
+class="table-card mt-3">
+
+
+
+<h3 class="mb-2">
+
+Reception Settings
+
+</h3>
+
+
+
+
+<div class="grid-2">
+
+
+
+<div>
+
+
+<label>
+
+Appointment Reminder
+
+</label>
+
+
+<select id="appointmentReminder">
+
+
+<option>
+
+Enabled
+
+</option>
+
+
+<option>
+
+Disabled
+
+</option>
+
+
+</select>
+
+
+</div>
+
+
+
+
+
+<div>
+
+
+<label>
+
+Queue Notifications
+
+</label>
+
+
+<select id="queueNotifications">
+
+
+<option>
+
+Enabled
+
+</option>
+
+
+<option>
+
+Disabled
+
+</option>
+
+
+</select>
+
+
+</div>
+
+
+
+
+
+<div>
+
+
+<label>
+
+Auto Patient ID Generation
+
+</label>
+
+
+<select id="autoPatientID">
+
+
+<option>
+
+Enabled
+
+</option>
+
+
+<option>
+
+Disabled
+
+</option>
+
+
+</select>
+
+
+</div>
+
+
+
+
+
+<div>
+
+
+<label>
+
+Dashboard Refresh Rate
+
+</label>
+
+
+<select id="receptionRefresh">
+
+
+<option>
+
+30 Seconds
+
+</option>
+
+
+<option>
+
+1 Minute
+
+</option>
+
+
+<option>
+
+5 Minutes
+
+</option>
+
+
+</select>
+
+
+</div>
+
+
+
+</div>
+
+
+
+
+<button
+
+class="primary-btn mt-3"
+
+id="saveReceptionSettings">
+
+
+Save Settings
+
+
+</button>
+
+
+
+</section>
+
+
+
+
+
+
+</main>
+
+
+
+</div>
+
+
+
+
+
+
+
+<footer>
+
+
+<div class="footer-bottom">
+
+
+<p>
+
+© 2026 Kapasa Makasa University Digital Health Centre.
+All Rights Reserved.
+
+</p>
+
+
+</div>
+
+
+</footer>
+
+
+
+
+
+</body>
+
+
+</html>
