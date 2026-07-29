@@ -1,0 +1,1909 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>
+KMU Digital Health Centre | Doctor Dashboard
+</title>
+
+<link rel="stylesheet" href="../assets/css/dashboard.css">
+
+<link rel="stylesheet" href="../assets/css/responsive.css">
+
+<link rel="stylesheet"
+href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script src="../assets/js/config.js"></script>
+
+<script src="../assets/js/utils.js"></script>
+
+<script src="../assets/js/doctor.js" defer></script>
+
+</head>
+
+
+<body class="dashboard-body">
+
+
+<!-- ==========================
+SIDEBAR
+=========================== -->
+
+
+<aside class="sidebar">
+
+
+<div class="sidebar-header">
+
+
+<img 
+src="../assets/images/logo.png"
+alt="KMU Logo">
+
+
+<h2>
+
+Doctor Portal
+
+</h2>
+
+
+</div>
+
+
+
+<nav class="sidebar-menu">
+
+
+<ul>
+
+
+<li>
+
+<a class="active" href="#dashboard">
+
+<i class="fa-solid fa-gauge"></i>
+
+<span>
+Dashboard
+</span>
+
+</a>
+
+</li>
+
+
+
+<li>
+
+<a href="#patients">
+
+<i class="fa-solid fa-hospital-user"></i>
+
+<span>
+My Patients
+</span>
+
+</a>
+
+</li>
+
+
+
+<li>
+
+<a href="#consultation">
+
+<i class="fa-solid fa-stethoscope"></i>
+
+<span>
+Consultation
+</span>
+
+</a>
+
+</li>
+
+
+
+<li>
+
+<a href="#medicalRecords">
+
+<i class="fa-solid fa-file-medical"></i>
+
+<span>
+Medical Records
+</span>
+
+</a>
+
+</li>
+
+
+
+<li>
+
+<a href="#prescriptions">
+
+<i class="fa-solid fa-prescription-bottle-medical"></i>
+
+<span>
+Prescriptions
+</span>
+
+</a>
+
+</li>
+
+
+
+<li>
+
+<a href="#laboratory">
+
+<i class="fa-solid fa-flask"></i>
+
+<span>
+Laboratory Requests
+</span>
+
+</a>
+
+</li>
+
+
+
+<li>
+
+<a href="#referrals">
+
+<i class="fa-solid fa-share-from-square"></i>
+
+<span>
+Referrals
+</span>
+
+</a>
+
+</li>
+
+
+
+<li>
+
+<a href="#reports">
+
+<i class="fa-solid fa-chart-column"></i>
+
+<span>
+Reports
+</span>
+
+</a>
+
+</li>
+
+
+
+<li>
+
+<a href="#" id="logoutButton">
+
+<i class="fa-solid fa-right-from-bracket"></i>
+
+<span>
+Logout
+</span>
+
+</a>
+
+</li>
+
+
+
+</ul>
+
+
+</nav>
+
+
+</aside>
+
+
+
+
+<!-- ==========================
+MAIN CONTENT
+=========================== -->
+
+
+<div class="main-content">
+
+
+
+<header class="topbar">
+
+
+<div class="topbar-left">
+
+
+<h2>
+
+Doctor Dashboard
+
+</h2>
+
+
+</div>
+
+
+
+
+<div class="topbar-right">
+
+
+<div class="profile-box">
+
+
+<img
+src="../assets/images/avatar.png"
+alt="Doctor">
+
+
+<div>
+
+
+<strong id="doctorName">
+
+Doctor Name
+
+</strong>
+
+
+<br>
+
+
+<small>
+
+Medical Officer
+
+</small>
+
+
+</div>
+
+
+</div>
+
+
+</div>
+
+
+</header>
+
+
+
+
+
+<main class="dashboard-content">
+
+
+
+<!-- ==========================
+SUMMARY CARDS
+=========================== -->
+
+
+<section class="dashboard-cards">
+
+
+
+<div class="dashboard-card">
+
+
+<div class="dashboard-card-header">
+
+
+<h3>
+
+Patients Today
+
+</h3>
+
+
+<i class="fa-solid fa-users"></i>
+
+
+</div>
+
+
+<h2 id="doctorPatientsToday">
+
+0
+
+</h2>
+
+
+</div>
+
+
+
+
+
+<div class="dashboard-card">
+
+
+<div class="dashboard-card-header">
+
+
+<h3>
+
+Pending Consultations
+
+</h3>
+
+
+<i class="fa-solid fa-clock"></i>
+
+
+</div>
+
+
+<h2 id="pendingConsultations">
+
+0
+
+</h2>
+
+
+</div>
+
+
+
+
+
+<div class="dashboard-card">
+
+
+<div class="dashboard-card-header">
+
+
+<h3>
+
+Completed Visits
+
+</h3>
+
+
+<i class="fa-solid fa-circle-check"></i>
+
+
+</div>
+
+
+<h2 id="completedVisits">
+
+0
+
+</h2>
+
+
+</div>
+
+
+
+
+
+<div class="dashboard-card">
+
+
+<div class="dashboard-card-header">
+
+
+<h3>
+
+Lab Results Pending
+
+</h3>
+
+
+<i class="fa-solid fa-vials"></i>
+
+
+</div>
+
+
+<h2 id="pendingLabResults">
+
+0
+
+</h2>
+
+
+</div>
+
+
+
+</section>
+
+
+
+
+
+<!-- ==========================
+QUICK ACTIONS
+=========================== -->
+
+
+<section class="quick-actions">
+
+
+
+<div class="action-card" id="startConsultation">
+
+
+<i class="fa-solid fa-user-doctor"></i>
+
+
+<h4>
+
+Start Consultation
+
+</h4>
+
+
+</div>
+
+
+
+
+
+<div class="action-card" id="writePrescription">
+
+
+<i class="fa-solid fa-prescription"></i>
+
+
+<h4>
+
+Prescription
+
+</h4>
+
+
+</div>
+
+
+
+
+
+<div class="action-card" id="requestLab">
+
+
+<i class="fa-solid fa-flask"></i>
+
+
+<h4>
+
+Request Laboratory
+
+</h4>
+
+
+</div>
+
+
+
+
+
+<div class="action-card" id="viewHistory">
+
+
+<i class="fa-solid fa-file-medical"></i>
+
+
+<h4>
+
+Medical History
+
+</h4>
+
+
+</div>
+
+
+
+</section>
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>
+KMU Digital Health Centre | Doctor Dashboard
+</title>
+
+<link rel="stylesheet" href="../assets/css/dashboard.css">
+
+<link rel="stylesheet" href="../assets/css/responsive.css">
+
+<link rel="stylesheet"
+href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script src="../assets/js/config.js"></script>
+
+<script src="../assets/js/utils.js"></script>
+
+<script src="../assets/js/doctor.js" defer></script>
+
+</head>
+
+
+<body class="dashboard-body">
+
+
+<!-- ==========================
+SIDEBAR
+=========================== -->
+
+
+<aside class="sidebar">
+
+
+<div class="sidebar-header">
+
+
+<img 
+src="../assets/images/logo.png"
+alt="KMU Logo">
+
+
+<h2>
+
+Doctor Portal
+
+</h2>
+
+
+</div>
+
+
+
+<nav class="sidebar-menu">
+
+
+<ul>
+
+
+<li>
+
+<a class="active" href="#dashboard">
+
+<i class="fa-solid fa-gauge"></i>
+
+<span>
+Dashboard
+</span>
+
+</a>
+
+</li>
+
+
+
+<li>
+
+<a href="#patients">
+
+<i class="fa-solid fa-hospital-user"></i>
+
+<span>
+My Patients
+</span>
+
+</a>
+
+</li>
+
+
+
+<li>
+
+<a href="#consultation">
+
+<i class="fa-solid fa-stethoscope"></i>
+
+<span>
+Consultation
+</span>
+
+</a>
+
+</li>
+
+
+
+<li>
+
+<a href="#medicalRecords">
+
+<i class="fa-solid fa-file-medical"></i>
+
+<span>
+Medical Records
+</span>
+
+</a>
+
+</li>
+
+
+
+<li>
+
+<a href="#prescriptions">
+
+<i class="fa-solid fa-prescription-bottle-medical"></i>
+
+<span>
+Prescriptions
+</span>
+
+</a>
+
+</li>
+
+
+
+<li>
+
+<a href="#laboratory">
+
+<i class="fa-solid fa-flask"></i>
+
+<span>
+Laboratory Requests
+</span>
+
+</a>
+
+</li>
+
+
+
+<li>
+
+<a href="#referrals">
+
+<i class="fa-solid fa-share-from-square"></i>
+
+<span>
+Referrals
+</span>
+
+</a>
+
+</li>
+
+
+
+<li>
+
+<a href="#reports">
+
+<i class="fa-solid fa-chart-column"></i>
+
+<span>
+Reports
+</span>
+
+</a>
+
+</li>
+
+
+
+<li>
+
+<a href="#" id="logoutButton">
+
+<i class="fa-solid fa-right-from-bracket"></i>
+
+<span>
+Logout
+</span>
+
+</a>
+
+</li>
+
+
+
+</ul>
+
+
+</nav>
+
+
+</aside>
+
+
+
+
+<!-- ==========================
+MAIN CONTENT
+=========================== -->
+
+
+<div class="main-content">
+
+
+
+<header class="topbar">
+
+
+<div class="topbar-left">
+
+
+<h2>
+
+Doctor Dashboard
+
+</h2>
+
+
+</div>
+
+
+
+
+<div class="topbar-right">
+
+
+<div class="profile-box">
+
+
+<img
+src="../assets/images/avatar.png"
+alt="Doctor">
+
+
+<div>
+
+
+<strong id="doctorName">
+
+Doctor Name
+
+</strong>
+
+
+<br>
+
+
+<small>
+
+Medical Officer
+
+</small>
+
+
+</div>
+
+
+</div>
+
+
+</div>
+
+
+</header>
+
+
+
+
+
+<main class="dashboard-content">
+
+
+
+<!-- ==========================
+SUMMARY CARDS
+=========================== -->
+
+
+<section class="dashboard-cards">
+
+
+
+<div class="dashboard-card">
+
+
+<div class="dashboard-card-header">
+
+
+<h3>
+
+Patients Today
+
+</h3>
+
+
+<i class="fa-solid fa-users"></i>
+
+
+</div>
+
+
+<h2 id="doctorPatientsToday">
+
+0
+
+</h2>
+
+
+</div>
+
+
+
+
+
+<div class="dashboard-card">
+
+
+<div class="dashboard-card-header">
+
+
+<h3>
+
+Pending Consultations
+
+</h3>
+
+
+<i class="fa-solid fa-clock"></i>
+
+
+</div>
+
+
+<h2 id="pendingConsultations">
+
+0
+
+</h2>
+
+
+</div>
+
+
+
+
+
+<div class="dashboard-card">
+
+
+<div class="dashboard-card-header">
+
+
+<h3>
+
+Completed Visits
+
+</h3>
+
+
+<i class="fa-solid fa-circle-check"></i>
+
+
+</div>
+
+
+<h2 id="completedVisits">
+
+0
+
+</h2>
+
+
+</div>
+
+
+
+
+
+<div class="dashboard-card">
+
+
+<div class="dashboard-card-header">
+
+
+<h3>
+
+Lab Results Pending
+
+</h3>
+
+
+<i class="fa-solid fa-vials"></i>
+
+
+</div>
+
+
+<h2 id="pendingLabResults">
+
+0
+
+</h2>
+
+
+</div>
+
+
+
+</section>
+
+
+
+
+
+<!-- ==========================
+QUICK ACTIONS
+=========================== -->
+
+
+<section class="quick-actions">
+
+
+
+<div class="action-card" id="startConsultation">
+
+
+<i class="fa-solid fa-user-doctor"></i>
+
+
+<h4>
+
+Start Consultation
+
+</h4>
+
+
+</div>
+
+
+
+
+
+<div class="action-card" id="writePrescription">
+
+
+<i class="fa-solid fa-prescription"></i>
+
+
+<h4>
+
+Prescription
+
+</h4>
+
+
+</div>
+
+
+
+
+
+<div class="action-card" id="requestLab">
+
+
+<i class="fa-solid fa-flask"></i>
+
+
+<h4>
+
+Request Laboratory
+
+</h4>
+
+
+</div>
+
+
+
+
+
+<div class="action-card" id="viewHistory">
+
+
+<i class="fa-solid fa-file-medical"></i>
+
+
+<h4>
+
+Medical History
+
+</h4>
+
+
+</div>
+
+
+
+</section>
+<!-- ==========================
+LABORATORY REQUESTS
+=========================== -->
+
+<section
+
+id="laboratory"
+
+class="table-card mt-3">
+
+
+<h3 class="mb-2">
+
+Laboratory Request
+
+</h3>
+
+
+
+<form id="laboratoryRequestForm">
+
+
+
+<div class="form-grid">
+
+
+
+<div>
+
+
+<label>
+
+Patient
+
+</label>
+
+
+<select id="labPatient">
+
+
+<option>
+
+Select Patient
+
+</option>
+
+
+</select>
+
+
+</div>
+
+
+
+
+<div>
+
+
+<label>
+
+Test Type
+
+</label>
+
+
+<select id="labTestType">
+
+
+<option>
+
+Blood Test
+
+</option>
+
+
+<option>
+
+Urine Test
+
+</option>
+
+
+<option>
+
+Malaria Test
+
+</option>
+
+
+<option>
+
+HIV Test
+
+</option>
+
+
+<option>
+
+Other
+
+</option>
+
+
+</select>
+
+
+</div>
+
+
+
+</div>
+
+
+
+
+<label>
+
+Clinical Notes
+
+</label>
+
+
+<textarea
+
+id="labNotes"
+
+rows="4">
+
+</textarea>
+
+
+
+
+<button
+
+class="primary-btn"
+
+type="submit">
+
+
+<i class="fa-solid fa-flask"></i>
+
+
+Request Test
+
+
+</button>
+
+
+
+</form>
+
+
+</section>
+
+
+
+
+
+
+<!-- ==========================
+REFERRALS
+=========================== -->
+
+
+<section
+
+id="referrals"
+
+class="table-card mt-3">
+
+
+<h3 class="mb-2">
+
+Patient Referrals
+
+</h3>
+
+
+
+<form id="referralForm">
+
+
+<div class="form-grid">
+
+
+
+<div>
+
+
+<label>
+
+Patient
+
+</label>
+
+
+<select id="referralPatient">
+
+
+<option>
+
+Select Patient
+
+</option>
+
+
+</select>
+
+
+</div>
+
+
+
+<div>
+
+
+<label>
+
+Referral Department
+
+</label>
+
+
+<select id="referralDepartment">
+
+
+<option>
+
+Specialist Clinic
+
+</option>
+
+
+<option>
+
+Laboratory
+
+</option>
+
+
+<option>
+
+Counselling
+
+</option>
+
+
+<option>
+
+Pharmacy
+
+</option>
+
+
+</select>
+
+
+</div>
+
+
+
+</div>
+
+
+
+
+<label>
+
+Referral Reason
+
+</label>
+
+
+<textarea
+
+id="referralReason"
+
+rows="4">
+
+</textarea>
+
+
+
+<button
+
+class="primary-btn">
+
+
+<i class="fa-solid fa-share"></i>
+
+
+Submit Referral
+
+
+</button>
+
+
+</form>
+
+
+</section>
+
+
+
+
+
+
+<!-- ==========================
+CONSULTATION HISTORY
+=========================== -->
+
+
+<section
+
+class="table-card mt-3">
+
+
+<h3 class="mb-2">
+
+Consultation History
+
+</h3>
+
+
+
+
+<table>
+
+
+<thead>
+
+
+<tr>
+
+
+<th>
+
+Date
+
+</th>
+
+
+<th>
+
+Patient
+
+</th>
+
+
+<th>
+
+Diagnosis
+
+</th>
+
+
+<th>
+
+Status
+
+</th>
+
+
+<th>
+
+Action
+
+</th>
+
+
+</tr>
+
+
+</thead>
+
+
+
+
+<tbody id="consultationHistory">
+
+
+</tbody>
+
+
+</table>
+
+
+</section>
+
+
+
+
+
+
+<!-- ==========================
+REPORTS
+=========================== -->
+
+
+<section
+
+id="reports"
+
+class="table-card mt-3">
+
+
+<h3 class="mb-2">
+
+Doctor Reports
+
+</h3>
+
+
+
+<div class="quick-actions">
+
+
+
+<div class="action-card" id="dailyDoctorReport">
+
+
+<i class="fa-solid fa-file-lines"></i>
+
+
+<h4>
+
+Daily Visits
+
+</h4>
+
+
+</div>
+
+
+
+
+
+<div class="action-card" id="monthlyDoctorReport">
+
+
+<i class="fa-solid fa-chart-line"></i>
+
+
+<h4>
+
+Monthly Report
+
+</h4>
+
+
+</div>
+
+
+
+
+
+<div class="action-card" id="exportDoctorReport">
+
+
+<i class="fa-solid fa-file-pdf"></i>
+
+
+<h4>
+
+Export PDF
+
+</h4>
+
+
+</div>
+
+
+
+</div>
+
+
+
+</section>
+
+
+
+
+
+
+
+<!-- ==========================
+AI CLINICAL ASSISTANT
+=========================== -->
+
+
+<section
+
+class="table-card mt-3">
+
+
+<h3 class="mb-2">
+
+AI Clinical Assistant
+
+</h3>
+
+
+
+<div id="doctorAIChat">
+
+
+
+<div id="doctorAIMessages">
+
+
+<div class="dashboard-notification">
+
+
+<h5>
+
+AI Assistant Ready
+
+</h5>
+
+
+<p>
+
+Ask clinical support questions and get medical information assistance.
+
+</p>
+
+
+</div>
+
+
+</div>
+
+
+
+
+<div class="flex mt-2">
+
+
+
+<input
+
+type="text"
+
+id="doctorAIPrompt"
+
+placeholder="Ask AI assistant...">
+
+
+
+<button
+
+class="primary-btn"
+
+id="sendDoctorAI">
+
+
+Send
+
+
+</button>
+
+
+
+</div>
+
+
+
+</div>
+
+
+</section>
+
+
+
+
+
+
+<!-- ==========================
+NOTIFICATIONS
+=========================== -->
+
+
+<section
+
+class="dashboard-notifications mt-3">
+
+
+<h3 class="mb-2">
+
+Doctor Notifications
+
+</h3>
+
+
+
+<div id="doctorNotifications">
+
+
+
+<div class="dashboard-notification">
+
+
+<h5>
+
+No notifications
+
+</h5>
+
+
+<p>
+
+New patient updates will appear here.
+
+</p>
+
+
+</div>
+
+
+
+</div>
+
+
+</section>
+
+
+
+
+
+
+<!-- ==========================
+ACTIVITY TIMELINE
+=========================== -->
+
+
+<section
+
+class="timeline mt-3">
+
+
+<h3 class="mb-2">
+
+Recent Activities
+
+</h3>
+
+
+
+<div id="doctorActivity">
+
+
+
+<div class="timeline-item">
+
+
+
+<div class="timeline-icon">
+
+
+<i class="fa-solid fa-stethoscope"></i>
+
+
+</div>
+
+
+
+<div class="timeline-content">
+
+
+<h4>
+
+Doctor Portal Started
+
+</h4>
+
+
+<small>
+
+System ready
+
+</small>
+
+
+</div>
+
+
+
+</div>
+
+
+
+</div>
+
+
+
+</section>
+
+
+
+
+
+
+<!-- ==========================
+DOCTOR SETTINGS
+=========================== -->
+
+
+<section
+
+class="table-card mt-3">
+
+
+<h3 class="mb-2">
+
+Doctor Settings
+
+</h3>
+
+
+
+
+<div class="grid-2">
+
+
+
+<div>
+
+
+<label>
+
+Consultation Duration
+
+</label>
+
+
+<select id="consultDuration">
+
+
+<option>
+
+15 Minutes
+
+</option>
+
+
+<option>
+
+30 Minutes
+
+</option>
+
+
+<option>
+
+45 Minutes
+
+</option>
+
+
+</select>
+
+
+</div>
+
+
+
+
+<div>
+
+
+<label>
+
+Notification Preference
+
+</label>
+
+
+<select id="doctorNotificationSetting">
+
+
+<option>
+
+All Notifications
+
+</option>
+
+
+<option>
+
+Important Only
+
+</option>
+
+
+</select>
+
+
+</div>
+
+
+
+
+</div>
+
+
+
+
+<button
+
+class="primary-btn mt-3"
+
+id="saveDoctorSettings">
+
+
+Save Settings
+
+
+</button>
+
+
+</section>
+
+
+
+</main>
+
+
+
+</div>
+
+
+
+
+
+<footer>
+
+
+<div class="footer-bottom">
+
+
+<p>
+
+© 2026 Kapasa Makasa University Digital Health Centre.
+All Rights Reserved.
+
+</p>
+
+
+</div>
+
+
+</footer>
+
+
+
+
+</body>
+
+
+</html>
